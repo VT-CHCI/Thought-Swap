@@ -1,0 +1,16 @@
+<h1 class="text-center">Student Name</h1>
+<div class="row">
+  <div class="col-md-8">
+    <h2>New Thought</h2>
+    <form role="form" ng-submit="thoughtIn()">
+      <textarea class="form-control" placeholder="Enter your thought" ng-model="newThought"></textarea>
+      <input class="btn btn-primary" type="submit" value="Send thought">
+    </form>
+  </div>
+  <div class="col-md-4">
+    <h2>Previous Thoughts</h2>
+    <ol class="thoughts">
+      <li class="thought" ng-repeat="thought in previousThoughts">{{thought}}</li>
+    </ol>
+  </div>
+</div>
