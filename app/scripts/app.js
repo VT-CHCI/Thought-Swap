@@ -1,5 +1,6 @@
 'use strict';
 
+
 angular
   .module('thoughtSwapApp', [
     'ngCookies',
@@ -8,6 +9,8 @@ angular
     'ngRoute',
     'btford.socket-io'
   ])
+
+  // Creates the thoughtSocket that controllers will be listening in on
   .factory('thoughtSocket', function (socketFactory) {
     var myIoSocket = io.connect('/');
 
@@ -16,12 +19,13 @@ angular
     });
 
     return thoughtSocket;
-    // return socketFactory();
   })
+
+  // Preloads the various views of the app
   .config(function ($routeProvider) {
     $routeProvider
       // .when('/', {
-      //   templateUrl: 'views/main.html',
+      //   templateUrl: 'views/main.html',  // Commented out until work on landing page is a priority.
       //   controller: 'MainCtrl'
       // })
       .when('/student', {
