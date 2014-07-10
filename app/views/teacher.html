@@ -1,1 +1,15 @@
-<h2>Teacher</h2>
+<h1 class="text-center">Teacher Name</h1>
+<div class="row">
+  <div class="col-md-12">
+    <!-- Stucture to allow the teacher to view each student's most recent thought -->
+
+    <!-- Server input button to join teacher room -->
+    <button class="btn btn-primary" ng-click="getStarted()">Get Started</button>
+    <!-- --> 
+
+    <h2>Student Thoughts</h2>
+    <ol class="thoughts">
+      <li class="thought" ng-repeat="thought in studentThoughts">{{thought}}</li>
+    </ol>
+  </div>
+</div>

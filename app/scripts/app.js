@@ -20,10 +20,10 @@ angular
   })
   .config(function ($routeProvider) {
     $routeProvider
-      .when('/', {
-        templateUrl: 'views/main.html',
-        controller: 'MainCtrl'
-      })
+      // .when('/', {
+      //   templateUrl: 'views/main.html',
+      //   controller: 'MainCtrl'
+      // })
       .when('/student', {
         templateUrl: 'views/student.html',
         controller: 'StudentCtrl'
@@ -33,6 +33,6 @@ angular
         controller: 'TeacherCtrl'
       })
       .otherwise({
-        redirectTo: '/'
+        redirectTo: '/student'
       });
   });

@@ -1,6 +1,6 @@
 var express = require('express');
 var app = express();
-var pg = require('pg');
+// var pg = require('pg');
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
@@ -21,7 +21,8 @@ http.listen(3000, function(){
   console.log('listening on *:3000');
 });
 
-var allThoughts = [];
+// var allThoughts = [];
+var allThoughts = {};
 
 io.sockets.on('connection', function (socket) {
   console.log('client connected!');
@@ -33,7 +34,14 @@ io.sockets.on('connection', function (socket) {
   socket.on('new-thought', function (newThought) {
     console.log('new-thought');
     console.log(newThought);
-    allThoughts.push(newThought);
-    socket.broadcast.emit('new-thought-from-peer', newThought);
+    // allThoughts.push(newThought); 
+    allThoughts[socket.id] = newThought;
+    console.log(allThoughts);
+    // socket.broadcast.emit('new-thought-from-student', newThought);
+    socket.broadcast.to('teacher').emit('new-thought', {thought: newThought, id: socket.id});
+  });
+
+  socket.on('teacher', function() {
+    socket.join('teacher');
   });
 });
