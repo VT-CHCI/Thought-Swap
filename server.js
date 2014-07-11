@@ -40,6 +40,7 @@ io.sockets.on('connection', function (socket) {
   socket.on('teacher', function() {
     console.log('Teacher Joined')
     socket.join('teacher');
+    socket.emit('thought-sync', allThoughts);
   });
 
   //

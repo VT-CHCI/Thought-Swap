@@ -5,7 +5,7 @@ angular.module('thoughtSwapApp')
     thoughtSocket.emit('teacher');
   	// Associative Array to hold unique students and their thoughts
   	$scope.studentThoughts = {};
-    
+
   	// Button functionality for distributing thoughts randomly among students
   	$scope.distribute = function() {
   		thoughtSocket.emit('distribute');
@@ -16,5 +16,10 @@ angular.module('thoughtSwapApp')
       console.log('recived thought!', newThought);
       $scope.studentThoughts[newThought.id] = newThought.thought;
     });
+
+    thoughtSocket.on('thought-sync', function(allThoughts) {
+      console.log('teacher is synced');
+      $scope.studentThoughts = allThoughts;
+    })
 
   });
