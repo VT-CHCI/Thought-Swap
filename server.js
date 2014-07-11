@@ -8,8 +8,9 @@ var io = require('socket.io')(http);
 // Serves the app in the browser
 app.use(express.static(__dirname + '/app'));
 
-http.listen(3000, function(){
-  console.log('listening on *:3000');
+var port = 3000;
+http.listen(port, function(){
+  console.log('listening on *:', port);
 });
 
 // Associative Array Holding each student's id and current thought
