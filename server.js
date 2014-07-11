@@ -54,7 +54,7 @@ io.sockets.on('connection', function (socket) {
 
     // Initialize the two arrays.
     var distribution = Object.keys(allThoughts);
-    var newDistribution = shuffle(distribution);
+    var newDistribution = shuffle(distribution.slice());
     console.log(distribution);
     console.log(newDistribution);
 
@@ -67,16 +67,16 @@ io.sockets.on('connection', function (socket) {
       };
        return false;
     };
-    
     // Reshuffle until no match is found
     while(hasMatch(distribution, newDistribution)) {
-      newDistribution = shuffle(distribution);
+      shuffle(newDistribution);
     }
 
     console.log('reshuffling complete');
+
     // Tells all clients there is a new value to the distribution and sends said value
     for (var i = 0; i < distribution.length; i++) {
-      io.sockets.socket(distribution[i]).emit('new-distribution', allThoughts[newDistribution[i]]);
+      socket.to(distribution[i]).emit('new-distribution', allThoughts[newDistribution[i]]);
     }
     console.log('completed sending messages');
 
