@@ -2,6 +2,7 @@
 
 angular.module('thoughtSwapApp')
   .controller('StudentCtrl', function ($scope, thoughtSocket) {
+    $('.otherThought').hide();
     // Array to hold all of the student's previous thoughts
     $scope.thoughtPool = [];
 
@@ -28,6 +29,7 @@ angular.module('thoughtSwapApp')
     thoughtSocket.on('new-distribution', function(randomThought) {
       console.log('other thought recieved');
       $scope.randomThought = randomThought;
+      $('.otherThought').show();
       $('.input').hide();
       $('.history').hide();
     });
