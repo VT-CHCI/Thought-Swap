@@ -10,10 +10,15 @@ angular.module('thoughtSwapApp')
   		thoughtSocket.emit('teacher');
   	}
 
+  	// Button functionality for distributing thoughts randomly among students
+  	$scope.distribute = function() {
+  		thoughtSocket.emit('distribute');
+  	}
+
   	// Listens for new thoughts from students and changes studentThoughts accordingly
-  	thoughtSocket.on('new-thought', function(newThought){
+  	thoughtSocket.on('new-thought-from-student', function(newThought){
       console.log('recived thought!', newThought);
       $scope.studentThoughts[newThought.id] = newThought.thought;
     });
-    
+
   });
