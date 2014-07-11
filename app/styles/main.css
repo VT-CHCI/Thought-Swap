@@ -1,6 +1,6 @@
 /* Space out content a bit */
 body {
-  padding-top: 20px;
+  padding-top: 60px;
   padding-bottom: 20px;
 }
 
@@ -76,4 +76,20 @@ body {
   .jumbotron {
     border-bottom: 0;
   }
+}
+
+.row {
+  padding-left: 20px;
+  padding-right: 20px;
+
+}
+
+/*ol.thoughts {*/
+.thoughts {
+  padding-left: 0;
+}
+
+/*.thoughts li {*/
+.thought {
+  list-style-type: none;
 }
