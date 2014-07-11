@@ -55,6 +55,8 @@ io.sockets.on('connection', function (socket) {
     // Initialize the two arrays.
     var distribution = Object.keys(allThoughts);
     var newDistribution = shuffle(distribution);
+    console.log(distribution);
+    console.log(newDistribution);
 
     // Loops through two arrays, returns true if a match between them is found, false if no matches exist
     function hasMatch(a, b) {
@@ -71,10 +73,12 @@ io.sockets.on('connection', function (socket) {
       newDistribution = shuffle(distribution);
     }
 
+    console.log('reshuffling complete');
     // Tells all clients there is a new value to the distribution and sends said value
     for (var i = 0; i < distribution.length; i++) {
       io.sockets.socket(distribution[i]).emit('new-distribution', allThoughts[newDistribution[i]]);
     }
+    console.log('completed sending messages');
 
   });
 });
