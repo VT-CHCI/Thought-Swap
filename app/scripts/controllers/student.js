@@ -28,5 +28,7 @@ angular.module('thoughtSwapApp')
     thoughtSocket.on('new-distribution', function(randomThought) {
       console.log('other thought recieved');
       $scope.randomThought = randomThought;
+      $('.input').hide();
+      $('.history').hide();
     });
   });
