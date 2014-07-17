@@ -7,6 +7,23 @@
     <button class="btn btn-primary" ng-click="distribute()">Distribute Thoughts</button>
     <!-- -->
 
+    <!-- <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th># Thoughts</th>
+          <th># Submitters</th>
+          <th># Connected</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{num_thoughts}}</td>
+          <td>{{num_submitters}}</td>
+          <td>{{num_connected}}</td>
+        </tr>
+      </tbody>
+    </table>
+ -->
     <h2>Student Thoughts</h2>
     <ol class="thoughts">
       <li class="thought" ng-repeat="thought in studentThoughts">{{thought}}</li>
