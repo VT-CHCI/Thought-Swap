@@ -15,6 +15,23 @@ http.listen(port, function(){
 
 // Associative Array Holding each student's id and current thought
 var allThoughts = {};
+var chronologicalThoughts = [];
+
+function numSubmitters () {
+  return Object.keys(allThoughts).length;
+}
+
+function addThought (socket, thought) {
+  chronologicalThoughts.push(thought);
+  if (allThoughts.hasOwnProperty(socket.id)) {
+    allThoughts[socket.id].push(thought);
+  }
+  else {
+    //this means we just got a new submitter
+    allThoughts[socket.id] = [thought];
+    socket.broadcast.to('teacher').emit('num-submitters', numSubmitters());
+  }
+}
 
 var thoughts = 0;
 var submitters = 0;
@@ -32,20 +49,23 @@ io.sockets.on('connection', function (socket) {
   
   socket.on('disconnect', function () {
     // connectedStudents--;
-    console.log('<< Client Disconnected << ', Object.keys(io.nsps['/'].adapter.rooms['student']).length);
-    
-    socket.broadcast.emit('num-students', Object.keys(io.nsps['/'].adapter.rooms['student']).length);
+    if (io.nsps['/'].adapter.rooms.hasOwnProperty('student')) {
+      console.log('<< Client Disconnected << ', Object.keys(io.nsps['/'].adapter.rooms['student']).length);
+      
+      socket.broadcast.emit('num-students', Object.keys(io.nsps['/'].adapter.rooms['student']).length);
+    }
   });
 
   // Will put student's new thought in the array and associate the student with a unique id
   socket.on('new-thought-from-student', function (newThought) {
     console.log('New Thought')
-    allThoughts[socket.id] = newThought;
+    // allThoughts[socket.id] = newThought;
+    addThought(socket, newThought);
 
     thoughts++;
     //submitters count will go here and it will be an if statement utilizing the socket id [Assistance]
 
-    socket.broadcast.to('teacher').emit('new-thought-from-student', {thought: newThought, id: socket.id}, thoughts, submitters);
+    socket.broadcast.to('teacher').emit('new-thought-from-student', newThought);
   });
 
   // Listens for a teacher's input and puts them in the teacher room
@@ -54,7 +74,7 @@ io.sockets.on('connection', function (socket) {
     socket.leave('student');
     socket.join('teacher');
     // connectedStudents--;
-    socket.emit('thought-sync', {thoughts:allThoughts, connected:Object.keys(io.nsps['/'].adapter.rooms['student']).length});
+    socket.emit('thought-sync', {thoughts:chronologicalThoughts, connected:Object.keys(io.nsps['/'].adapter.rooms['student']).length, submitters:numSubmitters()});
     socket.broadcast.emit('num-students', Object.keys(io.nsps['/'].adapter.rooms['student']).length);
   });
 
@@ -99,8 +119,8 @@ io.sockets.on('connection', function (socket) {
 
     // Tells all clients there is a new value to the distribution and sends said value
     for (var i = 0; i < distribution.length; i++) {
-      socket.to(distribution[i]).emit('new-distribution', allThoughts[newDistribution[i]]);
-    }
+      // socket.to(distribution[i]).emit('new-distribution', allThoughts[newDistribution[i]][]);  //adam fix this
+    } 
     console.log('completed sending messages');
 
   });

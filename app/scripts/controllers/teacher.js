@@ -7,7 +7,7 @@ angular.module('thoughtSwapApp')
     // Have num_connected update at a time interval?
 
   	// Associative Array to hold unique students and their thoughts
-  	$scope.studentThoughts = {};
+  	$scope.studentThoughts = [];
 
     //
     // $scope.num_thoughts = 0;
@@ -20,9 +20,9 @@ angular.module('thoughtSwapApp')
   	}
 
   	// Listens for new thoughts from students and changes studentThoughts accordingly
-  	thoughtSocket.on('new-thought-from-student', function(newThought, thoughts, submitters){
+  	thoughtSocket.on('new-thought-from-student', function(newThought){
       console.log('recived thought!', newThought);
-      $scope.studentThoughts[newThought.id] = newThought.thought;
+      $scope.studentThoughts.push(newThought);
 
       // $scope.num_thoughts = thoughts;
       //$scope.num_submitters = submitters;
@@ -33,6 +33,11 @@ angular.module('thoughtSwapApp')
       console.log('teacher is synced');
       $scope.num_connected = data.connected;
       $scope.studentThoughts = data.thoughts;
+      $scope.num_submitters = data.submitters;
+    });
+
+    thoughtSocket.on('num-submitters', function(submitters) {
+      $scope.num_submitters = submitters;
     });
 
     thoughtSocket.on('num-students', function(connectedStudents) {
