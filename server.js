@@ -18,20 +18,23 @@ var allThoughts = {};
 
 var thoughts = 0;
 var submitters = 0;
-var connectedStudents = 0;
+// var connectedStudents = 0;
 
 // Server listens for connect/ disconnect and logs it when it happens
 // Stuff only happens when someone is connected.
 io.sockets.on('connection', function (socket) {
-  console.log('>> Client Connected  >>');
-  //connectedStudents++;
-  socket.emit('new-connect', connectedStudents);
+  // connectedStudents++;
+  // if (io.nsps['/'].adapter.rooms.hasOwnProperty('student')) {
+  //   console.log('>> Client Connected  >> ', Object.keys(io.nsps['/'].adapter.rooms['student']).length);
+    
+  //   socket.broadcast.emit('num-students', Object.keys(io.nsps['/'].adapter.rooms['student']).length);
+  // }
   
   socket.on('disconnect', function () {
-    console.log('<< Client Disconnected <<');
-    //connectedStudents--;
-    socket.emit('new-disconnect', connectedStudents);
-
+    // connectedStudents--;
+    console.log('<< Client Disconnected << ', Object.keys(io.nsps['/'].adapter.rooms['student']).length);
+    
+    socket.broadcast.emit('num-students', Object.keys(io.nsps['/'].adapter.rooms['student']).length);
   });
 
   // Will put student's new thought in the array and associate the student with a unique id
@@ -39,22 +42,30 @@ io.sockets.on('connection', function (socket) {
     console.log('New Thought')
     allThoughts[socket.id] = newThought;
 
-    //thoughts++;
+    thoughts++;
     //submitters count will go here and it will be an if statement utilizing the socket id [Assistance]
 
-    socket.broadcast.to('teacher').emit('new-thought-from-student', {thought: newThought, id: socket.id}, thoughts);
+    socket.broadcast.to('teacher').emit('new-thought-from-student', {thought: newThought, id: socket.id}, thoughts, submitters);
   });
 
   // Listens for a teacher's input and puts them in the teacher room
   socket.on('teacher', function() {
     console.log('Teacher Joined')
+    socket.leave('student');
     socket.join('teacher');
-    //connectedStudents--;
-    socket.emit('thought-sync', allThoughts, connectedStudents);
-    
+    // connectedStudents--;
+    socket.emit('thought-sync', {thoughts:allThoughts, connected:Object.keys(io.nsps['/'].adapter.rooms['student']).length});
+    socket.broadcast.emit('num-students', Object.keys(io.nsps['/'].adapter.rooms['student']).length);
   });
 
-  //
+  socket.on('student', function() {
+    socket.leave('teacher');
+    socket.join('student');
+    console.log(Object.keys(io.nsps['/'].adapter.rooms['student']).length);
+    socket.broadcast.emit('num-students', Object.keys(io.nsps['/'].adapter.rooms['student']).length);
+  });
+
+  // io.of('/chat').sockets.length
   socket.on('distribute', function() {
     console.log('got distribute msg');
 

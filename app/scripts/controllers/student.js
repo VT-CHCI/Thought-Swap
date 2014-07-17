@@ -2,6 +2,7 @@
 
 angular.module('thoughtSwapApp')
   .controller('StudentCtrl', function ($scope, thoughtSocket) {
+    thoughtSocket.emit('student');
     $('.otherThought').hide();
     // Array to hold all of the student's previous thoughts
     $scope.thoughtPool = [];
