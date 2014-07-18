@@ -1,65 +1,160 @@
-// App Requirements
 var express = require('express');
 var app = express();
 // var pg = require('pg');  //Commented out until database implementation
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
-// Serves the app in the browser
-app.use(express.static(__dirname + '/app'));
+//-------------------------------------------------------------------------
+/**
+ *  The server file for the ThoughtSwap app, handles client interaction
+ *  and provides functionality on the back-end that controllers alone 
+ *  are insufficient for.
+ *
+ *  @authors Michael Stewart, Adam Barnes
+ *  @version v 0.0.0  (2014)
+ */
+//-------------------------------------------------------------------------
 
-var port = 3000;
-http.listen(port, function(){
-  console.log('listening on *:', port);
-});
+/**
+ * ~~ Initialization ~~
+ * Steps required to start up the app and provide future functions with
+ * variables they will use.
+ */
+  app.use(express.static(__dirname + '/app'));
 
-// Associative Array Holding each student's id and current thought
-var allThoughts = {};
+  var port = 3000;
+  http.listen(port, function(){
+    console.log('listening on *:', port);
+  });
 
+  var allThoughts = {};
+  var chronologicalThoughts = [];
 
-// Server listens for connect/ disconnect and logs it when it happens
-// Stuff only happens when someone is connected.
-io.sockets.on('connection', function (socket) {
-  console.log('>> Client Connected  >>');
+  /**
+   * Will return the number of unique ids in allThoughts which correlates
+   * to the amount of submitters.
+   */
+  function numSubmitters () {
+    return Object.keys(allThoughts).length;
+  }
+
+  /**
+   * [Needs proper description]
+   */
+  function addThought (socket, thought) {
+    chronologicalThoughts.push(thought);
+    if (allThoughts.hasOwnProperty(socket.id)) {
+      allThoughts[socket.id].push(thought);
+    }
+    else {
+      //this means we just got a new submitter
+      allThoughts[socket.id] = [thought];
+      socket.broadcast.to('teacher').emit('num-submitters', numSubmitters());
+    }
+  }
+
+//-------------------------------------------------------------------------
+
+/**
+ * ~~ Activity ~~
+ * The main functions of the server, listening for events on the client
+ * side and responding appropriately.
+ */
+ io.sockets.on('connection', function (socket) {
+  // if (io.nsps['/'].adapter.rooms.hasOwnProperty('student')) {
+  //   console.log('>> Client Connected  >> ', 
+  //      Object.keys(io.nsps['/'].adapter.rooms['student']).length);
+    
+  //   socket.broadcast.emit('num-students', 
+  //      Object.keys(io.nsps['/'].adapter.rooms['student']).length);
+  // }
   
+  /**
+   * Will catch when a client leaves the app interface entirely and send
+   * out the updated number of connected students for the teacher view.
+   */
   socket.on('disconnect', function () {
-    console.log('<< Client Disconnected <<');
+    if (io.nsps['/'].adapter.rooms.hasOwnProperty('student')) {
+      console.log('<< Client Disconnected << ');
+      
+      socket.broadcast.emit('num-students', 
+          Object.keys(io.nsps['/'].adapter.rooms['student']).length);
+    }
   });
 
-  // Will put student's new thought in the array and associate the student with a unique id
+  /**
+   * Will catch when a student submits a thought and send that info
+   * to teachers
+   */
   socket.on('new-thought-from-student', function (newThought) {
-    console.log('New Thought')
-    allThoughts[socket.id] = newThought;
+    console.log('New Thought');
+    addThought(socket, newThought);
 
-    // socket.broadcast.emit('new-thought-from-student', newThought); // Artifact
-
-    socket.broadcast.to('teacher').emit('new-thought-from-student', {thought: newThought, id: socket.id});
+    socket.broadcast.to('teacher').emit('new-thought-from-student', newThought);
   });
 
-  // Listens for a teacher's input and puts them in the teacher room
+  /**
+   * Will catch when a teacher connects, then add them to the teacher
+   * room after ensuring they are not in the student room, then update
+   * counts accordingly. It will also sync available data for 
+   * teachers who may have joined after a session has begun.
+   */
   socket.on('teacher', function() {
     console.log('Teacher Joined')
+    socket.leave('student');
     socket.join('teacher');
-    socket.emit('thought-sync', allThoughts);
+
+    socket.emit('thought-sync', {thoughts:chronologicalThoughts,
+      connected:Object.keys(io.nsps['/'].adapter.rooms['student']).length,
+         submitters:numSubmitters()});
+
+    socket.broadcast.emit('num-students', 
+        Object.keys(io.nsps['/'].adapter.rooms['student']).length);
   });
 
-  //
+  /**
+   * Will catch when a student connects, then add them to the student
+   * room after ensuring they are not in the teacher room, then update
+   * counts accordingly.
+   */
+  socket.on('student', function() {
+    //console.log(Object.keys(io.nsps['/'].adapter.rooms['student']).length); // This throws an error if uncommented
+    socket.leave('teacher');
+    socket.join('student');
+    
+    socket.broadcast.emit('num-students',
+       Object.keys(io.nsps['/'].adapter.rooms['student']).length);
+  });
+
+  /**
+   * ~~ Primary Feature ~~
+   * Will catch when a teacher chooses to distribute the thoughts
+   * they have recieved. Performs the work nessessary to implement
+   * distribution to each student.
+   */
   socket.on('distribute', function() {
     console.log('got distribute msg');
 
-    // Shuffle function to randomize array
+    /**
+     * Shuffle algorithm for randomizing an array.
+     */
     function shuffle(o){ //v1.0 courtesy of Google
       for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
       return o;
     };
 
-    // Initialize the two arrays.
+    /**
+     * Initialize the two arrays to be distributed.
+     */ 
     var distribution = Object.keys(allThoughts);
     var newDistribution = shuffle(distribution.slice());
-    console.log(distribution);
-    console.log(newDistribution);
+    //console.log(distribution);
+    //console.log(newDistribution);
 
-    // Loops through two arrays, returns true if a match between them is found, false if no matches exist
+    /**
+     * Will loop through two arrays, returning true if a match
+     * between them is found, false if no matches exists.
+     */ 
     function hasMatch(a, b) {
       for (var i = 0; i < a.length; i++) {
         if (a[i]==b[i]) {
@@ -68,18 +163,28 @@ io.sockets.on('connection', function (socket) {
       };
        return false;
     };
-    // Reshuffle until no match is found
+
+    /**
+     * Will take the shuffled arrays and reshuffle if nessessary
+     * to ensure no student recieves the same thought they submitted.
+     */
     while(hasMatch(distribution, newDistribution)) {
       shuffle(newDistribution);
     }
 
-    console.log('reshuffling complete');
+    //console.log('reshuffling complete');
 
-    // Tells all clients there is a new value to the distribution and sends said value
+    /**
+     * Will methodically send each student their newly assigned
+     * thought, traveling through the old distribution until completion.
+     */
     for (var i = 0; i < distribution.length; i++) {
-      socket.to(distribution[i]).emit('new-distribution', allThoughts[newDistribution[i]]);
-    }
-    console.log('completed sending messages');
-
+      socket.to(distribution[i]).emit('new-distribution',
+         allThoughts[newDistribution[i]]);  //adam fix this
+    } 
+    
+    //console.log('completed sending messages');
   });
+
+
 });
