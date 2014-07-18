@@ -43,6 +43,19 @@ angular.module('thoughtSwapApp')
     };
 
     /**
+     * Will catch when a teacher initiates a new session and reset all
+     * possible changes to the initial state.
+     */
+    thoughtSocket.on('new-session', function () {
+      console.log('reseting session...');
+      $('.otherThought').hide();
+      $('.input').show()
+      $scope.thoughtPool = [];
+      $scope.randomThought = '';
+      $scope.question = '';
+    });
+
+    /**
      * [FLAGGED for Deletion] - (Server doesn't send this to students anymore)
      * Will catch when another student submits a thought and push the
      * other students' thoughts into the current student's thoughts
@@ -78,9 +91,8 @@ angular.module('thoughtSwapApp')
     thoughtSocket.on('new-distribution', function (randomThought) {
       //console.log('other thought recieved');
       $scope.randomThought = randomThought;
-      $('.otherThought').show();
       $('.input').hide();
-      $('.history').hide();
+      $('.otherThought').show();
     });
 
   });

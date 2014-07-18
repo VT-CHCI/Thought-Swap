@@ -30,9 +30,23 @@ angular.module('thoughtSwapApp')
   	/**
      * Will tell the server to begin its distribution process.
      */
-  	$scope.distribute = function() {
+  	$scope.distribute = function () {
   		thoughtSocket.emit('distribute');
-  	}
+  	};
+
+    /**
+     * Will tell everyone connected that a new session is begining
+     * and reset the thoughts the teacher has recieved.
+     */
+    $scope.newSession = function () {
+      console.log('new session started');
+      thoughtSocket.emit('new-session');
+      $scope.studentThoughts = [];
+      $scope.num_submitters = 0;
+      $('.enterPrompt').show();
+      $scope.newPrompt = '';
+      $('textarea').focus();
+    }
 
     /**
      * Will tell the server that there is a new thought to be passed

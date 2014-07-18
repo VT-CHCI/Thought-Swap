@@ -106,6 +106,18 @@ var io = require('socket.io')(http);
   });
 
   /**
+   * Will catch when a teacher initiates a new session and set server
+   * variables back to their initial state.
+   */
+  socket.on('new-session', function () {
+    console.log('new session initiated');
+    socket.broadcast.emit('new-session');
+    allThoughts = {};
+    chronologicalThoughts = [];
+    newQuestion = '';
+  })
+
+  /**
    * Will catch when a teacher connects, then add them to the teacher
    * room after ensuring they are not in the student room, then update
    * counts accordingly. It will also sync available data for 
