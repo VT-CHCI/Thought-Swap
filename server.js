@@ -23,12 +23,13 @@ var io = require('socket.io')(http);
   app.use(express.static(__dirname + '/app'));
 
   var port = 3000;
-  http.listen(port, function(){
+  http.listen(port, function (){
     console.log('listening on *:', port);
   });
 
   var allThoughts = {};
   var chronologicalThoughts = [];
+  var newQuestion = '';
 
   /**
    * Will return the number of unique ids in allThoughts which correlates
@@ -61,6 +62,7 @@ var io = require('socket.io')(http);
  * side and responding appropriately.
  */
  io.sockets.on('connection', function (socket) {
+  console.log('>> Client Connected  >> ');
   // if (io.nsps['/'].adapter.rooms.hasOwnProperty('student')) {
   //   console.log('>> Client Connected  >> ', 
   //      Object.keys(io.nsps['/'].adapter.rooms['student']).length);
@@ -93,13 +95,23 @@ var io = require('socket.io')(http);
     socket.broadcast.to('teacher').emit('new-thought-from-student', newThought);
   });
 
+
+  /**
+   * Will listen for a prompt from teachers and send it along to students.
+   */
+  socket.on('new-prompt', function (newPrompt) {
+    console.log('Prompt recieved');
+    socket.broadcast.to('student').emit('new-prompt', newPrompt);
+    newQuestion = newPrompt;
+  });
+
   /**
    * Will catch when a teacher connects, then add them to the teacher
    * room after ensuring they are not in the student room, then update
    * counts accordingly. It will also sync available data for 
    * teachers who may have joined after a session has begun.
    */
-  socket.on('teacher', function() {
+  socket.on('teacher', function () {
     console.log('Teacher Joined')
     socket.leave('student');
     socket.join('teacher');
@@ -117,10 +129,12 @@ var io = require('socket.io')(http);
    * room after ensuring they are not in the teacher room, then update
    * counts accordingly.
    */
-  socket.on('student', function() {
+  socket.on('student', function () {
     //console.log(Object.keys(io.nsps['/'].adapter.rooms['student']).length); // This throws an error if uncommented
     socket.leave('teacher');
     socket.join('student');
+
+    io.sockets.emit('prompt-sync', newQuestion);
     
     socket.broadcast.emit('num-students',
        Object.keys(io.nsps['/'].adapter.rooms['student']).length);
@@ -132,13 +146,13 @@ var io = require('socket.io')(http);
    * they have recieved. Performs the work nessessary to implement
    * distribution to each student.
    */
-  socket.on('distribute', function() {
+  socket.on('distribute', function () {
     console.log('got distribute msg');
 
     /**
      * Shuffle algorithm for randomizing an array.
      */
-    function shuffle(o){ //v1.0 courtesy of Google
+    function shuffle (o) { //v1.0 courtesy of Google
       for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
       return o;
     };
@@ -155,7 +169,7 @@ var io = require('socket.io')(http);
      * Will loop through two arrays, returning true if a match
      * between them is found, false if no matches exists.
      */ 
-    function hasMatch(a, b) {
+    function hasMatch (a, b) {
       for (var i = 0; i < a.length; i++) {
         if (a[i]==b[i]) {
           return true;

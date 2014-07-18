@@ -28,6 +28,7 @@ angular.module('thoughtSwapApp')
     $('.otherThought').hide();
     $scope.thoughtPool = [];
     $scope.randomThought = '';
+    $scope.question = '';
 
     /**
      * Will update the view and inform the server whenever a thought is
@@ -46,9 +47,27 @@ angular.module('thoughtSwapApp')
      * Will catch when another student submits a thought and push the
      * other students' thoughts into the current student's thoughts
      */
-    thoughtSocket.on('new-thought-from-student', function(newThought){
+    thoughtSocket.on('new-thought-from-student', function (newThought){
       console.log('got a new thought!', newThought);
       $scope.thoughtPool.push(newThought);
+    });
+
+    /**
+     * Will catch when the server attempts to sync an existing prompt
+     * to the student view.
+     */
+     thoughtSocket.on('prompt-sync', function (newQuestion) {
+       console.log('Prompt is syncing');
+       $scope.question = newQuestion;
+     });
+
+    /**
+     * Will catch when the server sends out a prompt from the teacher
+     * and update the view accordingly.
+     */
+    thoughtSocket.on('new-prompt', function (newPrompt) {
+      console.log('got a prompt!');
+      $scope.question = newPrompt;
     });
 
     /**
@@ -56,7 +75,7 @@ angular.module('thoughtSwapApp')
      * other students and proceed to update the view with one thought
      * besides their own.
      */
-    thoughtSocket.on('new-distribution', function(randomThought) {
+    thoughtSocket.on('new-distribution', function (randomThought) {
       //console.log('other thought recieved');
       $scope.randomThought = randomThought;
       $('.otherThought').show();
