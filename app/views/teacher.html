@@ -1,12 +1,12 @@
 <h1 class="text-center">Teacher Name</h1>
 <div class="row">
   <div class="col-md-12">
-    <!-- Stucture to allow the teacher to view each student's most recent thought -->
-
+    
     <!-- Button that initiates distribute functionality  -->
     <button class="btn btn-primary" ng-click="distribute()">Distribute Thoughts</button>
     <!-- -->
 
+    <!-- Stucture that provides the teacher with information on how much participation they have -->
     <table class="table table-bordered">
       <thead>
         <tr>
@@ -24,6 +24,7 @@
       </tbody>
     </table>
 
+    <!-- Stucture to allow the teacher to view each student's most recent thoughts -->
     <h2>Student Thoughts</h2>
     <ol class="thoughts">
       <li class="thought" ng-repeat="thought in studentThoughts">{{thought}}</li>

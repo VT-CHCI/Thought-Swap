@@ -1,48 +1,75 @@
 'use strict';
 
+//-------------------------------------------------------------------------
+/**
+ *  The teacher controller for the ThoughtSwap app, handles teacher
+ *  interaction with the server and provides real-time updates to the
+ *  teacher view.
+ *
+ *  @authors Michael Stewart, Adam Barnes
+ *  @version v 0.0.0  (2014)
+ */
+//-------------------------------------------------------------------------
+
 angular.module('thoughtSwapApp')
   .controller('TeacherCtrl', function ($scope, thoughtSocket) {
-    console.log('teacher getting started')
+
+    /**
+     * Will tell the server to put this client in the teacher room.
+     */
     thoughtSocket.emit('teacher');
-    // Have num_connected update at a time interval?
 
-  	// Associative Array to hold unique students and their thoughts
+  	/**
+     * ~~ Initialization ~~
+     * Provides variables for the controller's other functions
+     */
   	$scope.studentThoughts = [];
-
-    //
-    // $scope.num_thoughts = 0;
     $scope.num_submitters = 0;
     $scope.num_connected = 0;
 
-  	// Button functionality for distributing thoughts randomly among students
+  	/**
+     * Will tell the server to begin its distribution process.
+     */
   	$scope.distribute = function() {
   		thoughtSocket.emit('distribute');
   	}
 
-  	// Listens for new thoughts from students and changes studentThoughts accordingly
+  	/**
+     * Will catch when a student has submitted their thought and
+     * update studentThoughts accordingly.
+     */
   	thoughtSocket.on('new-thought-from-student', function(newThought){
-      console.log('recived thought!', newThought);
+      //console.log('recived thought!', newThought);
       $scope.studentThoughts.push(newThought);
-
-      // $scope.num_thoughts = thoughts;
-      //$scope.num_submitters = submitters;
     });
 
+    /**
+     * Will catch when the server tries to sync with the teacher and
+     * update the view with data that comes with the sync.
+     */
     thoughtSocket.on('thought-sync', function(data) {
-
       console.log('teacher is synced');
       $scope.num_connected = data.connected;
       $scope.studentThoughts = data.thoughts;
       $scope.num_submitters = data.submitters;
     });
 
+    /**
+     * [FLAGGED for Deletion] - (Server never sends this message to anyone)
+     * Will catch whenever the server has an update for the amount of
+     * submitters.
+     */
     thoughtSocket.on('num-submitters', function(submitters) {
       $scope.num_submitters = submitters;
     });
 
+    /**
+     * Will catch whenever the server has an update for the amount of connected
+     * students and update the view accordingly.
+     */
     thoughtSocket.on('num-students', function(connectedStudents) {
       console.log(connectedStudents);
-      $scope.num_connected = connectedStudents; //current method of eliminating teacher from student count, assumes 1 teacher
+      $scope.num_connected = connectedStudents;
     });
 
   });
