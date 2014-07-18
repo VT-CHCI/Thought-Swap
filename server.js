@@ -29,6 +29,7 @@ var io = require('socket.io')(http);
 
   var allThoughts = {};
   var chronologicalThoughts = [];
+  var newQuestion = '';
 
   /**
    * Will return the number of unique ids in allThoughts which correlates
@@ -61,6 +62,7 @@ var io = require('socket.io')(http);
  * side and responding appropriately.
  */
  io.sockets.on('connection', function (socket) {
+  console.log('>> Client Connected  >> ');
   // if (io.nsps['/'].adapter.rooms.hasOwnProperty('student')) {
   //   console.log('>> Client Connected  >> ', 
   //      Object.keys(io.nsps['/'].adapter.rooms['student']).length);
@@ -100,6 +102,7 @@ var io = require('socket.io')(http);
   socket.on('new-prompt', function (newPrompt) {
     console.log('Prompt recieved');
     socket.broadcast.to('student').emit('new-prompt', newPrompt);
+    newQuestion = newPrompt;
   });
 
   /**
@@ -130,6 +133,8 @@ var io = require('socket.io')(http);
     //console.log(Object.keys(io.nsps['/'].adapter.rooms['student']).length); // This throws an error if uncommented
     socket.leave('teacher');
     socket.join('student');
+
+    io.sockets.emit('prompt-sync', newQuestion);
     
     socket.broadcast.emit('num-students',
        Object.keys(io.nsps['/'].adapter.rooms['student']).length);
