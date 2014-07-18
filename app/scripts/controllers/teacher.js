@@ -34,6 +34,16 @@ angular.module('thoughtSwapApp')
   		thoughtSocket.emit('distribute');
   	}
 
+    /**
+     * Will tell the server that there is a new thought to be passed
+     * along to students. Prevents the area from any further input.
+     */
+    $scope.promptIn = function () {
+      console.log('Prompt Recieved!');
+      thoughtSocket.emit('new-prompt', $scope.newPrompt);
+      $('.enterPrompt').hide();
+    };
+
   	/**
      * Will catch when a student has submitted their thought and
      * update studentThoughts accordingly.

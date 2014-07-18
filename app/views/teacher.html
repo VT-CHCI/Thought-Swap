@@ -24,6 +24,15 @@
       </tbody>
     </table>
 
+    <!-- Input area for teacher to enter their prompt -->
+    <div class="enterPrompt">
+    <h2>Prompt:</h2>
+      <form role="form" ng-submit="promptIn()">
+        <textarea class="form-control" placeholder="Enter a prompt..." ng-model="newPrompt"></textarea>
+        <input class="btn btn-primary" type="submit" value="Submit Prompt">
+      </form>
+    </div>
+
     <!-- Stucture to allow the teacher to view each student's most recent thoughts -->
     <h2>Student Thoughts</h2>
     <ol class="thoughts">
