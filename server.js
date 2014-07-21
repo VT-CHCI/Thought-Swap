@@ -3,6 +3,24 @@ var app = express();
 // var pg = require('pg');  //Commented out until database implementation
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+var mysql      = require('mysql');
+
+var connection = mysql.createConnection({
+  host     : 'localhost',
+  user     : 'root',
+  password : 'thoughtswap',
+  database : 'thoughtswap'
+});
+
+connection.connect();
+
+// connection.query('SELECT 1 + 1 AS solution', function(err, rows, fields) {
+//   if (err) throw err;
+
+//   console.log('The solution is: ', rows[0].solution);
+// });
+
+//  connection.end();
 
 //-------------------------------------------------------------------------
 /**
@@ -63,6 +81,10 @@ var io = require('socket.io')(http);
  */
  io.sockets.on('connection', function (socket) {
   console.log('>> Client Connected  >> ');
+  var connectedQuery = 'insert into connections(connect) values(?);'
+  connection.query(connectedQuery, [new Date()], function(err, results) {
+    console.log('connect', err, results);
+  });
   // if (io.nsps['/'].adapter.rooms.hasOwnProperty('student')) {
   //   console.log('>> Client Connected  >> ', 
   //      Object.keys(io.nsps['/'].adapter.rooms['student']).length);
@@ -76,6 +98,11 @@ var io = require('socket.io')(http);
    * out the updated number of connected students for the teacher view.
    */
   socket.on('disconnect', function () {
+    var disconnectedQuery = 'update connections set disconnect=?;'
+    connection.query(disconnectedQuery, [new Date()], function(err, results) {
+      console.log('disonnect', err, results);
+    });
+
     if (io.nsps['/'].adapter.rooms.hasOwnProperty('student')) {
       console.log('<< Client Disconnected << ');
       
