@@ -22,7 +22,7 @@ var io = require('socket.io')(http);
  */
   app.use(express.static(__dirname + '/app'));
 
-  var port = 3000;
+  var port = 3003;
   http.listen(port, function (){
     console.log('listening on *:', port);
   });
