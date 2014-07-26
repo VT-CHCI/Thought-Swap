@@ -27,8 +27,8 @@ var io = require('socket.io')(http);
     console.log('listening on *:', port);
   });
 
-  var allThoughts = {};
-  var chronologicalThoughts = [];
+  var allThoughts = {};             // allThoughts = { id: socket.id, thoughts: thought1, thought2...}
+  var chronologicalThoughts = [];   // list of thoughts for the teacher view as they are recieved
   var newQuestion = '';
 
   /**
@@ -40,16 +40,17 @@ var io = require('socket.io')(http);
   }
 
   /**
-   * [Needs proper description]
+   * Will add the thoughts recieved to an array that is sent to the
+   * teacher's view.
    */
   function addThought (socket, thought) {
     chronologicalThoughts.push(thought);
     if (allThoughts.hasOwnProperty(socket.id)) {
-      allThoughts[socket.id].push(thought);
+      allThoughts[socket.id].push({id:socket.id, thought:thought}); 
     }
     else {
       //this means we just got a new submitter
-      allThoughts[socket.id] = [thought];
+      allThoughts[socket.id] = [{id:socket.id, thought:thought }]; 
       socket.broadcast.to('teacher').emit('num-submitters', numSubmitters());
     }
   }
@@ -80,7 +81,7 @@ var io = require('socket.io')(http);
       console.log('<< Client Disconnected << ');
       
       socket.broadcast.emit('num-students', 
-          Object.keys(io.nsps['/'].adapter.rooms['student']).length);
+          Object.keys(io.nsps['/'].adapter.rooms['student']).length); //***
     }
   });
 
@@ -142,7 +143,6 @@ var io = require('socket.io')(http);
    * counts accordingly.
    */
   socket.on('student', function () {
-    //console.log(Object.keys(io.nsps['/'].adapter.rooms['student']).length); // This throws an error if uncommented
     socket.leave('teacher');
     socket.join('student');
 
@@ -152,6 +152,7 @@ var io = require('socket.io')(http);
        Object.keys(io.nsps['/'].adapter.rooms['student']).length);
   });
 
+  //-------------------------------------------------------------------------
   /**
    * ~~ Primary Feature ~~
    * Will catch when a teacher chooses to distribute the thoughts
@@ -160,6 +161,27 @@ var io = require('socket.io')(http);
    */
   socket.on('distribute', function () {
     console.log('got distribute msg');
+
+    // Unique IDS of all students that thoughts need to be distributed to
+    var recipients = Object.keys(io.nsps['/'].adapter.rooms['student']);
+
+    // Placeholder variable for the distribute operation
+    var flatThoughts = [];
+    var studentSubmitters = Object.keys(allThoughts);
+
+    for (var i=0; i < studentSubmitters.length; i++) {
+      flatThoughts = flatThoughts.concat(allThoughts[studentSubmitters[i]])
+    }
+
+    var originalFlatThoughts = flatThoughts.slice();
+
+    // /**
+    //  * Initialize the two arrays to be distributed.
+    //  */ 
+    //   var distribution = Object.keys(allThoughts);
+    //   var newDistribution = shuffle(distribution.slice());
+    //   //console.log(distribution);
+    //   //console.log(newDistribution);
 
     /**
      * Shuffle algorithm for randomizing an array.
@@ -170,12 +192,21 @@ var io = require('socket.io')(http);
     };
 
     /**
-     * Initialize the two arrays to be distributed.
-     */ 
-    var distribution = Object.keys(allThoughts);
-    var newDistribution = shuffle(distribution.slice());
-    //console.log(distribution);
-    //console.log(newDistribution);
+     * Will ensure that the ammount of thoughts up for distribution is the
+     * same as the number of possible recipients.
+     */
+    if (recipients.length > originalFlatThoughts.length) {
+      console.log('Thoughts will be fixed');
+      var diff = recipients.length - originalFlatThoughts.length;
+      for (var i = 0; i < diff; i++) {
+        flatThoughts.push(originalFlatThoughts[Math.floor((Math.random() * originalFlatThoughts.length))]);
+      }
+    }
+
+    console.log('Preparing to shuffle');
+
+    var shuffledFlatThoughts = flatThoughts.slice();
+    shuffle(shuffledFlatThoughts);
 
     /**
      * Will loop through two arrays, returning true if a match
@@ -183,7 +214,7 @@ var io = require('socket.io')(http);
      */ 
     function hasMatch (a, b) {
       for (var i = 0; i < a.length; i++) {
-        if (a[i]==b[i]) {
+        if (a[i].id==b[i]) {
           return true;
         }; 
       };
@@ -194,22 +225,26 @@ var io = require('socket.io')(http);
      * Will take the shuffled arrays and reshuffle if nessessary
      * to ensure no student recieves the same thought they submitted.
      */
-    while(hasMatch(distribution, newDistribution)) {
-      shuffle(newDistribution);
+    while(hasMatch(shuffledFlatThoughts, recipients)) {
+      shuffle(shuffledFlatThoughts);
     }
 
-    //console.log('reshuffling complete');
+    console.log('reshuffling complete');
+
 
     /**
      * Will methodically send each student their newly assigned
      * thought, traveling through the old distribution until completion.
      */
-    for (var i = 0; i < distribution.length; i++) {
-      socket.to(distribution[i]).emit('new-distribution',
-         allThoughts[newDistribution[i]]);  //adam fix this
+    for (var i = 0; i < recipients.length; i++) {
+      socket.to(recipients[i]).emit('new-distribution',
+         shuffledFlatThoughts[i].thought);
     } 
     
-    //console.log('completed sending messages');
+    console.log('completed sending messages');
+    console.log('flatThoughts', flatThoughts);
+    console.log('recipients', recipients);
+    console.log('shuffledFlatThoughts', shuffledFlatThoughts);
   });
 
 
