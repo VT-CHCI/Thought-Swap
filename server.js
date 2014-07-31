@@ -81,9 +81,9 @@ connection.connect();
  */
  io.sockets.on('connection', function (socket) {
   console.log('>> Client Connected  >> ');
-  var connectedQuery = 'insert into connections(connect) values(?);'
-  connection.query(connectedQuery, [new Date()], function(err, results) {
-    console.log('connect', err, results);
+  var clientQuery = 'insert into clients(socket_id, connect) values(?, ?);'
+  connection.query(clientQuery, [socket.id, new Date()], function(err, results) {
+    //console.log('connect', err, results);
   });
   // if (io.nsps['/'].adapter.rooms.hasOwnProperty('student')) {
   //   console.log('>> Client Connected  >> ', 
@@ -98,9 +98,15 @@ connection.connect();
    * out the updated number of connected students for the teacher view.
    */
   socket.on('disconnect', function () {
-    var disconnectedQuery = 'update connections set disconnect=?;'
-    connection.query(disconnectedQuery, [new Date()], function(err, results) {
-      console.log('disonnect', err, results);
+    var selectClient_id = 'select id from clients where socket_id=?;'
+    connection.query(selectClient_id, [socket.id], function(err, results) {
+      console.log('client id found', err, results);
+      if (results.length > 0) {
+        var clientQuery = 'update clients set disconnect=? where id=?;'
+        connection.query(clientQuery, [new Date(), results[0].id], function(err, results) {
+          console.log('client disconnect updated', err, results);
+        });
+      }
     });
 
     if (io.nsps['/'].adapter.rooms.hasOwnProperty('student')) {
@@ -116,7 +122,31 @@ connection.connect();
    * to teachers
    */
   socket.on('new-thought-from-student', function (newThought) {
-    console.log('New Thought');
+    var selectClient_id = 'select id from clients where socket_id=?;'
+    connection.query(selectClient_id, [socket.id], function(err, results) {
+      //console.log('client id logged', err, results);
+      if (results.length > 0) {
+        var thoughtQuery = 'insert into thoughts(content, recieved, client_id) values(?, ?, ?);'
+        connection.query(thoughtQuery, [newThought, new Date(), results[0].id], function(err, results) {
+          //console.log('new thought logged', err, results);
+        });
+        }
+      });
+
+      var selectPrompt_id = 'select id from prompts where content=?;'
+      connection.query(selectPrompt_id, [content], function(err, results) {
+        console.log('prompt id logged in thoughts', err, results);
+        // if (results.length > 0) {
+        //   var thoughtQuery = 'insert into thoughts(content, recieved, client_id) values(?, ?, ?);'
+        //   connection.query(thoughtQuery, [newThought, new Date(), results[0].id], function(err, results) {
+        //     console.log('new thought logged', err, results);
+        // });
+      // }
+    });
+
+    
+
+    //console.log('New Thought');
     addThought(socket, newThought);
 
     socket.broadcast.to('teacher').emit('new-thought-from-student', newThought);
@@ -127,6 +157,11 @@ connection.connect();
    * Will listen for a prompt from teachers and send it along to students.
    */
   socket.on('new-prompt', function (newPrompt) {
+    var promptQuery = 'insert into prompts(content, recieved) values(?, ?);'
+  connection.query(promptQuery, [newPrompt, new Date()], function(err, results) {
+    console.log('prompt logged', err, results);
+  });
+
     console.log('Prompt recieved');
     socket.broadcast.to('student').emit('new-prompt', newPrompt);
     newQuestion = newPrompt;
