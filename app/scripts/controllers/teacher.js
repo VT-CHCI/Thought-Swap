@@ -64,7 +64,7 @@ angular.module('thoughtSwapApp')
      */
   	thoughtSocket.on('new-thought-from-student', function(newThought){
       //console.log('recived thought!', newThought);
-      $scope.studentThoughts.push(newThought);
+      $scope.studentThoughts.push({thought:newThought});
     });
 
     /**

@@ -5,6 +5,7 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var mysql      = require('mysql');
 
+// MySQL database initialization
 var connection = mysql.createConnection({
   host     : 'localhost',
   user     : 'root',
@@ -14,19 +15,12 @@ var connection = mysql.createConnection({
 
 connection.connect();
 
-// connection.query('SELECT 1 + 1 AS solution', function(err, rows, fields) {
-//   if (err) throw err;
-
-//   console.log('The solution is: ', rows[0].solution);
-// });
-
-//  connection.end();
-
 //-------------------------------------------------------------------------
 /**
  *  The server file for the ThoughtSwap app, handles client interaction
  *  and provides functionality on the back-end that controllers alone 
- *  are insufficient for.
+ *  are insufficient for. Also handles all data logging required for 
+ *  user research.
  *
  *  @authors Michael Stewart, Adam Barnes
  *  @version v 0.0.0  (2014)
@@ -45,9 +39,13 @@ connection.connect();
     console.log('listening on *:', port);
   });
 
-  var allThoughts = {};             // allThoughts = { id: socket.id, thoughts: thought1, thought2...}
+  var allThoughts = {};             // allThoughts = socketid: 
+                                    // [{ id: socket.id, thought: thought1, databaseId: insertId}, 
+                                    //  { id: socket.id, thought: thought2, databaseId: insertId}, ...]
+
   var chronologicalThoughts = [];   // list of thoughts for the teacher view as they are recieved
   var newQuestion = '';
+  var currentPromptId = -1;
 
   /**
    * Will return the number of unique ids in allThoughts which correlates
@@ -61,16 +59,28 @@ connection.connect();
    * Will add the thoughts recieved to an array that is sent to the
    * teacher's view.
    */
-  function addThought (socket, thought) {
-    chronologicalThoughts.push(thought);
+  function addThought (socket, thought, id) {
+    var newThought = {id:socket.id, thought:thought, databaseId:id};
+    console.log(newThought);
+    chronologicalThoughts.push(newThought);
     if (allThoughts.hasOwnProperty(socket.id)) {
-      allThoughts[socket.id].push({id:socket.id, thought:thought}); 
+      allThoughts[socket.id].push(newThought); 
     }
     else {
       //this means we just got a new submitter
-      allThoughts[socket.id] = [{id:socket.id, thought:thought }]; 
+      allThoughts[socket.id] = [newThought]; 
       socket.broadcast.to('teacher').emit('num-submitters', numSubmitters());
     }
+  }
+
+  function getClientId (socketId, callback) {
+    var selectClient_id = 'select id from clients where socket_id=?;'
+    connection.query(selectClient_id, [socketId], function (err, results) {
+      console.log('getClientId', err, results);
+      if (results.length > 0) {
+        callback(results[0].id);
+      }
+    });
   }
 
 //-------------------------------------------------------------------------
@@ -82,40 +92,44 @@ connection.connect();
  */
  io.sockets.on('connection', function (socket) {
   console.log('>> Client Connected  >> ');
+
+  /**
+   * Database Query: Will log relevant data in the socket_id, and
+   * connect columns for the CLIENTS table
+   */
   var clientQuery = 'insert into clients(socket_id, connect) values(?, ?);'
-  connection.query(clientQuery, [socket.id, new Date()], function(err, results) {
+  connection.query(clientQuery, [socket.id, new Date()], function (err, results) {
     //console.log('connect', err, results);
   });
-  // if (io.nsps['/'].adapter.rooms.hasOwnProperty('student')) {
-  //   console.log('>> Client Connected  >> ', 
-  //      Object.keys(io.nsps['/'].adapter.rooms['student']).length);
-    
-  //   socket.broadcast.emit('num-students', 
-  //      Object.keys(io.nsps['/'].adapter.rooms['student']).length);
-  // }
   
   /**
    * Will catch when a client leaves the app interface entirely and send
    * out the updated number of connected students for the teacher view.
    */
   socket.on('disconnect', function () {
-    var selectClient_id = 'select id from clients where socket_id=?;'
-    connection.query(selectClient_id, [socket.id], function(err, results) {
-      console.log('client id found', err, results);
-      if (results.length > 0) {
-        var clientQuery = 'update clients set disconnect=? where id=?;'
-        connection.query(clientQuery, [new Date(), results[0].id], function(err, results) {
-          console.log('client disconnect updated', err, results);
-        });
-      }
+
+    /**
+     * Database Query: Will log relevant data in the disconnect
+     * column for the CLIENTS table
+     */
+    // var selectClient_id = 'select id from clients where socket_id=?;'
+    // connection.query(selectClient_id, [socket.id], function (err, results) {
+      // console.log('client id found', err, results);
+      // if (results.length > 0) {
+    getClientId(socket.id, function (clientId) {
+      var clientQuery = 'update clients set disconnect=? where id=?;'
+      connection.query(clientQuery, [new Date(), clientId], function (err, results) {
+        console.log('client disconnect updated', err, results);
+      });
     });
 
     if (io.nsps['/'].adapter.rooms.hasOwnProperty('student')) {
       console.log('<< Client Disconnected << ');
       
       socket.broadcast.emit('num-students', 
-          Object.keys(io.nsps['/'].adapter.rooms['student']).length); //***
+          Object.keys(io.nsps['/'].adapter.rooms['student']).length);
     }
+
   });
 
   /**
@@ -123,32 +137,50 @@ connection.connect();
    * to teachers
    */
   socket.on('new-thought-from-student', function (newThought) {
-    var selectClient_id = 'select id from clients where socket_id=?;'
-    connection.query(selectClient_id, [socket.id], function(err, results) {
-      //console.log('client id logged', err, results);
-      if (results.length > 0) {
-        var thoughtQuery = 'insert into thoughts(content, recieved, client_id) values(?, ?, ?);'
-        connection.query(thoughtQuery, [newThought, new Date(), results[0].id], function(err, results) {
-          //console.log('new thought logged', err, results);
-        });
+
+    /**
+     * Database Query: Will log relevant data in the content, client_id,    ***Still need to add group_id support***
+     * prompt_id, columns to the THOUGHTS table
+     */
+    // var selectClient_id = 'select id from clients where socket_id=?;'
+    // connection.query(selectClient_id, [socket.id], function (err, results) {
+    //   console.log('client id found', err, results);
+    //   if (results.length > 0) {
+
+      getClientId(socket.id, function (clientId) {
+        var queryParams =  [newThought, new Date(), clientId];
+
+        var thoughtQuery = 'insert into thoughts(content, recieved, author_id) values(?, ?, ?);'
+        if (currentPromptId != -1) {
+          thoughtQuery = 'insert into thoughts(content, recieved, author_id, prompt_id) values(?, ?, ?, ?);'
+          queryParams.push(currentPromptId);
         }
+
+        connection.query(thoughtQuery, queryParams, function (err, results) {
+          console.log('new thought logged', err, results);
+          addThought(socket, newThought, results.insertId);
+
+        });
       });
 
-      var selectPrompt_id = 'select id from prompts where content=?;'
-      connection.query(selectPrompt_id, [content], function(err, results) {
-        console.log('prompt id logged in thoughts', err, results);
-        // if (results.length > 0) {
-        //   var thoughtQuery = 'insert into thoughts(content, recieved, client_id) values(?, ?, ?);'
-        //   connection.query(thoughtQuery, [newThought, new Date(), results[0].id], function(err, results) {
-        //     console.log('new thought logged', err, results);
-        // });
-      // }
-    });
+      // Old Callback ~~
 
-    
+      //   var queryParams =  [newThought, new Date(), results[0].id];
+      //   var thoughtQuery = 'insert into thoughts(content, recieved, author_id) values(?, ?, ?);'
+      //   if (currentPromptId != -1) {
+      //     thoughtQuery = 'insert into thoughts(content, recieved, author_id, prompt_id) values(?, ?, ?, ?);'
+      //     queryParams.push(currentPromptId);
+      //   }
+      //   console.log(queryParams);
+      //   connection.query(thoughtQuery, queryParams, function (err, results) {
+      //     console.log('new thought logged', err, results);
+      //     addThought(socket, newThought, results.insertId);
+      //   });
+      //   }
+      // });
 
     //console.log('New Thought');
-    addThought(socket, newThought);
+    
 
     socket.broadcast.to('teacher').emit('new-thought-from-student', newThought);
   });
@@ -158,9 +190,16 @@ connection.connect();
    * Will listen for a prompt from teachers and send it along to students.
    */
   socket.on('new-prompt', function (newPrompt) {
+    
+    /**
+     * Database Query: Will log relevant data in the content and recieved
+     * columns of the PROMPTS table
+     */ 
     var promptQuery = 'insert into prompts(content, recieved) values(?, ?);'
-  connection.query(promptQuery, [newPrompt, new Date()], function(err, results) {
-    console.log('prompt logged', err, results);
+    connection.query(promptQuery, [newPrompt, new Date()], function (err, results) {
+      console.log('prompt logged', err, results);
+    
+    currentPromptId = results.insertId;
   });
 
     console.log('Prompt recieved');
@@ -237,14 +276,6 @@ connection.connect();
 
     var originalFlatThoughts = flatThoughts.slice();
 
-    // /**
-    //  * Initialize the two arrays to be distributed.
-    //  */ 
-    //   var distribution = Object.keys(allThoughts);
-    //   var newDistribution = shuffle(distribution.slice());
-    //   //console.log(distribution);
-    //   //console.log(newDistribution);
-
     /**
      * Shuffle algorithm for randomizing an array.
      */
@@ -298,10 +329,39 @@ connection.connect();
      * Will methodically send each student their newly assigned
      * thought, traveling through the old distribution until completion.
      */
+
+    console.log(shuffledFlatThoughts);
     for (var i = 0; i < recipients.length; i++) {
+      console.log(shuffledFlatThoughts[i]);
+    
+      /**
+       * Database Query: Will log relevant data in the thought_id, and
+       * reader_id, columns to the DISTRIBUTIONS table 
+       */
+      
+      function getCallback(j) { //read about closures and evaluation and scope in javascript (maybe in michael's programming languages book)
+        return function(clientId) {
+          console.log(j);
+          var distributeQuery = 'insert into distributions(thought_id, reader_id, distributedAt) values(?, ?, ?);'
+          connection.query(distributeQuery,  [shuffledFlatThoughts[j].databaseId, clientId, new Date()], function (err, results) {
+            console.log('distributions table filled in', err, results);
+          });
+        }
+      }         
+
+      getClientId(recipients[i], getCallback(i));
+          
+
       socket.to(recipients[i]).emit('new-distribution',
          shuffledFlatThoughts[i].thought);
     } 
+
+    // NOTES
+    // need two things for distribution table - reader id, thought id
+    // reader id from recipients[i]
+    //get author client id from shuffledFlatThoughts[i].id
+    // thought id select id from thoughts where content=? and client_id=? [shuffledFlatThoughts[i].thought, getauthorclient]
+
     
     console.log('completed sending messages');
     console.log('flatThoughts', flatThoughts);

@@ -36,7 +36,7 @@ angular.module('thoughtSwapApp')
      */
     $scope.thoughtIn = function () {
       //console.log('Thought Recieved!');
-      $scope.thoughtPool.push($scope.newThought);
+      $scope.thoughtPool.push({thought:$scope.newThought});
       thoughtSocket.emit('new-thought-from-student', $scope.newThought);
       $scope.newThought = '';
       $('textarea').focus();
@@ -53,16 +53,6 @@ angular.module('thoughtSwapApp')
       $scope.thoughtPool = [];
       $scope.randomThought = '';
       $scope.question = '';
-    });
-
-    /**
-     * [FLAGGED for Deletion] - (Server doesn't send this to students anymore)
-     * Will catch when another student submits a thought and push the
-     * other students' thoughts into the current student's thoughts
-     */
-    thoughtSocket.on('new-thought-from-student', function (newThought){
-      console.log('got a new thought!', newThought);
-      $scope.thoughtPool.push(newThought);
     });
 
     /**
