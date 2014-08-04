@@ -7,7 +7,8 @@ angular
     'ngResource',
     'ngSanitize',
     'ngRoute',
-    'btford.socket-io'
+    'btford.socket-io',
+    'ui.bootstrap',
   ])
 
   // Creates the thoughtSocket that controllers will be listening in on
