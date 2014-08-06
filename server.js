@@ -1,6 +1,5 @@
 var express = require('express');
 var app = express();
-// var pg = require('pg');  //Commented out until database implementation
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var mysql      = require('mysql');
@@ -8,7 +7,7 @@ var mysql      = require('mysql');
 // MySQL database initialization
 var connection = mysql.createConnection({
   host     : 'localhost',
-  user     : 'root',
+  user     : 'thoughtswap',
   password : 'thoughtswap',
   database : 'thoughtswap'
 });
@@ -356,13 +355,6 @@ connection.connect();
          shuffledFlatThoughts[i].thought);
     } 
 
-    // NOTES
-    // need two things for distribution table - reader id, thought id
-    // reader id from recipients[i]
-    //get author client id from shuffledFlatThoughts[i].id
-    // thought id select id from thoughts where content=? and client_id=? [shuffledFlatThoughts[i].thought, getauthorclient]
-
-    
     console.log('completed sending messages');
     console.log('flatThoughts', flatThoughts);
     console.log('recipients', recipients);

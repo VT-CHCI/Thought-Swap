@@ -1,44 +1,80 @@
-<h1 class="text-center">Teacher Name</h1>
-<div class="row">
-  <div class="col-md-12">
-    
-    <!-- Button that initiates distribute functionality  -->
-    <button class="btn btn-primary" ng-click="distribute()">Distribute Thoughts</button>
+<!-- Header is included by index.html -->
+<div class="container">
 
-    <!--Button that resets the view for a new session -->
-    <button class="btn btn-primary" ng-click="newSession()">New Session</button>
+  <div class="row">
 
-    <!-- Stucture that provides the teacher with information on how much participation they have -->
-    <table class="table table-bordered">
-      <thead>
-        <tr>
-          <th># Thoughts</th>
-          <th># Submitters</th>
-          <th># Connected</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>{{studentThoughts.length | number}}</td>
-          <td>{{num_submitters | number}}</td>
-          <td>{{num_connected | number}}</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="col-md-3">
+      <div class="left-action-area">
+        <div class="panel panel-default control-section">
 
-    <!-- Input area for teacher to enter their prompt -->
-    <div class="enterPrompt">
-    <h2>Prompt:</h2>
-      <form role="form" ng-submit="promptIn()">
-        <textarea class="form-control" placeholder="Enter a prompt..." ng-model="newPrompt"></textarea>
-        <input class="btn btn-primary" type="submit" value="Submit Prompt">
-      </form>
+          <!-- HEADER ~ (Doesn't change) -->
+          <div class="panel-heading">
+            <h3>Control:</h3>
+          </div>
+
+          <!-- BODY -->
+          <div class="panel-body">
+            <!-- Stucture that provides the teacher with information on how much participation they have -->
+            <div class="data-box">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>Thoughts</th>
+                    <th>Submitters</th>
+                    <th>Connected</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>{{studentThoughts.length | number}}</td>
+                    <td>{{num_submitters | number}}</td>
+                    <td>{{num_connected | number}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!--Button that resets the view for a new session -->
+            <button class="btn btn-primary" ng-click="newSession()">New Session</button>
+
+            <!-- Button that initiates distribute functionality  -->
+            <button class="btn btn-primary" ng-click="distribute()">Distribute Thoughts</button>
+
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Stucture to allow the teacher to view each student's most recent thoughts -->
-    <h2>Student Thoughts</h2>
-    <ol class="thoughts">
-      <li class="thought" ng-repeat="thought in studentThoughts">{{thought.thought}}</li>
-    </ol>
+    <div class="col-md-9">
+      <div class="right-action-area">
+        <div class="panel panel-default gallery-section">
+
+          <!-- HEADER ~ (Doesn't change) -->
+          <div class="panel-heading">
+            <h3>Thoughts:</h3>
+          </div>
+
+          <!-- BODY -->
+          <div class="panel-body">
+            <!-- Input area for teacher to enter their prompt -->
+            <div class="promptRequest">
+            <h3>Prompt:</h3>
+              <form role="form" ng-submit="promptIn()">
+                <textarea rows="3" class="form-control" placeholder="Enter a prompt..." ng-model="newPrompt"></textarea>
+                <input class="btn btn-primary" type="submit" value="Submit Prompt">
+              </form>
+            </div>
+            
+            <!-- Stucture to allow the teacher to view each student's most recent thoughts -->
+            <ol class="thoughts">
+              <li class="thought" ng-repeat="thought in studentThoughts">{{thought.thought}}</li>
+            </ol>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+    
   </div>
 </div>

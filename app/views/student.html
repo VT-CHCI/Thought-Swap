@@ -1,39 +1,66 @@
-<h1 class="text-center">Student Name</h1>
-<div class="row">
-  <div class="col-md-12">
-    <!-- Display of other random student's thought -->
-    <div class="otherThought">
-      <h2>Other Student's Thought:</h2>
-        <p class="thought">{{randomThought}}</p>
-    </div>
-  </div>
-</div>
+<!-- Header is included by index.html -->
+<div class="container">
+  
+  <div class="row">
 
-<div class="row">
-  <div class="col-md-8">
-    <!-- Stucture for displaying the teacher's prompt -->
-    <div>
-      <h2>Prompt:</h2>
-        <p class="question">{{question}}</p>
+    <div class="col-md-8">
+      <div class="left-action-area">
+        <div class="panel panel-default">
+
+          <!-- HEADER ~ (Always Visible) -->
+          <div class="panel-heading prompt-section">
+            <!-- Stucture for displaying the teacher's prompt -->
+            <div>
+              <h2>Prompt:</h2>
+              <p class="question">{{question}}</p>
+            </div>
+            <br>
+          </div>
+
+          <!-- BODY -->
+          <div class="panel-body input-section">
+
+            <!--Structure to allow students to enter their thoughts -->
+            <div class="input">
+              <h2>New Thought</h2>
+              <form role="form" ng-submit="thoughtIn()">
+                <textarea rows="5" class="form-control" placeholder="Enter your thought" ng-model="newThought"></textarea>
+                <input class="btn btn-primary" type="submit" value="Send thought">
+              </form>
+            </div>
+
+            <!-- Display of other random student's thought ~ (Visible after distribution) -->
+            <div class="otherThought">
+              <h2>Other Student's Thought:</h2>
+                <p class="thought">{{randomThought}}</p>
+            </div>
+
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!--Structure to allow students to enter their thoughts -->
-    <div class="input">
-      <h2>New Thought</h2>
-      <form role="form" ng-submit="thoughtIn()">
-        <textarea class="form-control" placeholder="Enter your thought" ng-model="newThought"></textarea>
-        <input class="btn btn-primary" type="submit" value="Send thought">
-      </form>
+    <div class="col-md-4">
+      <div class="right-action-area">
+        <div class="panel panel-default history-section">
+
+          <div class="panel-heading">
+            <h3>Previous Thoughts:</h3>
+          </div>
+          
+          <div class="panel-body">
+            <!--Stucture to display all entered thoughts -->
+            <div class="data-box">
+              <ol class="thoughts">
+                <li class="thought" ng-repeat="thought in thoughtPool">{{thought.thought}}</li>
+              </ol>
+            </div>
+          </div>
+
+        </div>
+      </div>
     </div>
+
   </div>
 
-  <div class="col-md-4">
-    <!--Stucture to display all entered thoughts -->
-    <div class="history">
-      <h2>Previous Thoughts</h2>
-      <ol class="thoughts">
-        <li class="thought" ng-repeat="thought in thoughtPool">{{thought.thought}}</li>
-      </ol>
-    </div>
-  </div>
 </div>
