@@ -43,7 +43,7 @@ angular.module('thoughtSwapApp')
       thoughtSocket.emit('new-session');
       $scope.studentThoughts = [];
       $scope.num_submitters = 0;
-      $('.enterPrompt').show();
+      $('.promptRequest').show();
       $scope.newPrompt = '';
       $('textarea').focus();
     }
