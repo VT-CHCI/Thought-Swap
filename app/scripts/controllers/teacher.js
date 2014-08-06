@@ -55,7 +55,7 @@ angular.module('thoughtSwapApp')
     $scope.promptIn = function () {
       console.log('Prompt Recieved!');
       thoughtSocket.emit('new-prompt', $scope.newPrompt);
-      $('.enterPrompt').hide();
+      $('.promptRequest').hide();
     };
 
   	/**
