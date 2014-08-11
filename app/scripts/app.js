@@ -9,6 +9,8 @@ angular
     'ngRoute',
     'btford.socket-io',
     'ui.bootstrap',
+    'ui.sortable',
+    'truncate',
   ])
 
   // Creates the thoughtSocket that controllers will be listening in on

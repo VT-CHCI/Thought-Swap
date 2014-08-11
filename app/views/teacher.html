@@ -60,15 +60,17 @@
             <div class="promptRequest">
             <h3>Prompt:</h3>
               <form role="form" ng-submit="promptIn()">
-                <textarea rows="3" class="form-control" placeholder="Enter a prompt..." ng-model="newPrompt"></textarea>
+                <textarea rows="3" class="form-control" placeholder="" ng-model="newPrompt"></textarea>
                 <input class="btn btn-primary" type="submit" value="Submit Prompt">
               </form>
             </div>
             
             <!-- Stucture to allow the teacher to view each student's most recent thoughts -->
-            <ol class="thoughts">
-              <li class="thought" ng-repeat="thought in studentThoughts">{{thought.thought}}</li>
-            </ol>
+            <div class="data-box">
+              <ul  ui-sortable ng-model="studentThoughts" class="thoughts">
+                <li  ng-repeat="thought in studentThoughts" class="galleryThought">{{thought.thought | characters:150 :true}}</li>
+              </ul>
+            </div>
 
           </div>
 
