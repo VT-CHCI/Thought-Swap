@@ -7,7 +7,7 @@
  *  student view.
  *
  *  @authors Michael Stewart, Adam Barnes
- *  @version v 0.0.0  (2014)
+ *  @version v 1.0.0  (2014)
  */
 //-------------------------------------------------------------------------
 

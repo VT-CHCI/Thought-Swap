@@ -7,7 +7,7 @@
  *  teacher view.
  *
  *  @authors Michael Stewart, Adam Barnes
- *  @version v 0.0.0  (2014)
+ *  @version v 1.0.0  (2014)
  */
 //-------------------------------------------------------------------------
 
@@ -26,13 +26,23 @@ angular.module('thoughtSwapApp')
   	$scope.studentThoughts = [];
     $scope.num_submitters = 0;
     $scope.num_connected = 0;
+    $scope.canDistribute = false;
+
+    /**
+     * Will tell the controller that distribution is now okay.
+     */
+    thoughtSocket.on('enough-submitters', function() {
+      $scope.canDistribute = true;
+    });
 
   	/**
      * Will tell the server to begin its distribution process.
      */
   	$scope.distribute = function () {
-  		thoughtSocket.emit('distribute');
-  	};
+      if (canDistribute) {
+  		  thoughtSocket.emit('distribute');
+      }
+    }
 
     /**
      * Will tell everyone connected that a new session is begining
@@ -76,15 +86,6 @@ angular.module('thoughtSwapApp')
       $scope.num_connected = data.connected;
       $scope.studentThoughts = data.thoughts;
       $scope.num_submitters = data.submitters;
-    });
-
-    /**
-     * [FLAGGED for Deletion] - (Server never sends this message to anyone)
-     * Will catch whenever the server has an update for the amount of
-     * submitters.
-     */
-    thoughtSocket.on('num-submitters', function(submitters) {
-      $scope.num_submitters = submitters;
     });
 
     /**

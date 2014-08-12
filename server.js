@@ -22,7 +22,7 @@ connection.connect();
  *  user research.
  *
  *  @authors Michael Stewart, Adam Barnes
- *  @version v 0.0.0  (2014)
+ *  @version v 1.0.0  (2014)
  */
 //-------------------------------------------------------------------------
 
@@ -141,46 +141,24 @@ connection.connect();
      * Database Query: Will log relevant data in the content, client_id,    ***Still need to add group_id support***
      * prompt_id, columns to the THOUGHTS table
      */
-    // var selectClient_id = 'select id from clients where socket_id=?;'
-    // connection.query(selectClient_id, [socket.id], function (err, results) {
-    //   console.log('client id found', err, results);
-    //   if (results.length > 0) {
+    getClientId(socket.id, function (clientId) {
+      var queryParams =  [newThought, new Date(), clientId];
 
-      getClientId(socket.id, function (clientId) {
-        var queryParams =  [newThought, new Date(), clientId];
+      var thoughtQuery = 'insert into thoughts(content, recieved, author_id) values(?, ?, ?);'
+      if (currentPromptId != -1) {
+        thoughtQuery = 'insert into thoughts(content, recieved, author_id, prompt_id) values(?, ?, ?, ?);'
+        queryParams.push(currentPromptId);
+      }
 
-        var thoughtQuery = 'insert into thoughts(content, recieved, author_id) values(?, ?, ?);'
-        if (currentPromptId != -1) {
-          thoughtQuery = 'insert into thoughts(content, recieved, author_id, prompt_id) values(?, ?, ?, ?);'
-          queryParams.push(currentPromptId);
-        }
+      connection.query(thoughtQuery, queryParams, function (err, results) {
+        console.log('new thought logged', err, results);
+        addThought(socket, newThought, results.insertId);
 
-        connection.query(thoughtQuery, queryParams, function (err, results) {
-          console.log('new thought logged', err, results);
-          addThought(socket, newThought, results.insertId);
-
-        });
       });
-
-      // Old Callback ~~
-
-      //   var queryParams =  [newThought, new Date(), results[0].id];
-      //   var thoughtQuery = 'insert into thoughts(content, recieved, author_id) values(?, ?, ?);'
-      //   if (currentPromptId != -1) {
-      //     thoughtQuery = 'insert into thoughts(content, recieved, author_id, prompt_id) values(?, ?, ?, ?);'
-      //     queryParams.push(currentPromptId);
-      //   }
-      //   console.log(queryParams);
-      //   connection.query(thoughtQuery, queryParams, function (err, results) {
-      //     console.log('new thought logged', err, results);
-      //     addThought(socket, newThought, results.insertId);
-      //   });
-      //   }
-      // });
+    });
 
     //console.log('New Thought');
     
-
     socket.broadcast.to('teacher').emit('new-thought-from-student', newThought);
   });
 
@@ -246,7 +224,7 @@ connection.connect();
     socket.leave('teacher');
     socket.join('student');
 
-    io.sockets.emit('prompt-sync', newQuestion);
+    io.sockets.emit('prompt-sync', newQuestion); // Just this channel
     
     socket.broadcast.emit('num-students',
        Object.keys(io.nsps['/'].adapter.rooms['student']).length);
@@ -264,6 +242,10 @@ connection.connect();
 
     // Unique IDS of all students that thoughts need to be distributed to
     var recipients = Object.keys(io.nsps['/'].adapter.rooms['student']);
+
+    if (recipients >= 2) {
+      socket.broadcast.emit('enough-submitters');
+    }
 
     // Placeholder variable for the distribute operation
     var flatThoughts = [];
@@ -359,6 +341,13 @@ connection.connect();
     console.log('flatThoughts', flatThoughts);
     console.log('recipients', recipients);
     console.log('shuffledFlatThoughts', shuffledFlatThoughts);
+  });
+
+  /**
+   * Will handle the registration process for new users.
+   */
+  socket.on('new-registration', function (registrationData) {
+    console.log(registrationData);
   });
 
 
