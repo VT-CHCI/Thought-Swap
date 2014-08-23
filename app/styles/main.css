@@ -6,7 +6,6 @@
 /* Size of entire interface */
 @media (min-width: 768px) {
   .container {
-    padding-top: 80px;
     max-width: 1280px;
   }
 }
@@ -14,6 +13,10 @@
 /* Responsive: Portrait tablets and up */
 @media screen and (min-width: 768px) {
   /* Future code here */
+}
+
+.container-fluid.thoughtswap-wrapper {
+    padding-top: 80px;
 }
 
 .row {
@@ -106,6 +109,13 @@ body {
   background-color: #2B54A3;
 }
 
+.btn-large {
+  text-align: center;
+  font-size: 30pt;
+  vertical-align: middle;
+  padding: 10px 20px 10px 20px;
+}
+
 .data-box {
   max-height: 494px;
   overflow-y: auto;
@@ -138,7 +148,7 @@ body {
 
   /* Grid Behavior */
   max-width: 220px;
-  max-height: 124px;
+  min-height: 124px;
 }
 
 .thought {

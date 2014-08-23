@@ -12,21 +12,38 @@
 //-------------------------------------------------------------------------
 
 angular.module('thoughtSwapApp')
-	.controller('RegistrationCtrl', function ($scope, thoughtSocket) {
+	.controller('RegistrationCtrl', function ($scope, md5, thoughtSocket, $location, User) {
 
   	$('.layer2').hide();
-  	$scope.username;
-  	$scope.password;
-  	$scope.email;
+  	$scope.username='';
+  	$scope.password='';
+  	$scope.email='';
+  	$scope.registrationFailed = false;
 
-  	console.log($scope.username, $scope.password, $scope.email);
+  	var registrationScope = $scope;
 
- 	username = $scope.username;
-  	password = $scope.password;
-  	email = $scope.email;
-  	
-  	console.log($scope.username, $scope.password, $scope.email);
+  	$scope.registerUser = function() {
+  		$scope.registrationFailed = false;
 
-  	// check for uniqueness in username and password
+      if ($scope.username.length > 0 &&
+        $scope.password.length > 0 &&
+        $scope.email.length > 0) {
+          User.registerUser($scope.username, md5.createHash($scope.password), $scope.email);
+      }
+
+  		
+
+  			// thoughtSocket.emit('new-registration', 
+     //      {username:$scope.username, password:md5.createHash($scope.password), email:$scope.email});
+		  	
+  			// User.loginTeacher($scope.username, md5.createHash($scope.password);
+		  	// console.log($scope.username, md5.createHash($scope.password), $scope.email);
+  		// }
+  		else {
+  			$scope.registrationFailed = true;
+  		}
+      $('.layer1').hide();
+      $('.layer2').show();
+  	};
 
 });

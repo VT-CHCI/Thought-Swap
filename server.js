@@ -26,6 +26,54 @@ connection.connect();
  */
 //-------------------------------------------------------------------------
 
+
+var role_ids = {
+  student: 1,
+  teacher: 2
+};
+
+/**
+ * INCLUDE SILLYNAMES: Got the lists for this from 
+ * http://stackoverflow.com/q/16826200/1449799
+ */
+ 
+function getName() {
+  var firstName = ["Runny", "Buttercup", "Dinky", "Stinky", "Crusty",
+  "Greasy","Gidget", "Cheesypoof", "Lumpy", "Wacky", "Tiny", "Flunky",
+  "Fluffy", "Zippy", "Doofus", "Gobsmacked", "Slimy", "Grimy", "Salamander",
+  "Oily", "Burrito", "Bumpy", "Loopy", "Snotty", "Irving", "Egbert", "Waffer", "Lilly","Rugrat","Sand", "Fuzzy","Kitty",
+   "Puppy", "Snuggles","Rubber", "Stinky", "Lulu", "Lala", "Sparkle", "Glitter",
+   "Silver", "Golden", "Rainbow", "Cloud", "Rain", "Stormy", "Wink", "Sugar",
+   "Twinkle", "Star", "Halo", "Angel"];
+ 
+  // var middleName =["Waffer", "Lilly","Rugrat","Sand", "Fuzzy","Kitty",
+  //  "Puppy", "Snuggles","Rubber", "Stinky", "Lulu", "Lala", "Sparkle", "Glitter",
+  //  "Silver", "Golden", "Rainbow", "Cloud", "Rain", "Stormy", "Wink", "Sugar",
+  //  "Twinkle", "Star", "Halo", "Angel"];
+ 
+  var lastName1 = ["Snicker", "Buffalo", "Gross", "Bubble", "Sheep",
+   "Corset", "Toilet", "Lizard", "Waffle", "Kumquat", "Burger", "Chimp", "Liver",
+   "Gorilla", "Rhino", "Emu", "Pizza", "Toad", "Gerbil", "Pickle", "Tofu", 
+  "Chicken", "Potato", "Hamster", "Lemur", "Vermin"];
+ 
+  var lastName2 = ["face", "dip", "nose", "brain", "head", "breath", 
+  "pants", "shorts", "lips", "mouth", "muffin", "butt", "bottom", "elbow", 
+  "honker", "toes", "buns", "spew", "kisser", "fanny", "squirt", "chunks", 
+  "brains", "wit", "juice", "shower"];
+ 
+  function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min)) + min;
+  }
+ 
+  return [
+    firstName[getRandomInt(0, firstName.length)], 
+    // middleName[getRandomInt(0, middleName.length)], 
+    lastName1[getRandomInt(0, lastName1.length)], 
+    lastName2[getRandomInt(0, lastName2.length)]
+  ];
+}
+//-------------------------------------------------------------------------
+
 /**
  * ~~ Initialization ~~
  * Steps required to start up the app and provide future functions with
@@ -60,7 +108,7 @@ connection.connect();
    */
   function addThought (socket, thought, id) {
     var newThought = {id:socket.id, thought:thought, databaseId:id};
-    console.log(newThought);
+    //console.log(newThought);
     chronologicalThoughts.push(newThought);
     if (allThoughts.hasOwnProperty(socket.id)) {
       allThoughts[socket.id].push(newThought); 
@@ -73,9 +121,9 @@ connection.connect();
   }
 
   function getClientId (socketId, callback) {
-    var selectClient_id = 'select id from clients where socket_id=?;'
+    var selectClient_id = 'select id from thoughtswap_clients where socket_id=?;'
     connection.query(selectClient_id, [socketId], function (err, results) {
-      console.log('getClientId', err, results);
+      //console.log('getClientId', err, results);
       if (results.length > 0) {
         callback(results[0].id);
       }
@@ -96,7 +144,7 @@ connection.connect();
    * Database Query: Will log relevant data in the socket_id, and
    * connect columns for the CLIENTS table
    */
-  var clientQuery = 'insert into clients(socket_id, connect) values(?, ?);'
+  var clientQuery = 'insert into thoughtswap_clients(socket_id, connect) values(?, ?);'
   connection.query(clientQuery, [socket.id, new Date()], function (err, results) {
     //console.log('connect', err, results);
   });
@@ -106,6 +154,7 @@ connection.connect();
    * out the updated number of connected students for the teacher view.
    */
   socket.on('disconnect', function () {
+    console.log('<< Client Disconnected << ');
 
     /**
      * Database Query: Will log relevant data in the disconnect
@@ -116,14 +165,14 @@ connection.connect();
       // console.log('client id found', err, results);
       // if (results.length > 0) {
     getClientId(socket.id, function (clientId) {
-      var clientQuery = 'update clients set disconnect=? where id=?;'
+      var clientQuery = 'update thoughtswap_clients set disconnect=? where id=?;'
       connection.query(clientQuery, [new Date(), clientId], function (err, results) {
-        console.log('client disconnect updated', err, results);
+        //console.log('client disconnect updated', err, results);
       });
     });
 
     if (io.nsps['/'].adapter.rooms.hasOwnProperty('student')) {
-      console.log('<< Client Disconnected << ');
+      
       
       socket.broadcast.emit('num-students', 
           Object.keys(io.nsps['/'].adapter.rooms['student']).length);
@@ -144,14 +193,14 @@ connection.connect();
     getClientId(socket.id, function (clientId) {
       var queryParams =  [newThought, new Date(), clientId];
 
-      var thoughtQuery = 'insert into thoughts(content, recieved, author_id) values(?, ?, ?);'
+      var thoughtQuery = 'insert into thoughtswap_thoughts(content, recieved, author_id) values(?, ?, ?);'
       if (currentPromptId != -1) {
-        thoughtQuery = 'insert into thoughts(content, recieved, author_id, prompt_id) values(?, ?, ?, ?);'
+        thoughtQuery = 'insert into thoughtswap_thoughts(content, recieved, author_id, prompt_id) values(?, ?, ?, ?);'
         queryParams.push(currentPromptId);
       }
 
       connection.query(thoughtQuery, queryParams, function (err, results) {
-        console.log('new thought logged', err, results);
+        //console.log('new thought logged', err, results);
         addThought(socket, newThought, results.insertId);
 
       });
@@ -172,12 +221,12 @@ connection.connect();
      * Database Query: Will log relevant data in the content and recieved
      * columns of the PROMPTS table
      */ 
-    var promptQuery = 'insert into prompts(content, recieved) values(?, ?);'
+    var promptQuery = 'insert into thoughtswap_prompts(content, recieved) values(?, ?);'
     connection.query(promptQuery, [newPrompt, new Date()], function (err, results) {
-      console.log('prompt logged', err, results);
+      //console.log('prompt logged', err, results);
     
-    currentPromptId = results.insertId;
-  });
+      currentPromptId = results.insertId;
+    });
 
     console.log('Prompt recieved');
     socket.broadcast.to('student').emit('new-prompt', newPrompt);
@@ -243,9 +292,11 @@ connection.connect();
     // Unique IDS of all students that thoughts need to be distributed to
     var recipients = Object.keys(io.nsps['/'].adapter.rooms['student']);
 
-    if (recipients >= 2) {
-      socket.broadcast.emit('enough-submitters');
-    }
+    // if (recipients >= 2) {
+    //   socket.broadcast.emit('enough-submitters');
+    // }
+
+    // console.log('enough submitters present, distributing...');
 
     // Placeholder variable for the distribute operation
     var flatThoughts = [];
@@ -310,22 +361,25 @@ connection.connect();
      * Will methodically send each student their newly assigned
      * thought, traveling through the old distribution until completion.
      */
-
-    console.log(shuffledFlatThoughts);
+    //console.log(shuffledFlatThoughts);
     for (var i = 0; i < recipients.length; i++) {
-      console.log(shuffledFlatThoughts[i]);
+      //console.log(shuffledFlatThoughts[i]);
     
       /**
        * Database Query: Will log relevant data in the thought_id, and
        * reader_id, columns to the DISTRIBUTIONS table 
        */
-      
       function getCallback(j) { //read about closures and evaluation and scope in javascript (maybe in michael's programming languages book)
         return function(clientId) {
-          console.log(j);
-          var distributeQuery = 'insert into distributions(thought_id, reader_id, distributedAt) values(?, ?, ?);'
-          connection.query(distributeQuery,  [shuffledFlatThoughts[j].databaseId, clientId, new Date()], function (err, results) {
-            console.log('distributions table filled in', err, results);
+          //console.log(j);
+          var distributeQuery = 
+          'insert into thoughtswap_distributions(thought_id, reader_id, distributedAt) values(?, ?, ?);'
+
+          connection.query(distributeQuery,  
+            [shuffledFlatThoughts[j].databaseId, clientId, new Date()],
+              function (err, results) {
+
+            //console.log('distributions table filled in', err, results);
           });
         }
       }         
@@ -337,18 +391,169 @@ connection.connect();
          shuffledFlatThoughts[i].thought);
     } 
 
-    console.log('completed sending messages');
-    console.log('flatThoughts', flatThoughts);
-    console.log('recipients', recipients);
-    console.log('shuffledFlatThoughts', shuffledFlatThoughts);
+    // console.log('completed sending messages');
+    // console.log('flatThoughts', flatThoughts);
+    // console.log('recipients', recipients);
+    // console.log('shuffledFlatThoughts', shuffledFlatThoughts);
+  });
+  
+  //-------------------------------------------------------------------------
+  /**
+   * ~~ USER SERVICE ~~
+   * Will handle the registration process for new users.
+   */
+
+  function getUserInfo(teacherDbId, userInfoCallback) {
+     var ownedGroups = "select * from thoughtswap_groups where owner=?"; //teacherDbId
+      connection.query(ownedGroups, [teacherDbId], function (ownedError, ownedResults) {
+        if (ownedError) {
+          console.log(ownedError);
+        }
+        else {
+          var teacherPermissions = "select * from thoughtswap_role_memberships where user_id=?" //teacherDbId
+          connection.query(teacherPermissions, [teacherDbId], function (permissionsError, permissionsResults) {
+            if(permissionsError) {
+              console.log(permissionsError);
+            }
+            else {
+              userInfoCallback( {
+                permissions: permissionsResults, 
+                groups: ownedResults
+              });
+            }
+          });
+        }
+      });
+    userInfoCallback(null);
+  }
+
+  socket.on('new-registration', function (registrationData) {
+    console.log("New User: ", registrationData);
+    var usernames = 'select * from users where name=?';
+    connection.query(usernames, [registrationData.username], function (error, results) {
+      if (error) {
+        console.log(error);
+      }
+      else {
+        if (results.length > 0) {
+          var message = "Username already exists";
+          console.log(message);
+          socket.emit('registration-failed', message);
+        }
+        else if (registrationData.email == null || registrationData.email.length == 0) {
+          message = "invalid email"
+          console.log(message);
+          socket.emit('registration-failed', message);
+        } 
+        else {
+          var newUser = 'insert into users (name, password, email) values (?, ?, ?)';
+          connection.query(newUser, 
+            [registrationData.username, registrationData.password, registrationData.email], function (error, results) {
+              if (error) { //maybe need a better condition here
+                socket.emit('registration-failed', error.message);
+                console.log('New User query failed', error);
+              }
+              else {
+                //create a class wwith 0 students
+                console.log('User insert results', results);
+                var teacherDbId = results.insertId;
+                var newGroup = "insert into thoughtswap_groups (name, owner) values (?,?);"
+                connection.query(newGroup, [registrationData.username, teacherDbId], function (newGroupError, newGroupResults) {
+                  if (newGroupError) {
+                    console.log(newGroupError);
+                  }
+                  else {
+                    //make them a teacher of that class
+                    var newRoleMembership = "insert into thoughtswap_role_memberships (user_id, role_id, group_id) values (?,?, ?);"
+                    console.log('About to insert', newRoleMembership,  [teacherDbId, role_ids.teacher, newGroupResults.insertId]);
+                    connection.query(newRoleMembership, [teacherDbId, role_ids.teacher, newGroupResults.insertId], function (newRoleError, newRoleResults) {
+                      if (newRoleError) {
+                        console.log(newRoleError);
+                      }
+                      else {
+                        //we need to send back the uid, the roles, and the owned groups
+                       getUserInfo(teacherDbId, function (userInfo) {
+                         if (userInfo == null) {
+                          console.log('userInfocallback came back null');
+                         }
+                         else {
+                          socket.emit('user-logged-in', {
+                            uid: teacherDbId, 
+                            username: registrationData.username, 
+                            permissions: userInfo.permissions, 
+                            groups: userInfo.groups,
+                            teacher: true
+                          });
+                         }
+                       });
+
+                      }
+                    });
+                    
+                  }
+                  
+                });
+              }
+          });
+        }
+      }
+    });
+    // socket.emit('login-attempt', {success:true});
+    // socket.emit('login-attempt', {success:false});
+    // socket.emit('login-teacher-attempt', {success:true, uid:1, username:'awesome'});
   });
 
   /**
-   * Will handle the registration process for new users.
+   * Will handle the login process for returning users and student sillynames
    */
-  socket.on('new-registration', function (registrationData) {
-    console.log(registrationData);
+  socket.on('login-teacher', function (authenticationInfo) {
+    console.log('Searching for ', authenticationInfo.username)
+    var returningUser = 'select * from users where name=? and password=?';
+    connection.query(returningUser, [authenticationInfo.username, authenticationInfo.password], function(error, results) {
+      if (error) {
+        console.log(error);
+        socket.emit('login-failed', error);
+      }
+      else {
+        var loggedIn = false;
+        if (results.length > 0) {
+          loggedIn = true;
+          var teacherDbId = results[0].id;
+          getUserInfo(teacherDbId, function(userInfo){
+            if (userInfo == null) {
+              console.log('userInfocallback came back null');
+            }
+            else {
+              socket.emit('user-logged-in', {
+                uid: teacherDbId, 
+                username: authenticationInfo.username, 
+                permissions: userInfo.permissions, 
+                groups: userInfo.groups,
+                teacher: true
+              });
+            }
+          });
+        }
+        console.log('Teacher Logged In Status is ', loggedIn); 
+      }
+      // socket.emit('teacher-login-attempt', loggedIn);
+    });
   });
 
+  socket.on('login-student', function (sillyname) {
+    console.log('Searching for ', sillyname);
+    var returningUser = 'select * from user where name=?';
+    connection.query(returningUser, [name], function(error, results) {
+      var loggedIn = false;
+      for (var i = 0; i < results.length; i++) {
+        if (sillyname == results[i].name) {
+          loggedIn = true;
+          console.log("User match");
+        }
+      }
+      console.log('Student Logged In Status is ', loggedIn);
+      socket.emit('student-login-attempt', loggedIn);
+    });
+  });
 
 });

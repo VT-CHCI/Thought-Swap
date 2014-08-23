@@ -12,12 +12,16 @@
 //-------------------------------------------------------------------------
 
 angular.module('thoughtSwapApp')
-  .controller('TeacherCtrl', function ($scope, thoughtSocket) {
+  .controller('TeacherCtrl', function ($scope, thoughtSocket, User, $routeParams) {
+    console.log($routeParams.groupId);
+
+    $scope.userService = User;
 
     /**
      * Will tell the server to put this client in the teacher room.
      */
     thoughtSocket.emit('teacher');
+    console.log('Joined as Teacher');
 
   	/**
      * ~~ Initialization ~~
@@ -26,14 +30,14 @@ angular.module('thoughtSwapApp')
   	$scope.studentThoughts = [];
     $scope.num_submitters = 0;
     $scope.num_connected = 0;
-    $scope.canDistribute = false;
+    // $scope.canDistribute = false;
 
-    /**
-     * Will tell the controller that distribution is now okay.
-     */
-    thoughtSocket.on('enough-submitters', function() {
-      $scope.canDistribute = true;
-    });
+    // /**
+    //  * Will tell the controller that distribution is now okay.
+    //  */
+    // thoughtSocket.on('enough-submitters', function() {
+    //   $scope.canDistribute = true;
+    // });
 
   	/**
      * Will tell the server to begin its distribution process.
@@ -42,7 +46,7 @@ angular.module('thoughtSwapApp')
       if (canDistribute) {
   		  thoughtSocket.emit('distribute');
       }
-    }
+    };
 
     /**
      * Will tell everyone connected that a new session is begining
@@ -56,7 +60,7 @@ angular.module('thoughtSwapApp')
       $('.enterPrompt').show();
       $scope.newPrompt = '';
       $('textarea').focus();
-    }
+    };
 
     /**
      * Will tell the server that there is a new thought to be passed
