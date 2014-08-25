@@ -8,7 +8,7 @@ var mysql      = require('mysql');
 var connection = mysql.createConnection({
   host     : 'localhost',
   user     : 'thoughtswap',
-  password : 'thoughtswap',
+  password : 'asdfghjkl',
   database : 'thoughtswap'
 });
 
@@ -27,17 +27,12 @@ connection.connect();
 //-------------------------------------------------------------------------
 
 
-var role_ids = {
-  student: 1,
-  teacher: 2
-};
 
 /**
  * INCLUDE SILLYNAMES: Got the lists for this from 
  * http://stackoverflow.com/q/16826200/1449799
- */
- 
-function getName() {
+ */ 
+function makeName() {
   var firstName = ["Runny", "Buttercup", "Dinky", "Stinky", "Crusty",
   "Greasy","Gidget", "Cheesypoof", "Lumpy", "Wacky", "Tiny", "Flunky",
   "Fluffy", "Zippy", "Doofus", "Gobsmacked", "Slimy", "Grimy", "Salamander",
@@ -93,6 +88,10 @@ function getName() {
   var chronologicalThoughts = [];   // list of thoughts for the teacher view as they are recieved
   var newQuestion = '';
   var currentPromptId = -1;
+  var role_ids = {
+    student: 1,
+    teacher: 2
+  };
 
   /**
    * Will return the number of unique ids in allThoughts which correlates
@@ -120,6 +119,27 @@ function getName() {
     }
   }
 
+  function addStudent(classId) {
+    var name = makeName();
+    var searchName = 'select * from users where name=?';
+    connection.query(searchName, [name], function(error, results) {
+      if (results.length > 0) {
+        addStudent(classId);
+      } 
+      else {
+        var addStudent = 'insert into users (name) values (?)';
+        connection.query(addStudent, [name], function(error, results) {
+          var userId = results.insertId;
+          var membershipQuery = 'insert into critisearch_role_memberships (uid, role_id, gid) values (?, ?, ?)';
+          connection.query(membershipQuery, [userId, 2, classId], function(error, results) {
+            console.log("Added user " + userId + " to class " + classId);
+          });
+        });
+      }
+    });
+    return {username: name};
+  }
+
   function getClientId (socketId, callback) {
     var selectClient_id = 'select id from thoughtswap_clients where socket_id=?;'
     connection.query(selectClient_id, [socketId], function (err, results) {
@@ -127,6 +147,27 @@ function getName() {
       if (results.length > 0) {
         callback(results[0].id);
       }
+    });
+  }
+
+  function getNames(count, classId, teacherId) {
+    var names = [];
+    for (var i = 0; i < count; i++) {
+      names[i] = addStudent(classId);
+    }
+    return names;
+  }
+
+  function getClasses(connectionInfo, socket) {
+    var detailsQuery = 'SELECT g.name as "name", others.name as "username" ' +
+      'from thoughtswap_groups g ' +
+      'JOIN thoughtswap_role_memberships m on m.group_id=g.id and m.role_id=2 ' +
+      'JOIN users others on others.id = m.uid ' +
+      'WHERE g.owner=? order by g.group_id;';
+    connection.query(detailsQuery, [connectionInfo.teacherId], function(error, results) {
+      //console.log(results);
+
+      socket.emit('classes-loaded', results);
     });
   }
 
@@ -139,6 +180,7 @@ function getName() {
  */
  io.sockets.on('connection', function (socket) {
   console.log('>> Client Connected  >> ');
+  var connectionInfo = {};
 
   /**
    * Database Query: Will log relevant data in the socket_id, and
@@ -147,6 +189,9 @@ function getName() {
   var clientQuery = 'insert into thoughtswap_clients(socket_id, connect) values(?, ?);'
   connection.query(clientQuery, [socket.id, new Date()], function (err, results) {
     //console.log('connect', err, results);
+    if (results.hasOwnProperty('insertId')) {
+      connectionInfo['client_id'] = results.insertId;
+    }
   });
   
   /**
@@ -160,16 +205,12 @@ function getName() {
      * Database Query: Will log relevant data in the disconnect
      * column for the CLIENTS table
      */
-    // var selectClient_id = 'select id from clients where socket_id=?;'
-    // connection.query(selectClient_id, [socket.id], function (err, results) {
-      // console.log('client id found', err, results);
-      // if (results.length > 0) {
-    getClientId(socket.id, function (clientId) {
+    // getClientId(socket.id, function (clientId) {
       var clientQuery = 'update thoughtswap_clients set disconnect=? where id=?;'
-      connection.query(clientQuery, [new Date(), clientId], function (err, results) {
+      connection.query(clientQuery, [new Date(), connectionInfo.client_id], function (err, results) {
         //console.log('client disconnect updated', err, results);
       });
-    });
+    // });
 
     if (io.nsps['/'].adapter.rooms.hasOwnProperty('student')) {
       
@@ -190,8 +231,8 @@ function getName() {
      * Database Query: Will log relevant data in the content, client_id,    ***Still need to add group_id support***
      * prompt_id, columns to the THOUGHTS table
      */
-    getClientId(socket.id, function (clientId) {
-      var queryParams =  [newThought, new Date(), clientId];
+    // getClientId(socket.id, function (clientId) {
+      var queryParams =  [newThought, new Date(), connectionInfo.client_id];
 
       var thoughtQuery = 'insert into thoughtswap_thoughts(content, recieved, author_id) values(?, ?, ?);'
       if (currentPromptId != -1) {
@@ -204,7 +245,7 @@ function getName() {
         addThought(socket, newThought, results.insertId);
 
       });
-    });
+    // });
 
     //console.log('New Thought');
     
@@ -553,6 +594,27 @@ function getName() {
       }
       console.log('Student Logged In Status is ', loggedIn);
       socket.emit('student-login-attempt', loggedIn);
+    });
+  });
+
+  socket.on('create-class', function(class_name, number) {
+    var newClassQuery = 'insert into thoughtswap_groups(name, owner) values (?, ?)';
+    console.log(connectionInfo.teacherId);
+    connection.query(newClassQuery, [name, connectionInfo.teacherId], function(error, results) {
+      console.log(error);
+      console.log(results);
+
+      var groupId = results.insertId;
+
+      var teacherRole = 'insert into thoughtswap_role_memberships (user_id, role_id, group_id) values (?, ?, ?)';
+      connection.query(teacherRole, [connectionInfo.teacherId, 1, groupId], function(error, results) {
+        console.log(error);
+        console.log(results);
+      });
+
+      //return the names list toat goes with this class
+      socket.emit('class-created', name, number, getNames(number, groupId, connectionInfo.teacherId));
+      getClasses(connectionInfo, socket);
     });
   });
 
