@@ -85,7 +85,7 @@ angular.module('thoughtSwapApp')
 	          i = j;
 	        }
 	      }
-	      classes.push({className: results[i].name, users: users});
+	      classes.push({class_name: results[i].name, users: users});
 	    }
 	    userService.groups = classes;
 	    console.log(userService.groups);

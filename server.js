@@ -2,13 +2,14 @@ var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-var mysql      = require('mysql');
+var async = require('async');
+var mysql = require('mysql');
 
 // MySQL database initialization
 var connection = mysql.createConnection({
   host     : 'localhost',
   user     : 'thoughtswap',
-  password : 'asdfghjkl',
+  password : 'thoughtswap',
   database : 'thoughtswap'
 });
 
@@ -600,7 +601,7 @@ function makeName() {
   socket.on('create-class', function(class_name, number) {
     var newClassQuery = 'insert into thoughtswap_groups(name, owner) values (?, ?)';
     console.log(connectionInfo.teacherId);
-    connection.query(newClassQuery, [name, connectionInfo.teacherId], function(error, results) {
+    connection.query(newClassQuery, [class_name, connectionInfo.teacherId], function(error, results) {
       console.log(error);
       console.log(results);
 

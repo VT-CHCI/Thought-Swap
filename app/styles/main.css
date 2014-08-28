@@ -70,6 +70,15 @@ table {
 
 }
 
+/* ~~ LOGIN/ REGISTRATION VIEWS ~~ */
+.btn-large {
+  text-align: center;
+  font-size: 30pt;
+  vertical-align: middle;
+  padding: 10px 20px 10px 20px;
+}
+
+
 /* ~~ ALL VIEWS ~~ */
 body {
   background-color: #F9F9F9;
@@ -109,12 +118,7 @@ body {
   background-color: #2B54A3;
 }
 
-.btn-large {
-  text-align: center;
-  font-size: 30pt;
-  vertical-align: middle;
-  padding: 10px 20px 10px 20px;
-}
+
 
 .data-box {
   max-height: 494px;
