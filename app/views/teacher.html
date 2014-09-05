@@ -1,87 +1,83 @@
 <!-- Header is included by index.html -->
 <div class="container">
-  {{userService.loggedIn()}}
-  {{userService.uid}}
-  {{userService.username}}
-  {{userService.permissions}}
-  {{userService.groups}}
-  
-  <div class="row" ng-show="userService.loggedIn()">
+    {{userService.loggedIn()}} {{userService.uid}} {{userService.username}} {{userService.permissions}} {{userService.groups}}
 
-    <div class="col-md-3">
-      <div class="left-action-area">
-        <div class="panel panel-default control-section">
+    <div class="row" ng-show="userService.loggedIn()">
 
-          <!-- HEADER ~ (Doesn't change) -->
-          <div class="panel-heading">
-            <h3>Control:</h3>
-          </div>
+        <div class="col-md-3">
+            <div class="left-action-area">
+                <div class="panel panel-default control-section">
 
-          <!-- BODY -->
-          <div class="panel-body">
-            <!-- Stucture that provides the teacher with information on how much participation they have -->
-            <div class="data-box">
-              <table class="table table-bordered">
-                <thead>
-                  <tr>
-                    <th>Thoughts</th>
-                    <th>Submitters</th>
-                    <th>Connected</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>{{studentThoughts.length | number}}</td>
-                    <td>{{num_submitters | number}}</td>
-                    <td>{{num_connected | number}}</td>
-                  </tr>
-                </tbody>
-              </table>
+                    <!-- HEADER ~ (Doesn't change) -->
+                    <div class="panel-heading">
+                        <h3>Control:</h3>
+                    </div>
+
+                    <!-- BODY -->
+                    <div class="panel-body">
+                        <!-- Stucture that provides the teacher with information on how much participation they have -->
+                        <div class="data-box">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Thoughts</th>
+                                        <th>Submitters</th>
+                                        <th>Connected</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>{{studentThoughts.length | number}}</td>
+                                        <td>{{num_submitters | number}}</td>
+                                        <td>{{num_connected | number}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!--Button that resets the view for a new session -->
+                        <button class="btn btn-primary" ng-click="newSession()">New Session</button>
+
+                        <!-- Button that initiates distribute functionality  -->
+                        <button popover="There are not enough thoughts to distribute!" popover-trigger="mouseenter" ng-click="distribute()" class="btn btn-primary">Distribute Thoughts</button>
+
+                    </div>
+                </div>
             </div>
-
-            <!--Button that resets the view for a new session -->
-            <button class="btn btn-primary" ng-click="newSession()">New Session</button>
-
-            <!-- Button that initiates distribute functionality  -->
-            <button popover="There are not enough thoughts to distribute!" popover-trigger="mouseenter" ng-click="distribute()" class="btn btn-primary">Distribute Thoughts</button>
-
-          </div>
         </div>
-      </div>
-    </div>
 
-    <div class="col-md-9">
-      <div class="right-action-area">
-        <div class="panel panel-default gallery-section">
+        <div class="col-md-9">
+            <div class="right-action-area">
+                <div class="panel panel-default gallery-section">
 
-          <!-- HEADER ~ (Doesn't change) -->
-          <div class="panel-heading">
-            <h3>Thoughts:</h3>
-          </div>
+                    <!-- HEADER ~ (Doesn't change) -->
+                    <div class="panel-heading">
+                        <h3>Thoughts:</h3>
+                    </div>
 
-          <!-- BODY -->
-          <div class="panel-body">
-            <!-- Input area for teacher to enter their prompt -->
-            <div class="promptRequest">
-            <h3>Prompt:</h3>
-              <form role="form" ng-submit="promptIn()">
-                <textarea rows="3" class="form-control" placeholder="" ng-model="newPrompt"></textarea>
-                <input class="btn btn-primary" type="submit" value="Submit Prompt">
-              </form>
+                    <!-- BODY -->
+                    <div class="panel-body">
+                        <!-- Input area for teacher to enter their prompt -->
+                        <div class="promptRequest">
+                            <h3>Prompt:</h3>
+                            <form role="form" ng-submit="promptIn()">
+                                <textarea rows="3" class="form-control" placeholder="" ng-model="newPrompt"></textarea>
+                                <input class="btn btn-primary" type="submit" value="Submit Prompt">
+                            </form>
+                        </div>
+
+                        <!-- Stucture to allow the teacher to view each student's most recent thoughts -->
+                        <div class="data-box">
+                            <ul ui-sortable ng-model="studentThoughts" class="thoughts">
+                                <li ng-repeat="thought in studentThoughts" class="galleryThought">{{thought.thought | characters:150 :true}}</li>
+                            </ul>
+                        </div>
+
+                    </div>
+
+                </div>
             </div>
-            
-            <!-- Stucture to allow the teacher to view each student's most recent thoughts -->
-            <div class="data-box">
-              <ul  ui-sortable ng-model="studentThoughts" class="thoughts">
-                <li  ng-repeat="thought in studentThoughts" class="galleryThought">{{thought.thought | characters:150 :true}}</li>
-              </ul>
-            </div>
-
-          </div>
-
         </div>
-      </div>
+
     </div>
-    
-  </div>
 </div>

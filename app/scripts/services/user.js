@@ -1,101 +1,131 @@
 'use strict';
 
 angular.module('thoughtSwapApp')
-	.service('User', function (thoughtSocket, $location) {
-	
-	var userService = this;
-	this.username = '';
-	this.uid = '';
-	this.authenticated = false;
-	this.studentAuthenticated = false;
-  	this.groups = [];
+    .service('User', function(thoughtSocket, $location) {
 
-	this.teacherLoggedIn = function () {
-	    return userService.authenticated;
-	};
+        /**
+         * Initialization
+         */
+        var userService = this;
+        this.username = '';
+        this.uid = '';
+        this.authenticated = false;
+        this.studentAuthenticated = false;
+        this.groups = [];
+        this.currentGroup = 0;
 
-	this.studentLoggedIn = function () {
-    	return (userService.studentAuthenticated || userService.authenticated);
-  	};
+        /**
+         * Getter and Setter Methods Associated with the User Service
+         */
+        this.getUserName = function() {
+            return userService.username;
+        };
 
-	this.loginTeacher = function(username, password) {
-		thoughtSocket.emit('login-teacher', {username:username, password:password});
-	};
+        this.getUserId = function() {
+            return userService.uid;
+        };
 
-	this.logInStudent = function(name) {
-    	thoughtSocket.emit('login-student', {sillyname: name});
-  	};
+        this.getGroups = function() {
+            return userService.groups;
+        };
 
-	this.registerUser = function(username, password, email) {
-	  	console.log(username, password, email);
-  			thoughtSocket.emit('new-registration', 
-          		{username:username, password:password, email:email});
-  	};
+        this.getCurrentGroup = function() {
+            return userService.currentGroup;
+        };
 
-  	this.getGroups = function() {
-    	return userService.groups;
-  	}
+        this.setGroup = function(groupId) {
+            userService.currentGroup = groupId;
+        };
+        /* ~~~~ */
 
-  	thoughtSocket.on('registration-failed', function (error) {
-  		userService.errorMsg = error;
-  	});
+        /**
+         * Takes data from the server and assigns it appropriately to
+         * the correct fields.
+         */
+        thoughtSocket.on('user-logged-in', function(userInfo) {
+            // userInfo = {uid: SqlID, username: ~~, permissions: ~~ ,groups: ~~,teacher: true}
+            console.log(userInfo);
+            userService.uid = userInfo.uid;
+            userService.username = userInfo.username;
+            if (userInfo.teacher) {
+                userService.authenticated = true;
+                $location.path('/teacher');
+            } else {
+                userService.studentAuthenticated = true;
+                $location.path('/student');
+            }
+        });
 
-  	thoughtSocket.on('login-failed', function (error) {
-  		userService.loginErrorMsg = error;
-  	});
+        /**
+         * Subservice that checks for authentication for the teacher view. Allows
+         * access only to the teacher who has logged in.
+         */
+        this.teacherLoggedIn = function() {
+            return userService.authenticated;
+        };
 
-  	thoughtSocket.on('user-logged-in', function (userInfo) {
-  		console.log(userInfo);
-  		userService.uid = userInfo.uid;
-  		userService.username = userInfo.username;
-  		userService.permissions = userInfo.permissions;
-  		userService.groups = userInfo.groups;
-  		userService.authenticated = true;
-  		if (userInfo.teacher) {
-	  		$location.path('/teacher');
-  		}
-  		else {
-	  		$location.path('/student');
-  		}
-  	});
+        /**
+         * Subservice that sets fields back to their orignally blank states.
+         */
+        this.logOut = function() {
+            userService.username = '';
+            userService.uid = '';
+            userService.authenticated = false;
+            userService.studentAuthenticated = false;
+            this.groups = [];
+            this.currentGroup = 0;
+            $location.path('/login');
+        }
 
-	thoughtSocket.on('teacher-login-attempt', function(data){
-		console.log(data);
-		if (data.success) {
-			userService.username = data.username;
-			userService.uid = data.uid;
-			userService.authenticated = true;
-			
-		}
-	});
+        /**
+         * Subservice that checks for authentication for the student view. Allows
+         * access to the student view for both students and teachers who've logged in.
+         */
+        this.studentLoggedIn = function() {
+            return (userService.studentAuthenticated || userService.authenticated);
+        };
+
+        /**
+         * Takes data from the server concerning toubleshooting in the login
+         * or registration process and relays it appropriately.
+         */
+        thoughtSocket.on('registration-failed', function(error) {
+            userService.errorMsg = error;
+        });
+
+        thoughtSocket.on('login-failed', function(error) {
+            userService.loginErrorMsg = error;
+        });
+        /* ~~~~ */
 
 
-	this.loginStudent = function(sillyname) {
-		thoughtSocket.emit('login-student', {username:sillyname});
-	};
+        thoughtSocket.on('load-classes', function(results) {
+            console.log(results);
+            var classes = [];
+            for (var i = 0; i < results.length; i++) {
+                var users = [];
+                for (var j = 0; j < results.length; j++) {
+                    if (results[i].name == results[j].name) {
+                        users.push({name:results[j].username, id:results[j].uid});
+                        i = j;
+                    }
+                }
+                classes.push({
+                    class_name: results[i].name,
+                    users: users
+                });
+            }
+            userService.groups = classes;
+            console.log(userService.groups);
+        });
+
+        thoughtSocket.on('class-created', function(name, number, studentNames) {
+            userService.groups.push({
+                class_name: name,
+                number: number,
+                users: studentNames
+            });
+        });
 
 
-	thoughtSocket.on('classes-loaded', function(results) {
-	    var classes = [];
-	    for (var i = 0; i < results.length; i++) {
-	      var users = [];
-	      for (var j = 0; j < results.length; j++) {
-	        if (results[i].name == results[j].name) {
-	          users.push(results[j].username);
-	          i = j;
-	        }
-	      }
-	      classes.push({class_name: results[i].name, users: users});
-	    }
-	    userService.groups = classes;
-	    console.log(userService.groups);
-	});
-
-	this.logOutTeacher = function() {
-	    userService.username = '';
-	    userService.uid = '';
-	    userService.authenticated = false;
-	    $location.path('/login');
-  	}
-  	
-});
+    });

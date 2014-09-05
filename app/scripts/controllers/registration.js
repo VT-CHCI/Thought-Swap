@@ -12,38 +12,26 @@
 //-------------------------------------------------------------------------
 
 angular.module('thoughtSwapApp')
-	.controller('RegistrationCtrl', function ($scope, md5, thoughtSocket, $location, User) {
+    .controller('RegistrationCtrl', function($scope, md5, thoughtSocket, $location, User) {
 
-  	$('.layer2').hide();
-  	$scope.username='';
-  	$scope.password='';
-  	$scope.email='';
-  	$scope.registrationFailed = false;
+            $scope.username = '';
+            $scope.password = '';
+            $scope.email = '';
+            $scope.registrationFailed = false;
 
-  	var registrationScope = $scope;
+            var registrationScope = $scope;
 
-  	$scope.registerUser = function() {
-  		$scope.registrationFailed = false;
+            $scope.registerUser = function() {
+                $scope.registrationFailed = false;
 
-      if ($scope.username.length > 0 &&
-        $scope.password.length > 0 &&
-        $scope.email.length > 0) {
-          User.registerUser($scope.username, md5.createHash($scope.password), $scope.email);
-      }
+                if ($scope.username.length > 0 &&
+                    $scope.password.length > 0 &&
+                    $scope.email.length > 0) {
+                    var registrationData = {user: $scope.username, pass: md5.createHash($scope.password), email: $scope.email};
+                    thoughtSocket.emit('new-registration', registrationData);
+                    } else {
+                        $scope.registrationFailed = true;
+                    }
+                };
 
-  		
-
-  			// thoughtSocket.emit('new-registration', 
-     //      {username:$scope.username, password:md5.createHash($scope.password), email:$scope.email});
-		  	
-  			// User.loginTeacher($scope.username, md5.createHash($scope.password);
-		  	// console.log($scope.username, md5.createHash($scope.password), $scope.email);
-  		// }
-  		else {
-  			$scope.registrationFailed = true;
-  		}
-      $('.layer1').hide();
-      $('.layer2').show();
-  	};
-
-});
+            });
