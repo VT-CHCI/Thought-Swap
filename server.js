@@ -114,6 +114,8 @@ function numSubmitters() {
  * teacher's view.
  */
 function addThought(socket, thought, id) {
+    // console.log('addthought:', socket, thought, id);
+    console.log('addthought:', thought);
     var newThought = {
         id: socket.id,
         thought: thought,
@@ -126,7 +128,7 @@ function addThought(socket, thought, id) {
     } else {
         //this means we just got a new submitter
         allThoughts[socket.id] = [newThought];
-        socket.broadcast.to('teacher').emit('num-submitters', numSubmitters());
+        socket.broadcast.to('teacher/'+connectionInfo[socket.id].currentGroupId).emit('num-submitters', numSubmitters());
     }
 }
 
@@ -148,8 +150,8 @@ function addStudent(classId, callback) {
             callback(error);
             return;
         }
-        console.log('addStudent results');
-        console.log(results);
+        // console.log('addStudent results');
+        // console.log(results);
         if (results.length > 0) {
             addStudent(classId, callback);
         } else {
@@ -162,8 +164,8 @@ function addStudent(classId, callback) {
                 var userId = results.insertId;
                 var membershipQuery = 'insert into thoughtswap_role_memberships (user_id, role_id, group_id) values (?, ?, ?)';
                 connection.query(membershipQuery, [userId, 2, classId], function(error, results) {
-                    console.log("Added user " + userId + " to class " + classId);
-                    console.log('membershipQuery results', results);
+                    // console.log("Added user " + userId + " to class " + classId);
+                    // console.log('membershipQuery results', results);
                     if (error) {
                         console.log('callback error', error);
                         callback(error);
@@ -201,7 +203,7 @@ function getClientId(socketId, callback) {
 // }
 
 function getClasses(connectionInfo, socket) {
-    console.log(connectionInfo.teacherId);
+    // console.log(connectionInfo.teacherId);
     var detailsQuery = 'SELECT g.name as "name", others.name as "username", others.id as "uid", g.id as "group_id" ' +
         'from thoughtswap_groups g ' +
         'JOIN thoughtswap_role_memberships m on m.group_id=g.id and m.role_id=2 ' +
@@ -224,9 +226,9 @@ function getClasses(connectionInfo, socket) {
  * The main functions of the server, listening for events on the client
  * side and responding appropriately.
  */
+var connectionInfo = {};
 io.sockets.on('connection', function(socket) {
     console.log('>> Client Connected  >> ');
-    var connectionInfo = {};
 
     /**
      * Database Query: Will log relevant data in the socket_id, and
@@ -236,7 +238,8 @@ io.sockets.on('connection', function(socket) {
     connection.query(clientQuery, [socket.id, new Date()], function(err, results) {
         //console.log('connect', err, results);
         if (results.hasOwnProperty('insertId')) {
-            connectionInfo['client_id'] = results.insertId;
+            connectionInfo[socket.id] = {};
+            connectionInfo[socket.id]['client_id'] = results.insertId;
         }
     });
 
@@ -252,17 +255,19 @@ io.sockets.on('connection', function(socket) {
          * column for the CLIENTS table
          */
         // getClientId(socket.id, function (clientId) {
-        var clientQuery = 'update thoughtswap_clients set disconnect=? where id=?;'
-        connection.query(clientQuery, [new Date(), connectionInfo.client_id], function(err, results) {
-            //console.log('client disconnect updated', err, results);
-        });
+            if (connectionInfo.hasOwnProperty(socket.id)&& connectionInfo[socket.id].hasOwnProperty('client_id')) {
+                var clientQuery = 'update thoughtswap_clients set disconnect=? where id=?;'
+                connection.query(clientQuery, [new Date(), connectionInfo[socket.id].client_id], function(err, results) {
+                    //console.log('client disconnect updated', err, results);
+                });
+            }
         // });
 
         if (io.nsps['/'].adapter.rooms.hasOwnProperty('student')) {
 
 
-            socket.broadcast.emit('num-students',
-                Object.keys(io.nsps['/'].adapter.rooms['student']).length);
+            socket.broadcast.to('teacher/'+connectionInfo[socket.id].currentGroupId).emit('num-students',
+                Object.keys(io.nsps['/'].adapter.rooms['student/'+connectionInfo[socket.id].currentGroupId]).length);
         }
 
     });
@@ -278,24 +283,29 @@ io.sockets.on('connection', function(socket) {
          * prompt_id, columns to the THOUGHTS table
          */
         // getClientId(socket.id, function (clientId) {
-        var queryParams = [newThought, new Date(), connectionInfo.client_id];
-
-        var thoughtQuery = 'insert into thoughtswap_thoughts(content, recieved, author_id) values(?, ?, ?);'
+        var queryParams = [newThought, new Date(), connectionInfo[socket.id].client_id, connectionInfo[socket.id].currentGroupId];
+        var thoughtQuery = 'insert into thoughtswap_thoughts(content, recieved, author_id, group_id) values(?, ?, ?, ?);'
         if (currentPromptId != -1) {
-            thoughtQuery = 'insert into thoughtswap_thoughts(content, recieved, author_id, prompt_id) values(?, ?, ?, ?);'
+            thoughtQuery = 'insert into thoughtswap_thoughts(content, recieved, author_id, group_id, prompt_id) values(?, ?, ?, ?, ?);'
             queryParams.push(currentPromptId);
         }
-
+        console.log(thoughtQuery);
+        console.log('new-thought-from-student queryParams:', queryParams);
         connection.query(thoughtQuery, queryParams, function(err, results) {
             //console.log('new thought logged', err, results);
-            addThought(socket, newThought, results.insertId);
+            if (err) {
+                console.log(err);
+            }
+            else {
+                addThought(socket, newThought, results.insertId);
+            }
 
         });
         // });
 
         //console.log('New Thought');
 
-        socket.broadcast.to('teacher').emit('new-thought-from-student', newThought);
+        socket.broadcast.to('teacher/'+connectionInfo[socket.id].currentGroupId).emit('new-thought-from-student', newThought);
     });
 
 
@@ -308,15 +318,21 @@ io.sockets.on('connection', function(socket) {
          * Database Query: Will log relevant data in the content and recieved
          * columns of the PROMPTS table
          */
-        var promptQuery = 'insert into thoughtswap_prompts(content, recieved) values(?, ?);'
-        connection.query(promptQuery, [newPrompt, new Date()], function(err, results) {
+        console.log('from new-prompt:', connectionInfo[socket.id]);
+        var promptQuery = 'insert into thoughtswap_prompts(content, recieved, author_id, group_id) values(?, ?, ?, ?)';
+        connection.query(promptQuery, [newPrompt, new Date(), connectionInfo[socket.id].client_id, connectionInfo[socket.id].currentGroupId], function(err, results) {
             //console.log('prompt logged', err, results);
+            if (err) {
+                console.log('error in new-prompt', err);
+            }
+            else {
+                currentPromptId = results.insertId;
+            }
 
-            currentPromptId = results.insertId;
         });
 
-        console.log('Prompt recieved');
-        socket.broadcast.to('student').emit('new-prompt', newPrompt);
+        // console.log('Prompt recieved');
+        socket.broadcast.to('student/'+connectionInfo[socket.id].currentGroupId).emit('new-prompt', newPrompt);
         newQuestion = newPrompt;
     });
 
@@ -325,7 +341,7 @@ io.sockets.on('connection', function(socket) {
      * variables back to their initial state.
      */
     socket.on('new-session', function() {
-        console.log('new session initiated');
+        // console.log('new session initiated');
         socket.broadcast.emit('new-session');
         allThoughts = {};
         chronologicalThoughts = [];
@@ -339,12 +355,16 @@ io.sockets.on('connection', function(socket) {
      * teachers who may have joined after a session has begun.
      */
     socket.on('teacher', function(groupToJoin) {
-        console.log('Teacher Joined')
+        // console.log('Teacher Joined')
         socket.leave('student');
         socket.join('teacher/' + groupToJoin);
+        connectionInfo[socket.id].currentGroupId = groupToJoin;
         console.log(groupToJoin);
         var conn = 0;
-        
+        console.log("attempt to log socket io info in 'teacher'");
+        console.log(io.nsps['/'].adapter.rooms);
+        console.log(Object.keys(io.nsps['/'].adapter.rooms));
+
         if (io.nsps['/'].adapter.rooms.hasOwnProperty('student/' + groupToJoin)) {
             conn = Object.keys(io.nsps['/'].adapter.rooms['student/' + groupToJoin]).length;
         }
@@ -355,7 +375,7 @@ io.sockets.on('connection', function(socket) {
             submitters: numSubmitters()
         });
 
-        socket.broadcast.emit('num-students', conn);
+        socket.broadcast.to('teacher/'+connectionInfo[socket.id].currentGroupId).emit('num-students', conn);
     });
 
     /**
@@ -365,11 +385,12 @@ io.sockets.on('connection', function(socket) {
      */
     socket.on('student', function(groupToJoin) {
         socket.leave('teacher');
+        connectionInfo[socket.id].currentGroupId = groupToJoin;
         socket.join('student/' + groupToJoin); // + groupId
 
         io.sockets.emit('prompt-sync', newQuestion); // Just this channel
 
-        socket.broadcast.emit('num-students',
+        socket.broadcast.to('teacher/'+connectionInfo[socket.id].currentGroupId).emit('num-students',
             Object.keys(io.nsps['/'].adapter.rooms['student/' + groupToJoin]).length);
     });
 
@@ -471,7 +492,12 @@ io.sockets.on('connection', function(socket) {
 
                     connection.query(distributeQuery, [shuffledFlatThoughts[j].databaseId, clientId, new Date()],
                         function(err, results) {
-
+                            if (err) {
+                                console.log(err);
+                            }
+                            else {
+                                console.log(results);
+                            }
                             //console.log('distributions table filled in', err, results);
                         });
                 }
@@ -540,7 +566,7 @@ io.sockets.on('connection', function(socket) {
                         }
                         console.log(results);
                         var teacherDbId = results.insertId;
-                        connectionInfo['teacherId'] = teacherDbId;
+                        connectionInfo[socket.id]['teacherId'] = teacherDbId;
                         socket.emit('teacher-logged-in', {
                             uid: teacherDbId,
                             username: registrationData.username,
@@ -566,16 +592,17 @@ io.sockets.on('connection', function(socket) {
             console.log(results);
             if (authenticationInfo.username == results[0].name && authenticationInfo.password == results[0].password) {
                 console.log(results, "User match, Line on login-teacher-attempt");
-                connectionInfo['teacherId'] = results[0].id;
+                connectionInfo[socket.id]['teacherId'] = results[0].id;
+                console.log('from teacher login:', connectionInfo[socket.id]);
 
                 socket.emit('teacher-logged-in', {
-                    uid: connectionInfo.teacherId,
+                    uid: connectionInfo[socket.id].teacherId,
                     username: authenticationInfo.username,
                     teacher: true
                 });
 
                 console.log('Teacher Logged In Status is nominal');
-                getClasses(connectionInfo, socket);
+                getClasses(connectionInfo[socket.id], socket);
             } else {
                 console.log('teacher login failed');
                 socket.emit('login-failed', error);
@@ -627,9 +654,9 @@ io.sockets.on('connection', function(socket) {
         console.log('class_name : ', class_name);
         console.log('number : ', number);
         var newClassQuery = 'insert into thoughtswap_groups(name, owner) values (?, ?)';
-        console.log('connectionInfo.teacherId');
-        console.log(connectionInfo.teacherId);
-        connection.query(newClassQuery, [class_name, connectionInfo.teacherId], function(error, results) {
+        console.log('connectionInfo[socket.id].teacherId');
+        console.log(connectionInfo[socket.id].teacherId);
+        connection.query(newClassQuery, [class_name, connectionInfo[socket.id].teacherId], function(error, results) {
             console.log('error');
             console.log(error);
             console.log('results');
@@ -638,7 +665,7 @@ io.sockets.on('connection', function(socket) {
             var groupId = results.insertId;
 
             var teacherRole = 'insert into thoughtswap_role_memberships (user_id, role_id, group_id) values (?, ?, ?)';
-            connection.query(teacherRole, [connectionInfo.teacherId, 1, groupId], function(error, results) {
+            connection.query(teacherRole, [connectionInfo[socket.id].teacherId, 1, groupId], function(error, results) {
                 console.log('error');
                 console.log(error);
                 console.log('results');
@@ -655,7 +682,7 @@ io.sockets.on('connection', function(socket) {
             });
 
             //return the names list that goes with this class
-            // getClasses(connectionInfo, socket);
+            // getClasses(connectionInfo[socket.id], socket);
         });
     });
 

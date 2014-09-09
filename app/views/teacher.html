@@ -52,13 +52,13 @@
 
                     <!-- HEADER ~ (Doesn't change) -->
                     <div class="panel-heading">
-                        <h3>Thoughts:</h3>
+                        <h3>Thoughts<span ng-if="currentPrompt.length>0">&nbsp;for {{currentPrompt}}</span>:</h3>
                     </div>
 
                     <!-- BODY -->
                     <div class="panel-body">
                         <!-- Input area for teacher to enter their prompt -->
-                        <div class="promptRequest">
+                        <div class="promptRequest enterPrompt">
                             <h3>Prompt:</h3>
                             <form role="form" ng-submit="promptIn()">
                                 <textarea rows="3" class="form-control" placeholder="" ng-model="newPrompt"></textarea>

@@ -30,6 +30,7 @@ angular.module('thoughtSwapApp')
         $scope.studentThoughts = [];
         $scope.num_submitters = 0;
         $scope.num_connected = 0;
+        $scope.currentPrompt = '';
         // $scope.canDistribute = false;
 
         // /**
@@ -43,9 +44,9 @@ angular.module('thoughtSwapApp')
          * Will tell the server to begin its distribution process.
          */
         $scope.distribute = function() {
-            if (canDistribute) {
+            // if (canDistribute) {
                 thoughtSocket.emit('distribute');
-            }
+            // }
         };
 
         /**
@@ -77,7 +78,7 @@ angular.module('thoughtSwapApp')
          * update studentThoughts accordingly.
          */
         thoughtSocket.on('new-thought-from-student', function(newThought) {
-            //console.log('recived thought!', newThought);
+            console.log('recived thought!', newThought);
             $scope.studentThoughts.push({
                 thought: newThought
             });

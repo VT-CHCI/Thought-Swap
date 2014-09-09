@@ -31,6 +31,7 @@ angular.module('thoughtSwapApp')
         $scope.showTeacher = function() {
             $('.topLayer').hide();
             $('.teacherLogIn').show();
+            $('#TeacherInputUsername').focus();
         };
 
         $scope.loginTeacher = function() {
@@ -47,6 +48,7 @@ angular.module('thoughtSwapApp')
         $scope.showStudent = function() {
             $('.topLayer').hide();
             $('.studentLogIn').show();
+            $('#StudentInputUsername').focus();
         };
 
         $scope.loginStudent = function() {
