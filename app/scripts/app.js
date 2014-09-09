@@ -32,7 +32,7 @@ angular
       //   templateUrl: 'views/main.html',  // Commented out until work on landing page is a priority.
       //   controller: 'MainCtrl'
       // })
-      .when('/student', {
+      .when('/student/:groupId', {
         templateUrl: 'views/student.html',
         controller: 'StudentCtrl'
       })
@@ -40,7 +40,7 @@ angular
         templateUrl: 'views/teacher.html',
         controller: 'TeacherCtrl'
       })
-      .when('/teacher', {
+      .when('/teacher-admin', {
         templateUrl: 'views/teacher-admin.html',
         controller: 'TeacherAdminCtrl'
       })
@@ -53,6 +53,6 @@ angular
         controller: 'LoginCtrl'
       })
       .otherwise({
-        redirectTo: '/student'
+        redirectTo: '/login'
       });
   });

@@ -12,7 +12,7 @@
 //-------------------------------------------------------------------------
 
 angular.module('thoughtSwapApp')
-    .controller('LoginCtrl', function($scope, md5, thoughtSocket, User) {
+    .controller('LoginCtrl', function ($scope, md5, thoughtSocket, User) {
 
         /**
          * Initialization

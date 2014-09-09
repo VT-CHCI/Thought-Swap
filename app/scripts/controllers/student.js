@@ -12,14 +12,14 @@
 //-------------------------------------------------------------------------
 
 angular.module('thoughtSwapApp')
-  .controller('StudentCtrl', function ($scope, thoughtSocket, User) {
+  .controller('StudentCtrl', function ($scope, thoughtSocket, User, $routeParams) {
 
     $scope.userService = User;
 
     /**
      * Will tell the server to put this client in the student room.
      */
-    thoughtSocket.emit('student');
+    thoughtSocket.emit('student', $scope.routeParams);
     console.log('Joined as student')
 
     /**

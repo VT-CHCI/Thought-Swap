@@ -14,24 +14,24 @@
 angular.module('thoughtSwapApp')
     .controller('RegistrationCtrl', function($scope, md5, thoughtSocket, $location, User) {
 
-            $scope.username = '';
-            $scope.password = '';
-            $scope.email = '';
+        $scope.username = '';
+        $scope.password = '';
+        $scope.email = '';
+        $scope.registrationFailed = false;
+
+        var registrationScope = $scope;
+
+        $scope.registerUser = function() {
             $scope.registrationFailed = false;
+            var registrationData = {
+                user: $scope.username,
+                pass: md5.createHash($scope.password),
+                email: $scope.email
+            };
+            thoughtSocket.emit('new-registration', registrationData);
 
-            var registrationScope = $scope;
+            // Needs to notify user if registration fails
 
-            $scope.registerUser = function() {
-                $scope.registrationFailed = false;
+        };
 
-                if ($scope.username.length > 0 &&
-                    $scope.password.length > 0 &&
-                    $scope.email.length > 0) {
-                    var registrationData = {user: $scope.username, pass: md5.createHash($scope.password), email: $scope.email};
-                    thoughtSocket.emit('new-registration', registrationData);
-                    } else {
-                        $scope.registrationFailed = true;
-                    }
-                };
-
-            });
+    });

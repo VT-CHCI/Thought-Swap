@@ -130,10 +130,10 @@ function addThought(socket, thought, id) {
     }
 }
 
-function generateAddStudentFunctions (n, classId) {
+function generateAddStudentFunctions(n, classId) {
     var tasklist = [];
     for (var i = 0; i < n; i++) {
-        tasklist.push(function (callback) {
+        tasklist.push(function(callback) {
             addStudent(classId, callback);
         });
     }
@@ -169,7 +169,10 @@ function addStudent(classId, callback) {
                         callback(error);
                     }
 
-                    callback(null, {id:results.insertId, name:name});
+                    callback(null, {
+                        id: results.insertId,
+                        name: name
+                    });
                 });
             });
         }
@@ -198,7 +201,8 @@ function getClientId(socketId, callback) {
 // }
 
 function getClasses(connectionInfo, socket) {
-    var detailsQuery = 'SELECT g.name as "name", others.name as "username", others.id as "uid" ' +
+    console.log(connectionInfo.teacherId);
+    var detailsQuery = 'SELECT g.name as "name", others.name as "username", others.id as "uid", g.id as "group_id" ' +
         'from thoughtswap_groups g ' +
         'JOIN thoughtswap_role_memberships m on m.group_id=g.id and m.role_id=2 ' +
         'JOIN users others on others.id = m.user_id ' +
@@ -334,19 +338,19 @@ io.sockets.on('connection', function(socket) {
      * counts accordingly. It will also sync available data for
      * teachers who may have joined after a session has begun.
      */
-    socket.on('teacher', function() {
+    socket.on('teacher', function(groupToJoin) {
         console.log('Teacher Joined')
         socket.leave('student');
-        socket.join('teacher');
-
+        socket.join('teacher/' + groupToJoin);
+        console.log(groupToJoin);
         socket.emit('thought-sync', {
             thoughts: chronologicalThoughts,
-            connected: Object.keys(io.nsps['/'].adapter.rooms['student']).length,
+            connected: Object.keys(io.nsps['/'].adapter.rooms['student/' + groupToJoin]).length,
             submitters: numSubmitters()
         });
 
         socket.broadcast.emit('num-students',
-            Object.keys(io.nsps['/'].adapter.rooms['student']).length);
+            Object.keys(io.nsps['/'].adapter.rooms['student/' + groupToJoin]).length);
     });
 
     /**
@@ -354,14 +358,14 @@ io.sockets.on('connection', function(socket) {
      * room after ensuring they are not in the teacher room, then update
      * counts accordingly.
      */
-    socket.on('student', function() {
+    socket.on('student', function(groupToJoin) {
         socket.leave('teacher');
-        socket.join('student');
+        socket.join('student/' + groupToJoin); // + groupId
 
         io.sockets.emit('prompt-sync', newQuestion); // Just this channel
 
         socket.broadcast.emit('num-students',
-            Object.keys(io.nsps['/'].adapter.rooms['student']).length);
+            Object.keys(io.nsps['/'].adapter.rooms['student/' + groupToJoin]).length);
     });
 
     //-------------------------------------------------------------------------
@@ -511,7 +515,7 @@ io.sockets.on('connection', function(socket) {
     socket.on('new-registration', function(registrationData) {
         console.log("New User: ", registrationData);
         var usernames = 'select * from users where name=?';
-        connection.query(usernames, [registrationData.username], function(error, results) {
+        connection.query(usernames, [registrationData.user], function(error, results) {
             if (error) {
                 console.log(error);
             } else {
@@ -525,67 +529,22 @@ io.sockets.on('connection', function(socket) {
                     socket.emit('registration-failed', message);
                 } else {
                     var newUser = 'insert into users (name, password, email) values (?, ?, ?)';
-                    connection.query(newUser, [registrationData.username, registrationData.password, registrationData.email], function(error, results) {
+                    connection.query(newUser, [registrationData.user, registrationData.pass, registrationData.email], function(error, results) {
+                        if (error) {
+                            console.log(error);
+                        }
+                        console.log(results);
                         var teacherDbId = results.insertId;
-                        if (userInfo == null) {
-                                                    console.log('userInfocallback came back null');
-                            } else {
-                                socket.emit('user-logged-in', {
-                                        uid: teacherDbId,
-                                        username: registrationData.username,
-                                        permissions: [],
-                                        groups: [],
-                                        teacher: true
-
-                                                     });
-                        // if (error) { //maybe need a better condition here
-                        //     socket.emit('registration-failed', error.message);
-                        //     console.log('New User query failed', error);
-                        // } else {
-                        //     //create a class wwith 0 students
-                        //     console.log('User insert results', results);
-                        //     var teacherDbId = results.insertId;
-                        //     var newGroup = "insert into thoughtswap_groups (name, owner) values (?,?);"
-                        //     connection.query(newGroup, [registrationData.username, teacherDbId], function(newGroupError, newGroupResults) {
-                        //         if (newGroupError) {
-                        //             console.log(newGroupError);
-                        //         } else {
-                        //             //make them a teacher of that class
-                        //             var newRoleMembership = "insert into thoughtswap_role_memberships (user_id, role_id, group_id) values (?,?, ?);"
-                        //             console.log('About to insert', newRoleMembership, [teacherDbId, role_ids.teacher, newGroupResults.insertId]);
-                        //             connection.query(newRoleMembership, [teacherDbId, role_ids.teacher, newGroupResults.insertId], function(newRoleError, newRoleResults) {
-                        //                 if (newRoleError) {
-                        //                     console.log(newRoleError);
-                        //                 } else {
-                        //                     //we need to send back the uid, the roles, and the owned groups
-                        //                    getUserInfo(teacherDbId, function(userInfo) {
-                        //                         if (userInfo == null) {
-                        //                             console.log('userInfocallback came back null');
-                        //                         } else {
-                        //                             socket.emit('user-logged-in', {
-                        //                                 uid: teacherDbId,
-                        //                                 username: registrationData.username,
-                        //                                 permissions: userInfo.permissions,
-                        //                                 groups: userInfo.groups,
-                        //                                 teacher: true
-                        //                             });
-                        //                         }
-                        //                     });
-
-                        //                 }
-                        //             });
-
-                        //         }
-
-                        //     });
-                        // }
+                        connectionInfo['teacherId'] = teacherDbId;
+                        socket.emit('teacher-logged-in', {
+                            uid: teacherDbId,
+                            username: registrationData.username,
+                            teacher: true
+                        });
                     });
                 }
             }
         });
-        // socket.emit('login-attempt', {success:true});
-        // socket.emit('login-attempt', {success:false});
-        // socket.emit('login-teacher-attempt', {success:true, uid:1, username:'awesome'});
     });
 
     /**
@@ -596,16 +555,21 @@ io.sockets.on('connection', function(socket) {
 
         var returningUser = 'select * from users where name=?';
         connection.query(returningUser, [authenticationInfo.username], function(error, results) {
+            if (error) {
+                console.log(error);
+            }
+            console.log(results);
             if (authenticationInfo.username == results[0].name && authenticationInfo.password == results[0].password) {
                 console.log(results, "User match, Line on login-teacher-attempt");
                 connectionInfo['teacherId'] = results[0].id;
 
-                socket.emit('user-logged-in', {
+                socket.emit('teacher-logged-in', {
+                    uid: connectionInfo.teacherId,
                     username: authenticationInfo.username,
                     teacher: true
                 });
 
-                console.log('Teacher Logged In Status is ', loggedIn);
+                console.log('Teacher Logged In Status is nominal');
                 getClasses(connectionInfo, socket);
             } else {
                 console.log('teacher login failed');
@@ -616,23 +580,41 @@ io.sockets.on('connection', function(socket) {
 
     socket.on('student-login-attempt', function(sillyname) {
         console.log('Searching for ', sillyname);
-        var returningUser = 'select * from users where name=?';
+        // assume student in onlyt 1 class
+        var returningUser = 'SELECT u.*, g.id as "group_id", g.name as "group_name"' +
+        ' FROM users u JOIN thoughtswap_role_memberships m on m.user_id=u.id' +
+        ' JOIN thoughtswap_groups g on g.id=m.group_id where u.name=?';
         connection.query(returningUser, [sillyname], function(error, results) {
             if (error) {
                 console.log(error);
             }
             console.log(results);
-            var loggedIn = false;
-            var studentDbId = results[0].insertId;
 
-            for (var i = 0; i < results.length; i++) {
-                if (sillyname == results[i].name) {
-                    loggedIn = true;
-                    console.log("User match");
-                }
-            }
-            socket.emit('user-logged-in', loggedIn);
-            console.log('Student Logged In Status is ', loggedIn);
+            //var studentInfo = {};
+            
+            //var groups=[];
+            //Accounting for student could be in multiple groups/ classes
+            // for (var i=0; i<results.length;i++) {
+            //     var studentDbId = results[i].id;
+            //     var groupId = results[i].group_id;
+            //     var groupName = results[i].group_name;
+            //     groups.push( {
+            //         userId: studentDbId,
+            //         username: sillyname,
+            //         groupId: groups,
+            //         groupName: groupName
+            //     });
+            // }
+
+            console.log("User match");
+
+            socket.emit('student-logged-in', {
+                userId: results[0].id,
+                username: sillyname,
+                groupId: results[0].group_id,
+                groupName: results[0].group_name
+            });
+            console.log('Student Status is logged in');
         });
     });
 
@@ -658,13 +640,13 @@ io.sockets.on('connection', function(socket) {
                 console.log(results);
             });
 
-            async.parallel(generateAddStudentFunctions(number, groupId), function (error, results) {
+            async.parallel(generateAddStudentFunctions(number, groupId), function(error, results) {
                 if (error) {
                     console.log('error adding students in create-class', error);
                 }
                 console.log('async results', results);
                 var studentList = results;
-                socket.emit('class-created', class_name, number, studentList);
+                socket.emit('class-created', class_name, number, groupId, studentList);
             });
 
             //return the names list that goes with this class

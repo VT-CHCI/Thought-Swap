@@ -1,8 +1,8 @@
 <!-- Header is included by index.html -->
 <div class="container">
-    {{userService.loggedIn()}} {{userService.uid}} {{userService.username}} {{userService.permissions}} {{userService.groups}}
-
-    <div class="row" ng-show="userService.loggedIn()">
+    <!-- {{userService.loggedIn()}} {{userService.uid}} {{userService.username}} {{userService.permissions}} -->
+    <p>Welcome {{userService.username}}</p>
+    <div class="row" ng-show="userService.teacherLoggedIn()">
 
         <div class="col-md-3">
             <div class="left-action-area">

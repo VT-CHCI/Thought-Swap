@@ -42,18 +42,23 @@ angular.module('thoughtSwapApp')
          * Takes data from the server and assigns it appropriately to
          * the correct fields.
          */
-        thoughtSocket.on('user-logged-in', function(userInfo) {
-            // userInfo = {uid: SqlID, username: ~~, permissions: ~~ ,groups: ~~,teacher: true}
-            console.log(userInfo);
-            userService.uid = userInfo.uid;
-            userService.username = userInfo.username;
-            if (userInfo.teacher) {
-                userService.authenticated = true;
-                $location.path('/teacher');
-            } else {
-                userService.studentAuthenticated = true;
-                $location.path('/student');
-            }
+        thoughtSocket.on('teacher-logged-in', function(teacherInfo) {
+            // teacherInfo = {uid: SqlID, username: ~~, permissions: ~~ ,groups: ~~,teacher: true}
+            console.log(teacherInfo);
+            userService.uid = teacherInfo.uid;
+            userService.username = teacherInfo.username;
+            userService.authenticated = true;
+            $location.path('teacher-admin/');
+
+        });
+
+        thoughtSocket.on('student-logged-in', function(studentInfo) {
+            //studentInfo is an array of "group" or class objects for now just use the 0th one
+            console.log(studentInfo);
+            userService.uid = studentInfo.uid;
+            userService.username = studentInfo.username;
+            userService.authenticated = true;
+            $location.path('student/' + studentInfo.groupId);
         });
 
         /**
@@ -86,7 +91,7 @@ angular.module('thoughtSwapApp')
         };
 
         /**
-         * Takes data from the server concerning toubleshooting in the login
+         * Takes data from the server concerning troubleshooting in the login
          * or registration process and relays it appropriately.
          */
         thoughtSocket.on('registration-failed', function(error) {
@@ -102,16 +107,23 @@ angular.module('thoughtSwapApp')
         thoughtSocket.on('load-classes', function(results) {
             console.log(results);
             var classes = [];
+            /**
+             * Loop over all results, produce class structure with students
+             */
             for (var i = 0; i < results.length; i++) {
                 var users = [];
                 for (var j = 0; j < results.length; j++) {
                     if (results[i].name == results[j].name) {
-                        users.push({name:results[j].username, id:results[j].uid});
+                        users.push({
+                            name: results[j].username,
+                            id: results[j].uid
+                        });
                         i = j;
                     }
                 }
                 classes.push({
                     class_name: results[i].name,
+                    group_id: results[i].group_id,
                     users: users
                 });
             }
@@ -119,9 +131,10 @@ angular.module('thoughtSwapApp')
             console.log(userService.groups);
         });
 
-        thoughtSocket.on('class-created', function(name, number, studentNames) {
+        thoughtSocket.on('class-created', function(name, number, groupId, studentNames) {
             userService.groups.push({
                 class_name: name,
+                group_id: groupId,
                 number: number,
                 users: studentNames
             });
