@@ -343,14 +343,19 @@ io.sockets.on('connection', function(socket) {
         socket.leave('student');
         socket.join('teacher/' + groupToJoin);
         console.log(groupToJoin);
+        var conn = 0;
+        
+        if (io.nsps['/'].adapter.rooms.hasOwnProperty('student/' + groupToJoin)) {
+            conn = Object.keys(io.nsps['/'].adapter.rooms['student/' + groupToJoin]).length;
+        }
+        
         socket.emit('thought-sync', {
             thoughts: chronologicalThoughts,
-            connected: Object.keys(io.nsps['/'].adapter.rooms['student/' + groupToJoin]).length,
+            connected: conn,
             submitters: numSubmitters()
         });
 
-        socket.broadcast.emit('num-students',
-            Object.keys(io.nsps['/'].adapter.rooms['student/' + groupToJoin]).length);
+        socket.broadcast.emit('num-students', conn);
     });
 
     /**
