@@ -16,6 +16,7 @@ angular.module('thoughtSwapApp')
         console.log($routeParams.groupId);
 
         $scope.userService = User;
+        var teacherCtrlScope = $scope;
 
         /**
          * Will tell the server to put this client in the teacher room.
@@ -79,7 +80,7 @@ angular.module('thoughtSwapApp')
          */
         thoughtSocket.on('new-thought-from-student', function(newThought) {
             console.log('recived thought!', newThought);
-            $scope.studentThoughts.push({
+            teacherCtrlScope.studentThoughts.push({
                 thought: newThought
             });
         });
@@ -90,9 +91,9 @@ angular.module('thoughtSwapApp')
          */
         thoughtSocket.on('thought-sync', function(data) {
             console.log('teacher is synced');
-            $scope.num_connected = data.connected;
-            $scope.studentThoughts = data.thoughts;
-            $scope.num_submitters = data.submitters;
+            teacherCtrlScope.num_connected = data.connected;
+            teacherCtrlScope.studentThoughts = data.thoughts;
+            teacherCtrlScope.num_submitters = data.submitters;
         });
 
         /**
@@ -101,7 +102,7 @@ angular.module('thoughtSwapApp')
          */
         thoughtSocket.on('num-students', function(connectedStudents) {
             console.log(connectedStudents);
-            $scope.num_connected = connectedStudents;
+            teacherCtrlScope.num_connected = connectedStudents;
         });
 
     });

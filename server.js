@@ -93,7 +93,7 @@ var allThoughts = {}; // allThoughts = socketid:
 // [{ id: socket.id, thought: thought1, databaseId: insertId}, 
 //  { id: socket.id, thought: thought2, databaseId: insertId}, ...]
 
-var chronologicalThoughts = []; // list of thoughts for the teacher view as they are recieved
+var chronologicalThoughts = {}; // list of thoughts for the teacher view as they are recieved
 var newQuestion = '';
 var currentPromptId = -1;
 var role_ids = {
@@ -105,30 +105,39 @@ var role_ids = {
  * Will return the number of unique ids in allThoughts which correlates
  * to the amount of submitters.
  */
-function numSubmitters() {
-    return Object.keys(allThoughts).length;
+function numSubmitters(groupId) {
+    if (!allThoughts.hasOwnProperty(groupId)) {
+        allThoughts[groupId] = {};
+    }
+    return Object.keys(allThoughts[groupId]).length;
 }
 
 /**
  * Will add the thoughts recieved to an array that is sent to the
  * teacher's view.
  */
-function addThought(socket, thought, id) {
+function addThought(socket, thought, id, groupId) {
     // console.log('addthought:', socket, thought, id);
     console.log('addthought:', thought);
+    if (!allThoughts.hasOwnProperty(groupId)) {
+        allThoughts[groupId] = {};
+    }
+    if (!chronologicalThoughts.hasOwnProperty(groupId)) {
+        chronologicalThoughts[groupId] = [];
+    }
     var newThought = {
         id: socket.id,
         thought: thought,
         databaseId: id
     };
     //console.log(newThought);
-    chronologicalThoughts.push(newThought);
-    if (allThoughts.hasOwnProperty(socket.id)) {
-        allThoughts[socket.id].push(newThought);
+    chronologicalThoughts[groupId].push(newThought);
+    if (allThoughts[groupId].hasOwnProperty(socket.id)) {
+        allThoughts[groupId][socket.id].push(newThought);
     } else {
         //this means we just got a new submitter
-        allThoughts[socket.id] = [newThought];
-        socket.broadcast.to('teacher/'+connectionInfo[socket.id].currentGroupId).emit('num-submitters', numSubmitters());
+        allThoughts[groupId][socket.id] = [newThought];
+        socket.broadcast.to('teacher/'+connectionInfo[socket.id].currentGroupId).emit('num-submitters', numSubmitters(groupId));
     }
 }
 
@@ -297,7 +306,7 @@ io.sockets.on('connection', function(socket) {
                 console.log(err);
             }
             else {
-                addThought(socket, newThought, results.insertId);
+                addThought(socket, newThought, results.insertId, connectionInfo[socket.id].currentGroupId);
             }
 
         });
@@ -340,11 +349,11 @@ io.sockets.on('connection', function(socket) {
      * Will catch when a teacher initiates a new session and set server
      * variables back to their initial state.
      */
-    socket.on('new-session', function() {
+    socket.on('new-session', function(groupId) {
         // console.log('new session initiated');
         socket.broadcast.emit('new-session');
-        allThoughts = {};
-        chronologicalThoughts = [];
+        allThoughts[groupId] = {};
+        chronologicalThoughts[groupId] = [];
         newQuestion = '';
     })
 
@@ -370,9 +379,9 @@ io.sockets.on('connection', function(socket) {
         }
         
         socket.emit('thought-sync', {
-            thoughts: chronologicalThoughts,
+            thoughts: chronologicalThoughts[groupToJoin],
             connected: conn,
-            submitters: numSubmitters()
+            submitters: numSubmitters(groupToJoin)
         });
 
         socket.broadcast.to('teacher/'+connectionInfo[socket.id].currentGroupId).emit('num-students', conn);
@@ -405,7 +414,7 @@ io.sockets.on('connection', function(socket) {
         console.log('got distribute msg');
 
         // Unique IDS of all students that thoughts need to be distributed to
-        var recipients = Object.keys(io.nsps['/'].adapter.rooms['student']);
+        var recipients = Object.keys(io.nsps['/'].adapter.rooms['student/'+connectionInfo[socket.id].currentGroupId]);
 
         // if (recipients >= 2) {
         //   socket.broadcast.emit('enough-submitters');
@@ -415,10 +424,10 @@ io.sockets.on('connection', function(socket) {
 
         // Placeholder variable for the distribute operation
         var flatThoughts = [];
-        var studentSubmitters = Object.keys(allThoughts);
+        var studentSubmitters = Object.keys(allThoughts[connectionInfo[socket.id].currentGroupId]);
 
         for (var i = 0; i < studentSubmitters.length; i++) {
-            flatThoughts = flatThoughts.concat(allThoughts[studentSubmitters[i]])
+            flatThoughts = flatThoughts.concat(allThoughts[connectionInfo[socket.id].currentGroupId][studentSubmitters[i]])
         }
 
         var originalFlatThoughts = flatThoughts.slice();
@@ -469,7 +478,7 @@ io.sockets.on('connection', function(socket) {
             shuffle(shuffledFlatThoughts);
         }
 
-        console.log('reshuffling complete');
+        console.log('reshuffling complete', shuffledFlatThoughts);
 
 
         /**
@@ -505,7 +514,7 @@ io.sockets.on('connection', function(socket) {
 
             getClientId(recipients[i], getCallback(i));
 
-
+            console.log(recipients[i], shuffledFlatThoughts[i]);
             socket.to(recipients[i]).emit('new-distribution',
                 shuffledFlatThoughts[i].thought);
         }
