@@ -32,6 +32,7 @@ angular.module('thoughtSwapApp')
         $scope.num_submitters = 0;
         $scope.num_connected = 0;
         $scope.currentPrompt = '';
+        $scope.studentThoughts = [];
         // $scope.canDistribute = false;
 
 <<<<<<< HEAD
@@ -116,7 +117,7 @@ angular.module('thoughtSwapApp')
          * update the view with data that comes with the sync.
          */
         thoughtSocket.on('thought-sync', function(data) {
-            console.log('teacher is synced');
+            console.log('teacher is synced', data);
             teacherCtrlScope.num_connected = data.connected;
             teacherCtrlScope.studentThoughts = data.thoughts;
             teacherCtrlScope.num_submitters = data.submitters;

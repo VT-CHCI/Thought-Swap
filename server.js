@@ -274,9 +274,13 @@ io.sockets.on('connection', function(socket) {
 
         if (io.nsps['/'].adapter.rooms.hasOwnProperty('student')) {
 
-
-            socket.broadcast.to('teacher/'+connectionInfo[socket.id].currentGroupId).emit('num-students',
-                Object.keys(io.nsps['/'].adapter.rooms['student/'+connectionInfo[socket.id].currentGroupId]).length);
+            var numStudents = 0;
+            if (connectionInfo.hasOwnProperty(socket.id) && 
+                connectionInfo[socket.id].hasOwnProperty('currentGroupId') &&
+                io.nsps['/'].adapter.rooms.hasOwnProperty('student/'+connectionInfo[socket.id].currentGroupId)) {
+                    numStudents = Object.keys(io.nsps['/'].adapter.rooms['student/'+connectionInfo[socket.id].currentGroupId]).length;
+            }
+            socket.broadcast.to('teacher/'+connectionInfo[socket.id].currentGroupId).emit('num-students', numStudents);
         }
 
     });
@@ -377,9 +381,12 @@ io.sockets.on('connection', function(socket) {
         if (io.nsps['/'].adapter.rooms.hasOwnProperty('student/' + groupToJoin)) {
             conn = Object.keys(io.nsps['/'].adapter.rooms['student/' + groupToJoin]).length;
         }
-        
+        var thoughtsForSync = [];
+        if (chronologicalThoughts.hasOwnProperty(groupToJoin)) {
+            thoughtsForSync = chronologicalThoughts[groupToJoin];
+        }
         socket.emit('thought-sync', {
-            thoughts: chronologicalThoughts[groupToJoin],
+            thoughts: thoughtsForSync,
             connected: conn,
             submitters: numSubmitters(groupToJoin)
         });
@@ -628,8 +635,11 @@ io.sockets.on('connection', function(socket) {
         connection.query(returningUser, [sillyname], function(error, results) {
             if (error) {
                 console.log(error);
+                socket.emit('login-failed', error);
             }
-            console.log(results);
+            else {
+
+                console.log(results);
 
             //var studentInfo = {};
             
@@ -647,15 +657,16 @@ io.sockets.on('connection', function(socket) {
             //     });
             // }
 
-            console.log("User match");
+                console.log("User match");
 
-            socket.emit('student-logged-in', {
-                userId: results[0].id,
-                username: sillyname,
-                groupId: results[0].group_id,
-                groupName: results[0].group_name
-            });
-            console.log('Student Status is logged in');
+                socket.emit('student-logged-in', {
+                    userId: results[0].id,
+                    username: sillyname,
+                    groupId: results[0].group_id,
+                    groupName: results[0].group_name
+                });
+                console.log('Student Status is logged in');
+            }
         });
     });
 

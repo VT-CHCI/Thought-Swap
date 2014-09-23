@@ -46,15 +46,15 @@
 }
 
 /* ~~ TEACHER VIEW ~~ */
-.control-section {
+/*.control-section {
   min-height: 598px;
   max-height: 598px;
-}
+}*/
 
-.gallery-section {
+/*.gallery-section {
   min-height: 598px;
   max-height: 598px;
-}
+}*/
 
 .control-section th {
   font-size: 9pt;
@@ -132,43 +132,55 @@ body {
 
 .thoughts {
   list-style-type: none;
+  padding-left: 0;
+  display: -webkit-box;
+  -webkit-box-orient: horizontal;
+
+  display: -moz-box;
+  -moz-box-orient: horizontal;
+
+  display: box;
+  box-orient: horizontal;
 }
 
-.galleryThought {
+/*.galleryThought {
   margin-top: 10px;
   padding: 5px 17px 5px 17px;
   display: inline-block;
   margin-right: 20px; 
 
   /* Bubble structure */
-  position: relative;
+  /*position: relative;
   background-color:#eee;
   text-align:justify;
   -moz-border-radius:10px;
   -webkit-border-radius:10px;
   -webkit-box-shadow: 0px 0 3px rgba(0,0,0,0.25);
   -moz-box-shadow: 0px 0 3px rgba(0,0,0,0.25);
-  box-shadow: 0px 0 3px rgba(0,0,0,0.25); 
+  box-shadow: 0px 0 3px rgba(0,0,0,0.25); */
 
   /* Grid Behavior */
-  max-width: 220px;
+  /*max-width: 220px;
   min-height: 124px;
-}
+}*/
 
 .thought {
   margin-top: 10px;
-  max-width: 80%;
-  padding: 5px 17px 5px 17px;
-  display: inline-block;
-  margin-right: 20px; 
-
-  /* Bubble structure */
-  position: relative;
+  width: 140px;
+  height: 140px;
+  line-height: 20px;
+  margin-right: 10px; 
   background-color:#eee;
-  text-align:justify;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 7;
+  overflow: hidden;
+  text-overflow: ellipsis;
   -moz-border-radius:10px;
   -webkit-border-radius:10px;
-  -webkit-box-shadow: 0px 0 3px rgba(0,0,0,0.25);
-  -moz-box-shadow: 0px 0 3px rgba(0,0,0,0.25);
-  box-shadow: 0px 0 3px rgba(0,0,0,0.25);
+}
+
+h1, h2, h3 {
+  margin-top: 0px;
+  margin-bottom: 0px;
 }
