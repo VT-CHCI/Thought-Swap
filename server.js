@@ -106,6 +106,7 @@ var role_ids = {
  * to the amount of submitters.
  */
 function numSubmitters(groupId) {
+    console.log(allThoughts, groupId);
     if (!allThoughts.hasOwnProperty(groupId)) {
         allThoughts[groupId] = {};
     }

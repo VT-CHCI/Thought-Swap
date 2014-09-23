@@ -106,4 +106,9 @@ angular.module('thoughtSwapApp')
             teacherCtrlScope.num_connected = connectedStudents;
         });
 
+        thoughtSocket.on('num-submitters', function(submittedStudents) {
+            console.log(submittedStudents);
+            teacherCtrlScope.num_submitters = submittedStudents;
+        });
+
     });
