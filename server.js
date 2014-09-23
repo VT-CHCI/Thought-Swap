@@ -197,6 +197,9 @@ function addStudent(classId, callback) {
 function getClientId(socketId, callback) {
     var selectClient_id = 'select id from thoughtswap_clients where socket_id=?;'
     connection.query(selectClient_id, [socketId], function(err, results) {
+        if (err) {
+            console.log('error in getClientId', err);
+        }
         //console.log('getClientId', err, results);
         if (results.length > 0) {
             callback(results[0].id);
@@ -247,7 +250,10 @@ io.sockets.on('connection', function(socket) {
     var clientQuery = 'insert into thoughtswap_clients(socket_id, connect) values(?, ?);'
     connection.query(clientQuery, [socket.id, new Date()], function(err, results) {
         //console.log('connect', err, results);
-        if (results.hasOwnProperty('insertId')) {
+        if (err) {
+            console.log('error in inserting client on conenct', err);
+        }
+        else if (results.hasOwnProperty('insertId')) {
             connectionInfo[socket.id] = {};
             connectionInfo[socket.id]['client_id'] = results.insertId;
         }
@@ -268,6 +274,9 @@ io.sockets.on('connection', function(socket) {
             if (connectionInfo.hasOwnProperty(socket.id)&& connectionInfo[socket.id].hasOwnProperty('client_id')) {
                 var clientQuery = 'update thoughtswap_clients set disconnect=? where id=?;'
                 connection.query(clientQuery, [new Date(), connectionInfo[socket.id].client_id], function(err, results) {
+                    if (err) {
+                        console.('error in logging disconnect to db', err);
+                    }
                     //console.log('client disconnect updated', err, results);
                 });
             }
