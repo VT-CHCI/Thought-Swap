@@ -79,7 +79,7 @@ angular.module('thoughtSwapApp')
          * update studentThoughts accordingly.
          */
         thoughtSocket.on('new-thought-from-student', function(newThought) {
-            console.log('recived thought!', newThought);
+            console.log('received thought!', newThought);
             teacherCtrlScope.studentThoughts.push({
                 thought: newThought
             });
