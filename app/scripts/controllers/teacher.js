@@ -66,6 +66,21 @@ angular.module('thoughtSwapApp')
       thoughtSocket.emit('new-prompt', $scope.newPrompt);
       $('.promptRequest').hide();
     };
+        // /**
+        //  * Will tell the controller that distribution is now okay.
+        //  */
+        // thoughtSocket.on('enough-submitters', function() {
+        //   $scope.canDistribute = true;
+        // });
+
+        /**
+         * Will tell the server to begin its distribution process.
+         */
+        $scope.distribute = function() {
+            // if (canDistribute) {
+                thoughtSocket.emit('distribute');
+            // }
+        };
 
         /**
          * Will tell everyone connected that a new session is begining
