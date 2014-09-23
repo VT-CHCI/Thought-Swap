@@ -275,7 +275,7 @@ io.sockets.on('connection', function(socket) {
                 var clientQuery = 'update thoughtswap_clients set disconnect=? where id=?;'
                 connection.query(clientQuery, [new Date(), connectionInfo[socket.id].client_id], function(err, results) {
                     if (err) {
-                        console.('error in logging disconnect to db', err);
+                        console.log('error in logging disconnect to db', err);
                     }
                     //console.log('client disconnect updated', err, results);
                 });
