@@ -40,6 +40,7 @@
 
                         <!-- Button that initiates distribute functionality  -->
                         <!-- popover="There are not enough thoughts to distribute!" popover-trigger="mouseenter" -->
+                        
                         <button class="btn btn-primary" ng-click="distribute()">Distribute Thoughts</button>
 
                     </div>
@@ -69,6 +70,7 @@
 
                         <!-- Stucture to allow the teacher to view each student's most recent thoughts -->
                         <div class="data-box">
+                            <div class="distributeNotification" style="color: red">{{distributeNotification}}</div>
                             <ul ui-sortable ng-model="studentThoughts" class="thoughts">
                                 <li ng-repeat="thought in studentThoughts" class="thought">{{thought.thought | characters:150 :true}}</li>
                             </ul>

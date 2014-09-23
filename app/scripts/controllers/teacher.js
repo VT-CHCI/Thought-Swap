@@ -33,21 +33,27 @@ angular.module('thoughtSwapApp')
         $scope.num_connected = 0;
         $scope.currentPrompt = '';
         $scope.studentThoughts = [];
+        $scope.distributeNotification = '';
+        //$('.distributeNotification').hide();
         // $scope.canDistribute = false;
 
-<<<<<<< HEAD
+//<<<<<<< HEAD
     /**
-     * Will tell everyone connected that a new session is begining
-     * and reset the thoughts the teacher has recieved.
+     * Will tell everyone connected that a new session is beginning
+     * and reset the thoughts the teacher has received.
      */
     $scope.newSession = function () {
       console.log('new session started');
-      thoughtSocket.emit('new-session');
+      //$scope.distributeNotification = '';
+      //console.log('notifications hidden');
       $scope.studentThoughts = [];
       $scope.num_submitters = 0;
       $('.promptRequest').show();
       $scope.newPrompt = '';
       $('textarea').focus();
+      thoughtSocket.emit('new-session');
+      //$('.distributeNotification').hide();
+      
     }
 
     /**
@@ -55,11 +61,11 @@ angular.module('thoughtSwapApp')
      * along to students. Prevents the area from any further input.
      */
     $scope.promptIn = function () {
-      console.log('Prompt Recieved!');
+      console.log('Prompt Received!');
       thoughtSocket.emit('new-prompt', $scope.newPrompt);
       $('.promptRequest').hide();
     };
-=======
+//=======
         // /**
         //  * Will tell the controller that distribution is now okay.
         //  */
@@ -73,9 +79,12 @@ angular.module('thoughtSwapApp')
         $scope.distribute = function() {
             // if (canDistribute) {
                 thoughtSocket.emit('distribute');
+                //$('.distributeNotification').show();
+                //$scope.distributeNotification = "Thoughts are distributed!"
+                $scope.studentThoughts = [];
             // }
         };
->>>>>>> feature/database_persistence_and_accounts
+//>>>>>>> feature/database_persistence_and_accounts
 
         /**
          * Will tell everyone connected that a new session is begining
@@ -96,7 +105,7 @@ angular.module('thoughtSwapApp')
          * along to students. Prevents the area from any further input.
          */
         $scope.promptIn = function() {
-            console.log('Prompt Recieved!');
+            console.log('Prompt Received!');
             thoughtSocket.emit('new-prompt', $scope.newPrompt);
             $('.enterPrompt').hide();
         };
