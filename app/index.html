@@ -6,7 +6,7 @@
   <head>
     <meta charset="utf-8">
     <title>ThoughtSwap</title>
-    <meta name="description" content="A web application that encourages and facilitates debate!">
+    <meta name="description" content="A web application that encourages and facilitates discussion!">
     <meta name="viewport" content="width=device-width">
     <link rel="shortcut icon" href="/favicon.ico">
 
@@ -29,7 +29,7 @@
 
     <navbar></navbar>
 
-    <div class="container-fluid" ng-view=""></div>
+    <div class="container-fluid thoughtswap-wrapper" ng-view=""></div>
 
     <!-- Google Analytics: change UA-XXXXX-X to be your site's ID -->
     <!--
@@ -60,18 +60,23 @@
     <script src="bower_components/angular-route/angular-route.js"></script>
     <script src="bower_components/angular-socket-io/socket.js"></script>
     <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
-    <script src="bower_components/angular-ui-sortable/sortable.js"></script>
-    <script src="bower_components/jquery-ui/jquery-ui.js"></script>
     <script src="bower_components/angular-truncate/src/truncate.js"></script>
+    <script src="bower_components/jquery-ui/jquery-ui.js"></script>
+    <script src="bower_components/angular-ui-sortable/sortable.js"></script>
+    <script src="bower_components/angular-md5/angular-md5.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
 
         <!-- build:js({.tmp,app}) scripts/scripts.js -->
         <script src="/socket.io/socket.io.js"></script>
         <script src="scripts/app.js"></script>
+        <script src="scripts/services/user.js"></script>
         <script src="scripts/directives/navbar.js"></script>
         <script src="scripts/controllers/main.js"></script>
+        <script src="scripts/controllers/login.js"></script>
+        <script src="scripts/controllers/registration.js"></script>
         <script src="scripts/controllers/student.js"></script>
+        <script src="scripts/controllers/teacher-admin.js"></script>      
         <script src="scripts/controllers/teacher.js"></script>
         <!-- endbuild -->
 </body>

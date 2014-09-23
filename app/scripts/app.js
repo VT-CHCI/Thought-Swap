@@ -11,6 +11,7 @@ angular
     'ui.bootstrap',
     'ui.sortable',
     'truncate',
+    'angular-md5',
   ])
 
   // Creates the thoughtSocket that controllers will be listening in on
@@ -31,15 +32,27 @@ angular
       //   templateUrl: 'views/main.html',  // Commented out until work on landing page is a priority.
       //   controller: 'MainCtrl'
       // })
-      .when('/student', {
+      .when('/student/:groupId', {
         templateUrl: 'views/student.html',
         controller: 'StudentCtrl'
       })
-      .when('/teacher', {
+      .when('/teacher/:groupId', {
         templateUrl: 'views/teacher.html',
         controller: 'TeacherCtrl'
       })
+      .when('/teacher-admin', {
+        templateUrl: 'views/teacher-admin.html',
+        controller: 'TeacherAdminCtrl'
+      })
+      .when('/registration', {
+        templateUrl: 'views/registration.html',
+        controller: 'RegistrationCtrl'
+      })
+      .when('/login', {
+        templateUrl: 'views/login.html',
+        controller: 'LoginCtrl'
+      })
       .otherwise({
-        redirectTo: '/student'
+        redirectTo: '/login'
       });
   });

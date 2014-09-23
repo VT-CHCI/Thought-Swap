@@ -7,17 +7,20 @@
  *  student view.
  *
  *  @authors Michael Stewart, Adam Barnes
- *  @version v 0.0.0  (2014)
+ *  @version v 1.0.0  (2014)
  */
 //-------------------------------------------------------------------------
 
 angular.module('thoughtSwapApp')
-  .controller('StudentCtrl', function ($scope, thoughtSocket) {
+  .controller('StudentCtrl', function ($scope, thoughtSocket, User, $routeParams) {
+
+    $scope.userService = User;
+    var studentCtrlScope = $scope;
 
     /**
      * Will tell the server to put this client in the student room.
      */
-    thoughtSocket.emit('student');
+    thoughtSocket.emit('student', $routeParams.groupId);
     console.log('Joined as student')
 
     /**
@@ -37,6 +40,7 @@ angular.module('thoughtSwapApp')
     $scope.thoughtIn = function () {
       //console.log('Thought Recieved!');
       $scope.thoughtPool.push({thought:$scope.newThought});
+      console.log($scope.newThought);
       thoughtSocket.emit('new-thought-from-student', $scope.newThought);
       $scope.newThought = '';
       $('textarea').focus();
@@ -50,9 +54,9 @@ angular.module('thoughtSwapApp')
       console.log('reseting session...');
       $('.otherThought').hide();
       $('.input').show()
-      $scope.thoughtPool = [];
-      $scope.randomThought = '';
-      $scope.question = '';
+      studentCtrlScope.thoughtPool = [];
+      studentCtrlScope.randomThought = '';
+      studentCtrlScope.question = '';
     });
 
     /**
@@ -60,8 +64,8 @@ angular.module('thoughtSwapApp')
      * to the student view.
      */
      thoughtSocket.on('prompt-sync', function (newQuestion) {
-       console.log('Prompt is syncing');
-       $scope.question = newQuestion;
+       console.log('Prompt is syncing', newQuestion);
+       studentCtrlScope.question = newQuestion;
      });
 
     /**
@@ -70,7 +74,7 @@ angular.module('thoughtSwapApp')
      */
     thoughtSocket.on('new-prompt', function (newPrompt) {
       console.log('got a prompt!');
-      $scope.question = newPrompt;
+      studentCtrlScope.question = newPrompt;
     });
 
     /**
@@ -79,8 +83,8 @@ angular.module('thoughtSwapApp')
      * besides their own.
      */
     thoughtSocket.on('new-distribution', function (randomThought) {
-      //console.log('other thought recieved');
-      $scope.randomThought = randomThought;
+      console.log('other thought recieved', randomThought);
+      studentCtrlScope.randomThought = randomThought;
       $('.input').hide();
       $('.otherThought').show();
     });
