@@ -37,7 +37,6 @@ angular.module('thoughtSwapApp')
         //$('.distributeNotification').hide();
         // $scope.canDistribute = false;
 
-//<<<<<<< HEAD
     /**
      * Will tell everyone connected that a new session is beginning
      * and reset the thoughts the teacher has received.
@@ -65,7 +64,7 @@ angular.module('thoughtSwapApp')
       thoughtSocket.emit('new-prompt', $scope.newPrompt);
       $('.promptRequest').hide();
     };
-//=======
+
         // /**
         //  * Will tell the controller that distribution is now okay.
         //  */
@@ -84,7 +83,6 @@ angular.module('thoughtSwapApp')
                 $scope.studentThoughts = [];
             // }
         };
-//>>>>>>> feature/database_persistence_and_accounts
 
         /**
          * Will tell everyone connected that a new session is begining
@@ -139,6 +137,11 @@ angular.module('thoughtSwapApp')
         thoughtSocket.on('num-students', function(connectedStudents) {
             console.log(connectedStudents);
             teacherCtrlScope.num_connected = connectedStudents;
+        });
+
+        thoughtSocket.on('num-submitters', function(submittedStudents) {
+            console.log(submittedStudents);
+            teacherCtrlScope.num_submitters = submittedStudents;
         });
 
     });
