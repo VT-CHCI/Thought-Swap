@@ -33,8 +33,7 @@ angular.module('thoughtSwapApp')
         $scope.num_connected = 0;
         $scope.currentPrompt = '';
         $scope.studentThoughts = [];
-        $scope.distributeNotification = '';
-        //$('.distributeNotification').hide();
+        $('.distributeNotification').hide();
         // $scope.canDistribute = false;
 
     /**
@@ -43,15 +42,14 @@ angular.module('thoughtSwapApp')
      */
     $scope.newSession = function () {
       console.log('new session started');
-      //$scope.distributeNotification = '';
-      //console.log('notifications hidden');
+      $('.distributeNotification').hide();
+      console.log('notifications hidden');
       $scope.studentThoughts = [];
       $scope.num_submitters = 0;
       $('.promptRequest').show();
       $scope.newPrompt = '';
       $('textarea').focus();
       thoughtSocket.emit('new-session');
-      //$('.distributeNotification').hide();
       
     }
 
@@ -78,24 +76,9 @@ angular.module('thoughtSwapApp')
         $scope.distribute = function() {
             // if (canDistribute) {
                 thoughtSocket.emit('distribute');
-                //$('.distributeNotification').show();
-                //$scope.distributeNotification = "Thoughts are distributed!"
-                $scope.studentThoughts = [];
+                $('.distributeNotification').show();
+                //$scope.studentThoughts = [];
             // }
-        };
-
-        /**
-         * Will tell everyone connected that a new session is begining
-         * and reset the thoughts the teacher has recieved.
-         */
-        $scope.newSession = function() {
-            console.log('new session started');
-            thoughtSocket.emit('new-session');
-            $scope.studentThoughts = [];
-            $scope.num_submitters = 0;
-            $('.enterPrompt').show();
-            $scope.newPrompt = '';
-            $('textarea').focus();
         };
 
         /**

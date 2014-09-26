@@ -459,7 +459,7 @@ io.sockets.on('connection', function(socket) {
             }
         }
 
-        console.log('Preparing to shuffle');
+        console.log('Preparing to shuffle', flatThoughts);
 
         var shuffledFlatThoughts = flatThoughts.slice();
         shuffle(shuffledFlatThoughts);
