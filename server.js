@@ -37,10 +37,10 @@ function makeName() {
     var firstName = ["Runny", "Buttercup", "Dinky", "Stinky", "Crusty",
         "Greasy", "Gidget", "Cheesypoof", "Lumpy", "Wacky", "Tiny", "Flunky",
         "Fluffy", "Zippy", "Doofus", "Gobsmacked", "Slimy", "Grimy", "Salamander",
-        "Oily", "Burrito", "Bumpy", "Loopy", "Snotty", "Irving", "Egbert", "Waffer", "Lilly", "Rugrat", "Sand", "Fuzzy", "Kitty",
-        "Puppy", "Snuggles", "Rubber", "Stinky", "Lulu", "Lala", "Sparkle", "Glitter",
-        "Silver", "Golden", "Rainbow", "Cloud", "Rain", "Stormy", "Wink", "Sugar",
-        "Twinkle", "Star", "Halo", "Angel"
+        "Oily", "Burrito", "Bumpy", "Loopy", "Snotty", "Irving", "Egbert", "Waffer",
+        "Lilly", "Rugrat", "Sand", "Fuzzy", "Kitty", "Puppy", "Snuggles", "Rubber",
+        "Stinky", "Lulu", "Lala", "Sparkle", "Glitter", "Silver", "Golden", "Rainbow",
+        "Cloud", "Rain", "Stormy", "Wink", "Sugar", "Twinkle", "Star", "Halo", "Angel"
     ];
 
     // var middleName =["Waffer", "Lilly","Rugrat","Sand", "Fuzzy","Kitty",
@@ -66,7 +66,7 @@ function makeName() {
 
     // return [
     //     firstName[getRandomInt(0, firstName.length)],
-    //     // middleName[getRandomInt(0, middleName.length)], 
+    //     // middleName[getRandomInt(0, middleName.length)],
     //     lastName1[getRandomInt(0, lastName1.length)],
     //     lastName2[getRandomInt(0, lastName2.length)]
     // ];
@@ -89,8 +89,8 @@ http.listen(port, function() {
     console.log('listening on *:', port);
 });
 
-var allThoughts = {}; // allThoughts = socketid: 
-// [{ id: socket.id, thought: thought1, databaseId: insertId}, 
+var allThoughts = {}; // allThoughts = socketid:
+// [{ id: socket.id, thought: thought1, databaseId: insertId},
 //  { id: socket.id, thought: thought2, databaseId: insertId}, ...]
 
 var chronologicalThoughts = {}; // list of thoughts for the teacher view as they are recieved
@@ -253,6 +253,15 @@ io.sockets.on('connection', function(socket) {
     });
 
     /**
+     * Database Query: Will log relevant data in the EVENTS table
+     */
+    var logConnect = 'insert into thoughtswap_events(time, client_id, eventType) values(?, ?, ?);'
+    var connectEvent = "SELECT id FROM thoughtswap_eventtypes WHERE name = 'connect';"
+    connection.query(logConnect, [new Date(), socket.id, connectEvent], function(err, results) {
+        //console.log('connect', err, results);
+    });
+
+    /**
      * Will catch when a client leaves the app interface entirely and send
      * out the updated number of connected students for the teacher view.
      */
@@ -269,13 +278,22 @@ io.sockets.on('connection', function(socket) {
                 connection.query(clientQuery, [new Date(), connectionInfo[socket.id].client_id], function(err, results) {
                     //console.log('client disconnect updated', err, results);
                 });
+              /**
+               * Database Query: Will log relevant data in the EVENTS table
+               */
+              var logDisconnect = 'insert into thoughtswap_events(time, client_id, eventType) values(?, ?, ?);'
+              var disconnectEvent = "SELECT id FROM thoughtswap_eventtypes WHERE name = 'disconnect';"
+              connection.query(logConnect, [new Date(), connectionInfo[socket.id].client_id, disconnectEvent], function(err, results) {
+                  //console.log('connect', err, results);
+              });
             }
+
         // });
 
         if (io.nsps['/'].adapter.rooms.hasOwnProperty('student')) {
 
             var numStudents = 0;
-            if (connectionInfo.hasOwnProperty(socket.id) && 
+            if (connectionInfo.hasOwnProperty(socket.id) &&
                 connectionInfo[socket.id].hasOwnProperty('currentGroupId') &&
                 io.nsps['/'].adapter.rooms.hasOwnProperty('student/'+connectionInfo[socket.id].currentGroupId)) {
                     numStudents = Object.keys(io.nsps['/'].adapter.rooms['student/'+connectionInfo[socket.id].currentGroupId]).length;
@@ -642,7 +660,7 @@ io.sockets.on('connection', function(socket) {
                 console.log(results);
 
             //var studentInfo = {};
-            
+
             //var groups=[];
             //Accounting for student could be in multiple groups/ classes
             // for (var i=0; i<results.length;i++) {
