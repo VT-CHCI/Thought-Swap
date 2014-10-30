@@ -19,23 +19,23 @@ angular.module('thoughtSwapApp')
          */
         this.getUserName = function() {
             return userService.username;
-        };
+          };
 
         this.getUserId = function() {
             return userService.uid;
-        };
+          };
 
         this.getGroups = function() {
             return userService.groups;
-        };
+          };
 
         this.getCurrentGroup = function() {
             return userService.currentGroup;
-        };
+          };
 
         this.setGroup = function(groupId) {
             userService.currentGroup = groupId;
-        };
+          };
         /* ~~~~ */
 
         /**
@@ -50,7 +50,7 @@ angular.module('thoughtSwapApp')
             userService.authenticated = true;
             $location.path('teacher-admin/');
 
-        });
+          });
 
         thoughtSocket.on('student-logged-in', function(studentInfo) {
             //studentInfo is an array of "group" or class objects for now just use the 0th one
@@ -59,7 +59,7 @@ angular.module('thoughtSwapApp')
             userService.username = studentInfo.username;
             userService.authenticated = true;
             $location.path('student/' + studentInfo.groupId);
-        });
+          });
 
         /**
          * Subservice that checks for authentication for the teacher view. Allows
@@ -67,7 +67,7 @@ angular.module('thoughtSwapApp')
          */
         this.teacherLoggedIn = function() {
             return userService.authenticated;
-        };
+          };
 
         /**
          * Subservice that sets fields back to their orignally blank states.
@@ -80,7 +80,7 @@ angular.module('thoughtSwapApp')
             this.groups = [];
             this.currentGroup = 0;
             $location.path('/login');
-        }
+          };
 
         /**
          * Subservice that checks for authentication for the student view. Allows
@@ -88,7 +88,7 @@ angular.module('thoughtSwapApp')
          */
         this.studentLoggedIn = function() {
             return (userService.studentAuthenticated || userService.authenticated);
-        };
+          };
 
         /**
          * Takes data from the server concerning troubleshooting in the login
@@ -96,11 +96,11 @@ angular.module('thoughtSwapApp')
          */
         thoughtSocket.on('registration-failed', function(error) {
             userService.errorMsg = error;
-        });
+          });
 
         thoughtSocket.on('login-failed', function(error) {
             userService.loginErrorMsg = error;
-        });
+          });
         /* ~~~~ */
 
 
@@ -111,34 +111,34 @@ angular.module('thoughtSwapApp')
              * Loop over all results, produce class structure with students
              */
             for (var i = 0; i < results.length; i++) {
-                var users = [];
-                for (var j = 0; j < results.length; j++) {
-                    if (results[i].name == results[j].name) {
-                        users.push({
-                            name: results[j].username,
-                            id: results[j].uid
-                        });
-                        i = j;
-                    }
+              var users = [];
+              for (var j = 0; j < results.length; j++) {
+                if (results[i].name === results[j].name) {
+                  users.push({
+                      name: results[j].username,
+                      id: results[j].uid
+                    });
+                  i = j;
                 }
-                classes.push({
-                    class_name: results[i].name,
-                    group_id: results[i].group_id,
-                    users: users
+              }
+              classes.push({
+                  className: results[i].name,
+                  group_id: results[i].group_id,
+                  users: users
                 });
             }
             userService.groups = classes;
             console.log(userService.groups);
-        });
+          });
 
         thoughtSocket.on('class-created', function(name, number, groupId, studentNames) {
             userService.groups.push({
-                class_name: name,
+                className: name,
                 group_id: groupId,
                 number: number,
                 users: studentNames
-            });
-        });
+              });
+          });
 
 
-    });
+      });

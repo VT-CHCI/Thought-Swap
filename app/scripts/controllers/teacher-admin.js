@@ -19,7 +19,7 @@ angular.module('thoughtSwapApp')
 
         console.log('This is the teacher admin view');
 
-        $scope.class_name = '';
+        $scope.className = '';
         $scope.number = 0;
         $scope.groups = [];
 
@@ -33,7 +33,7 @@ angular.module('thoughtSwapApp')
 
         $scope.createClass = function() {
             console.log("CREATE A CLASS");
-            thoughtSocket.emit('create-class', $scope.class_name, $scope.number);
+            thoughtSocket.emit('create-class', $scope.className, $scope.number);
         }
 
 
@@ -48,7 +48,7 @@ angular.module('thoughtSwapApp')
         //             }
         //         }
         //         classes.push({
-        //             class_name: results[i].name,
+        //             className: results[i].name,
         //             users: users
         //         });
         //     }
@@ -58,7 +58,7 @@ angular.module('thoughtSwapApp')
 
         // thoughtSocket.on('class-created', function(name, number, studentNames) {
         //     groups.push({
-        //         class_name: name,
+        //         className: name,
         //         number: number,
         //         users: studentNames
         //     });
