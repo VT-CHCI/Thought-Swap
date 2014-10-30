@@ -1,6 +1,6 @@
 /* Required for ui-bootstrap */
 .nav, .pagination, .carousel, .panel-title a {
- cursor: pointer; 
+ cursor: pointer;
 }
 
 /* Size of entire interface */
@@ -147,7 +147,7 @@ body {
   margin-top: 10px;
   padding: 5px 17px 5px 17px;
   display: inline-block;
-  margin-right: 20px; 
+  margin-right: 20px;
 
   /* Bubble structure */
   /*position: relative;
@@ -169,7 +169,23 @@ body {
   width: 140px;
   height: 140px;
   line-height: 20px;
-  margin-right: 10px; 
+  margin-right: 10px;
+  background-color:#eee;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 7;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -moz-border-radius:10px;
+  -webkit-border-radius:10px;
+}
+
+.altThought {
+  margin-top: 10px;
+  width: auto;
+  height: auto;
+  line-height: 20px;
+  margin-right: 10px;
   background-color:#eee;
   display: -webkit-box;
   -webkit-box-orient: vertical;

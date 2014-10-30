@@ -566,13 +566,12 @@ io.sockets.on('connection', function(socket) {
         var originalFlatThoughts = flatThoughts.slice();
 
         /**
-         * Shuffle algorithm for randomizing an array.
+         * Shuffle algorithm for randomizing an array. Ignore JSLint warnings
          */
-        function shuffle(o) { //v1.0 courtesy of Google
-            for (var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x) {
-              return o;
-            }
-          }
+        function shuffle (o) { //v1.0 courtesy of Google
+          for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
+          return o;
+        };
 
         /**
          * Will ensure that the ammount of thoughts up for distribution is the

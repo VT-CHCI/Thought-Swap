@@ -8,7 +8,8 @@
             <li class="group-name" ng-repeat="group in userService.groups">
                 <a ng-href="#/teacher/{{group.group_id}}">{{group.className}}</a>
                 <ul>
-                    <li class="participant-name" ng-repeat="user in group.users"><a ng-href="/delete/{{user.id}}">{{user.name}}</a></li>
+                  <!-- <a ng-href="/delete/{{user.id}}"></a> -->
+                    <li class="participant-name" ng-repeat="user in group.users">{{user.name}}</li>
                 </ul>
             </li>
         </ul>
