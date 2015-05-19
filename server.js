@@ -3,9 +3,10 @@
 var express = require('express');
 var app = express();
 var http = require('http').Server(app);
-var io = require('socket.io')(http);
+var PORT = 3003;
 var async = require('async');
 var mysql = require('mysql');
+var io = require('socket.io')(http);
 
 // MySQL database initialization
 var connection = mysql.createConnection({
@@ -86,9 +87,8 @@ function makeName() {
  */
 app.use(express.static(__dirname + '/app'));
 
-var port = 3003;
-http.listen(port, function() {
-    console.log('listening on *:', port);
+http.listen(PORT, function() {
+    console.log('listening on *:', PORT);
   });
 
 var allThoughts = {}; // allThoughts = socketid:

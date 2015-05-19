@@ -16,7 +16,7 @@ angular
 
   // Creates the thoughtSocket that controllers will be listening in on
   .factory('thoughtSocket', function (socketFactory) {
-    var myIoSocket = io.connect('/');
+    var myIoSocket = io.connect('http://localhost:3003');
 
     var thoughtSocket = socketFactory({
       ioSocket: myIoSocket
