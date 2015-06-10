@@ -200,3 +200,7 @@ h1, h2, h3 {
   margin-top: 0px;
   margin-bottom: 0px;
 }
+
+.thoughtswap-wrapper .modal-footer .btn {
+  margin-bottom: 15px;
+}
