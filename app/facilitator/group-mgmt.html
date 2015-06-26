@@ -1,0 +1,22 @@
+<div id="header">
+  <img src="resources/alphaLogo.png" />
+</div>
+
+<div class="container">
+	<div class="jumbotron">
+		<h2 class="text-center">Groups</h2>
+		<ul>
+	  	<li class="group-name" ng-repeat="group in userService.groups">
+
+	    	<a ng-href="#/facilitator/{{group.group_id}}">{{group.name}}</a>
+
+	      <ul>
+	      	<!-- <a ng-href="/delete/{{user.id}}"></a> -->
+	        <li class="participant-name" ng-repeat="user in group.participants">{{user.username}}</li>
+	      </ul>
+
+	    </li>
+	  </ul>
+	</div>
+</div>
+

@@ -1,0 +1,38 @@
+#header a {
+	float: right;
+	margin-top: 15px;
+	margin-right: 8%;
+}
+
+#landing {
+  background-image: url('/resources/classroom.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  padding-bottom: 15%;
+  width: 100%;
+  float: left;
+}
+
+#landing p {
+  font-family: 'Pacifico', cursive;
+  margin-left: 20%;
+  color: #FFFFFF;
+  text-shadow:
+    1px 1px 0 #5D5D5D,
+    -1px -1px 0 #5D5D5D,  
+    1px -1px 0 #5D5D5D,
+    -1px 1px 0 #5D5D5D,
+    1px 1px 0 #5D5D5D;
+}
+
+#landing a { 
+	margin-left: 20%; 
+}
+
+#info {
+  width: 80%;
+}
+
+.jumbotron.formBox {
+	margin-top: 5%;
+}

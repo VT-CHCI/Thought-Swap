@@ -1,0 +1,41 @@
+<div class="container component">
+
+  <div class="well well-lg text-center" id="controlBar">
+    <button class="btn btn-primary">Distribute</button>
+      &nbsp;&nbsp;&nbsp;&nbsp;
+    <button class="btn btn-primary">New Session</button>
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <button class="btn btn-primary" ng-click="openPrompt()">New Prompt</button>
+    <p></p>
+    <span class="glyphicon glyphicon-comment">&nbsp;Thoughts: </span>
+      &nbsp;&nbsp;&nbsp;&nbsp;
+      <span>{{ numThoughts }}</span>
+      &nbsp;&nbsp;&nbsp;&nbsp;
+    <span class="glyphicon glyphicon-user">&nbsp;Submitters</span>
+      &nbsp;&nbsp;&nbsp;&nbsp;
+      <span>{{ numSubmitters }}</span>
+      &nbsp;&nbsp;&nbsp;&nbsp;
+    <span class="glyphicon glyphicon-globe">&nbsp;Connected</span>
+      &nbsp;&nbsp;&nbsp;&nbsp;
+      <span>{{ numConnected }}</span>
+  </div>
+  
+  <div class="panel panel-default" id="discussion">
+    <div class="panel-body">
+      <ul ng-model="participantThoughts" id="thoughtList">
+        <li ng-repeat="thought in participantThoughts" class="thoughtItem">
+          <div ng-bind-html="thought.thought"></div> <!-- TODO: add '| htmlTrusted' for filter -->
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div>
+<!--     <script type="text/ng-template" id="promptModal.html">
+      
+    </script> -->
+
+  
+  </div>
+
+</div>
