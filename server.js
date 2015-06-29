@@ -138,9 +138,10 @@ app.post('/signin', function(request, response) {
 	if (!request.body.hasOwnProperty('user')) {
 		response.status(400).send("Request did not contain any information.")
 	} else {
+		console.log("request body: ", request.body);
 		var user = findByUsername(request.body.user.username)
 			.then(function(user) {
-				console.log('Searching for ', user.username);
+				console.log('Searching for ', user);
 				if (user !== null) {
 					if (user.role === 'facilitator') {
 						if (request.body.user.username === user.username &&
@@ -172,7 +173,6 @@ app.post('/signup', function(request, response) {
 	if (!request.body.hasOwnProperty('user')) {
 		response.status(400).send("Request did not contain any information.")
 	} else {
-		console.log("request body: ", request.body);
 		var user = createFacilitator(request.body.user.email,
 																 request.body.user.username,
 																 request.body.user.password)

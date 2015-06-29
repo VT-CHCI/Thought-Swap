@@ -2,11 +2,12 @@
     'use strict';
     
     /**
-     * @ngdoc overview
-     * @name app
+     * @ngdoc overview: Allows Facilitators to create accounts on the app
+     * @name RegisterController
      * @description
-     * # The register controller is responsible for communicating with the server
-     * # to log the new user into the database.
+     * # The register controller is responsible for communicating with the 
+     * # UserService which in turn tells server to create a Facilitator object
+     * # in the database.
      */
     angular
         .module('app')
@@ -26,10 +27,7 @@
                 })
                 .catch(function (err) {
                     $scope.error = err;
-                });
-
-            
-                    
+                });            
         };
     }
  
