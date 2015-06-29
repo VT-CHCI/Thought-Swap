@@ -138,10 +138,10 @@ app.post('/signin', function(request, response) {
 	if (!request.body.hasOwnProperty('user')) {
 		response.status(400).send("Request did not contain any information.")
 	} else {
-		console.log("request body: ", request.body);
+		// console.log("request body: ", request.body);
 		var user = findByUsername(request.body.user.username)
 			.then(function(user) {
-				console.log('Searching for ', user);
+				// console.log('Searching for ', user);
 				if (user !== null) {
 					if (user.role === 'facilitator') {
 						if (request.body.user.username === user.username &&
@@ -177,7 +177,7 @@ app.post('/signup', function(request, response) {
 																 request.body.user.username,
 																 request.body.user.password)
 			.then(function (user) {
-				console.log('Created user: ', user);	
+				// console.log('Created user: ', user);	
 				response.status(200).json({
 					user: user
 				});
@@ -229,12 +229,13 @@ io.on('connection', function(socket) {
 	 * @param: STRING content - user given prompt to be broadcast to participants
 	 */
 	socket.on('new-prompt', function(data) {
-		console.log('content of prompt', data);
+		// console.log('content of prompt', data);
 		models.Prompt.create({
 			content: data.topic,
 			userId: data.author.id
+		}).then(function (prompt) {
+			socket.broadcast.to('participant').emit('facilitator-prompt', prompt);
 		});
-		socket.broadcast.to('participant').emit('facilitator-prompt', data.topic);
 	});
 
 	/**
@@ -291,8 +292,14 @@ io.on('connection', function(socket) {
 	 * 
 	 * @param: STRING content - user-given thought to be broadcast to facilitator
 	 */
-	socket.on('new-thought', function(content) {
-		socket.broadcast.to('facilitator').emit('participant-thought', content);
+	socket.on('new-thought', function(newThought) {
+		console.log(newThought);
+		models.Thought.create({
+			content: newThought.content,
+			userId: newThought.author.id
+		}).then(function (thought) {
+			socket.broadcast.to('facilitator').emit('participant-thought', thought);
+		});
 	});
 
 });

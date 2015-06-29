@@ -1,9 +1,9 @@
 <div class="container component">
 
   <div class="well well-lg text-center" id="controlBar">
-    <button class="btn btn-primary">Distribute</button>
+    <button class="btn btn-primary"  ng-click="distribute()">Distribute</button>
       &nbsp;&nbsp;&nbsp;&nbsp;
-    <button class="btn btn-primary">New Session</button>
+    <button class="btn btn-primary" ng-click="newSession()">New Session</button>
     &nbsp;&nbsp;&nbsp;&nbsp;
     <button class="btn btn-primary" ng-click="openPrompt()">New Prompt</button>
     <p></p>
@@ -19,6 +19,8 @@
       &nbsp;&nbsp;&nbsp;&nbsp;
       <span>{{ numConnected }}</span>
   </div>
+
+  <textarea disabled class="form-control" id="prompt-display" ng-if="topic.length > 0">{{topic}}</textarea>
   
   <div class="panel panel-default" id="discussion">
     <div class="panel-body">

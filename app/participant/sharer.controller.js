@@ -11,8 +11,8 @@
         .module('app')
         .controller('SharerController', SharerController);
  
-    SharerController.$inject = ['$scope', 'ThoughtSocket'];
-    function SharerController($scope, ThoughtSocket) {
+    SharerController.$inject = ['$scope', 'ThoughtSocket', 'UserService'];
+    function SharerController($scope, ThoughtSocket, UserService) {
         
         $scope.topic = '';
         $scope.htmlThought = '';    // Only needed so that text-angular doesn't complain
@@ -26,13 +26,17 @@
         $scope.submitThought = function () {
             $scope.htmlThoughts.push({thought: $scope.htmlThought})
             console.log($scope.htmlThought);
-            ThoughtSocket.emit('new-thought', $scope.htmlThought)
+            ThoughtSocket.emit('new-thought', {
+                content: $scope.htmlThought, 
+                author: UserService.user
+            });
             $scope.htmlThought = null;
             // $('#thoughtForm').focus(); // does not work atm
         };
 
-        ThoughtSocket.on('facilitator-prompt', function (content) {
-            $scope.topic = content;
+        ThoughtSocket.on('facilitator-prompt', function (prompt) {
+            console.log('got prompt:', prompt);
+            $scope.topic = prompt.content;
         });
 
     }

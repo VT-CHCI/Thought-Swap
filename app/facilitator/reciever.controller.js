@@ -1,93 +1,102 @@
 (function () {
-    'use strict';
-    
-    /**
-     * @ngdoc overview
-     * @name app
-     * @description
-     * # The...
-     */
-    angular.module('app')
-        .controller('RecieverController', RecieverController);
- 
-    RecieverController.$inject = ['$scope', '$modal', '$log', 'ThoughtSocket'];
-    function RecieverController($scope, $modal, $log, ThoughtSocket) {
-        
-        $scope.participantThoughts = [];
-        $scope.topic = '';
-        $scope.numThoughts = 0;
-        $scope.numSubmitters = 0;
-        $scope.numConnected = 0;
- 
-        (function initController() {
-            ThoughtSocket.emit('facilitator-join');
-        })();
+	'use strict';
+	
+	/**
+	 * @ngdoc overview
+	 * @name app
+	 * @description
+	 * # The...
+	 */
+	angular.module('app')
+		.controller('RecieverController', RecieverController);
 
-        $scope.openPrompt = function () {
-            var modalInstance = $modal.open({
-              animation: true,
-              templateUrl: 'facilitator/promptModal.html', // see script in reciever.html
-              controller: 'PromptModalController',
-              resolve: {
-                topic: function() {
-                  return $scope.topic;
-                }
-              }
-            });
+	RecieverController.$inject = ['$scope', '$modal', '$log', 'ThoughtSocket'];
+	function RecieverController($scope, $modal, $log, ThoughtSocket) {
+			
+		$scope.participantThoughts = [];
+		$scope.topic = '';
+		$scope.numThoughts = 0;
+		$scope.numSubmitters = 0;
+		$scope.numConnected = 0;
+		// $scope.currentPrompt = '';
 
-            modalInstance.result.then(function (newPrompt) {
-              $scope.topic = newPrompt;
-            });
-          };
+		(function initController() {
+			ThoughtSocket.emit('facilitator-join');
+		})();
 
-        ThoughtSocket.on('participant-thought', function (content) {
-            $scope.participantThoughts.push({
-                thought: content
-            });
-            $scope.numThoughts++;
-        });
+		$scope.newSession = function () {
+			$scope.participantThoughts = [];
+			$scope.numThoughts = 0;
+			$scope.numSubmitters = 0;
+			newPrompt();
+		}
 
-        $scope.distribute = function () {
-            // TODO:
-        }
+		function newPrompt() {
+			$scope.topic = ''; //erase previous prompt
+		}
 
-        $scope.newSession = function () {
-            // TODO:
-        }
- 
-    };
+		$scope.openPrompt = function () {
+			$scope.newSession();
+				var modalInstance = $modal.open({
+					animation: true,
+					templateUrl: 'facilitator/promptModal.html', // see script in reciever.html
+					controller: 'PromptModalController',
+					resolve: {
+						topic: function() {
+							return $scope.topic;
+						}
+					}
+				});
 
-    /**
-     * @ngdoc The controller for the modal that handles prompt input.
-     * @name PromptModal 
-     * @description
-     * # From Docs: Please note that $modalInstance represents a modal 
-     *   window (instance) dependency. It is not the same as the $modal
-     *   service used above. 
-     * # Included within this controller file because it
-     *   is tightly related to the above controller
-     */
-    angular.module('app')
-        .controller('PromptModalController', PromptModalController);
+				modalInstance.result.then(function (newPrompt) {
+					$scope.topic = newPrompt;
+				});
+			};
 
-    PromptModalController.$inject = ['$scope', '$modalInstance', 'topic', 'ThoughtSocket', 'UserService'];
-    function PromptModalController($scope, $modalInstance, topic, ThoughtSocket, UserService) {
+		ThoughtSocket.on('participant-thought', function (participantThought) {
+			$scope.participantThoughts.push({
+					thought: participantThought.content
+			});
+			$scope.numThoughts++;
+		});
 
-        $scope.topic = topic;
+		$scope.distribute = function () {
+				console.log('should distribute in future NOT IMPLEMENTED!');
+		}
 
-        $scope.submit = function () {
-            console.log("Submit works");
-            console.log('current user:', UserService.user);
-            $modalInstance.close($scope.topic);
-            ThoughtSocket.emit('new-prompt', {
-              topic: $scope.topic,
-              author: UserService.user
-            });
-        };
+	};
 
-        $scope.cancel = function () {
-            $modalInstance.dismiss('cancel');
-        };
-    };
+	/**
+	 * @ngdoc The controller for the modal that handles prompt input.
+	 * @name PromptModal 
+	 * @description
+	 * # From Docs: Please note that $modalInstance represents a modal 
+	 *   window (instance) dependency. It is not the same as the $modal
+	 *   service used above. 
+	 * # Included within this controller file because it
+	 *   is tightly related to the above controller
+	 */
+	angular.module('app')
+			.controller('PromptModalController', PromptModalController);
+
+	PromptModalController.$inject = ['$scope', '$modalInstance', 'topic', 'ThoughtSocket', 'UserService'];
+	function PromptModalController($scope, $modalInstance, topic, ThoughtSocket, UserService) {
+
+		$scope.topic = topic;
+
+		$scope.submit = function () {
+			console.log("Submit works");
+			console.log('current user:', UserService.user);
+			$modalInstance.close($scope.topic);
+			ThoughtSocket.emit('new-prompt', {
+				topic: $scope.topic,
+				author: UserService.user
+			});
+		};
+
+		$scope.cancel = function () {
+			$modalInstance.dismiss('cancel');
+		};
+	};
 
 })();
