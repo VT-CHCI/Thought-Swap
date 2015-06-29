@@ -53,10 +53,11 @@
 			};
 
 			this.isLoggedIn = function() {
-				var isLoggedIn = this.hasOwnProperty('user') && this.user != null;
+				var isLoggedIn = this.hasOwnProperty('user') && this.user !== null;
 
-				if (!isLoggedIn && $cookies.hasOwnProperty('thoughtswap-user')) {
-					this.user = JSON.parse($cookies['thoughtswap-user']);
+				console.log('cookie?', $cookies.getObject('thoughtswap-user'));
+				if (!isLoggedIn && $cookies.getObject('thoughtswap-user') && $cookies.getObject('thoughtswap-user') !== null) {
+					this.user = $cookies.getObject('thoughtswap-user');
 					isLoggedIn = true;
 				}
 
