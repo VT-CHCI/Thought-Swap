@@ -23,16 +23,6 @@
 	])
 	.config(config);
 
-	// .factory('thoughtSocket', function (socketFactory) {
- //    var myIoSocket = io.connect('localhost:3030');
-
- //    var thoughtSocket = socketFactory({
- //      ioSocket: myIoSocket
- //    });
-
- //    return thoughtSocket;
- //  });
-
 	//===========================================================================
 
 	config.$inject = ['$routeProvider'];

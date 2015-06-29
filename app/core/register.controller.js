@@ -12,23 +12,25 @@
         .module('app')
         .controller('RegisterController', RegisterController);
  
-    RegisterController.$inject = ['$scope', '$location'];
-    function RegisterController($scope, $location) {
- 
+    RegisterController.$inject = ['$scope', '$location', 'UserService'];
+    function RegisterController($scope, $location, UserService) {
+
         $scope.register = function () {
-            $location.path('facilitator/mgmt/1');
-            // vm.dataLoading = true;
-            // UserService.Create(vm.user)
-            //     .then(function (response) {
-            //         if (response.success) {
-            //             FlashService.Success('Registration successful', true);
-            //             $location.path('/login');
-            //         } else {
-            //             FlashService.Error(response.message);
-            //             vm.dataLoading = false;
-            //         }
-            //     });
-        }
+            UserService.register({
+                email: $scope.email,
+                username: $scope.username,
+                password: $scope.password
+            })
+                .then(function (user) {
+                    $location.path('/facilitator/mgmt/' + user.id);
+                })
+                .catch(function (err) {
+                    $scope.error = err;
+                });
+
+            
+                    
+        };
     }
  
 })();

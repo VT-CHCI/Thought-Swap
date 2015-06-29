@@ -11,8 +11,8 @@
         .module('app')
         .controller('SharerController', SharerController);
  
-    SharerController.$inject = ['$scope', 'thoughtSocket'];
-    function SharerController($scope, thoughtSocket) {
+    SharerController.$inject = ['$scope', 'ThoughtSocket'];
+    function SharerController($scope, ThoughtSocket) {
         
         $scope.topic = '';
         $scope.htmlThought = '';    // Only needed so that text-angular doesn't complain
@@ -20,18 +20,18 @@
         $scope.distributedThought = '';
 
         (function initController() {
-            thoughtSocket.emit('participant-join');
+            ThoughtSocket.emit('participant-join');
         })();
  
         $scope.submitThought = function () {
             $scope.htmlThoughts.push({thought: $scope.htmlThought})
             console.log($scope.htmlThought);
-            thoughtSocket.emit('new-thought', $scope.htmlThought)
+            ThoughtSocket.emit('new-thought', $scope.htmlThought)
             $scope.htmlThought = null;
             // $('#thoughtForm').focus(); // does not work atm
         };
 
-        thoughtSocket.on('facilitator-prompt', function (content) {
+        ThoughtSocket.on('facilitator-prompt', function (content) {
             $scope.topic = content;
         });
 
