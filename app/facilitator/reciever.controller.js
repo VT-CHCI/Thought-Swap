@@ -70,15 +70,19 @@
     angular.module('app')
         .controller('PromptModalController', PromptModalController);
 
-    PromptModalController.$inject = ['$scope', '$modalInstance', 'topic', 'ThoughtSocket'];
-    function PromptModalController($scope, $modalInstance, topic, ThoughtSocket) {
+    PromptModalController.$inject = ['$scope', '$modalInstance', 'topic', 'ThoughtSocket', 'UserService'];
+    function PromptModalController($scope, $modalInstance, topic, ThoughtSocket, UserService) {
 
         $scope.topic = topic;
 
         $scope.submit = function () {
             console.log("Submit works");
+            console.log('current user:', UserService.user);
             $modalInstance.close($scope.topic);
-            ThoughtSocket.emit('new-prompt', $scope.topic)
+            ThoughtSocket.emit('new-prompt', {
+              topic: $scope.topic,
+              author: UserService.user
+            });
         };
 
         $scope.cancel = function () {

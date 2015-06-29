@@ -249,8 +249,13 @@ io.on('connection', function(socket) {
 	 * 
 	 * @param: STRING content - user given prompt to be broadcast to participants
 	 */
-	socket.on('new-prompt', function(content) {
-		socket.broadcast.to('participant').emit('facilitator-prompt', content);
+	socket.on('new-prompt', function(data) {
+		console.log('content of prompt', data);
+		models.Prompt.create({
+			content: data.topic,
+			userId: data.author.id
+		});
+		socket.broadcast.to('participant').emit('facilitator-prompt', data.topic);
 	});
 
 	/**

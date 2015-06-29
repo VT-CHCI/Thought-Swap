@@ -1,9 +1,9 @@
 var RSVP = require('rsvp');
 var Sequelize = require('sequelize');
 sequelize = new Sequelize('thoughtswap', // database name
-                          'thoughtswap', // username
-                          'thoughtswap', // password
-  { logging: function () {} }
+													'thoughtswap', // username
+													'thoughtswap', // password
+	{ logging: function () {} }
 );
 
 
@@ -84,29 +84,29 @@ exports.Distribution = Distribution;
 
 exports.start = function () {
 	sequelize.sync({force: true}) // Use {force:true} only for updating the above models,
-                   // it drops all current data
-    .then(function (results) {
-      User.findOrCreate({
-        where: {
-          email: 'test@thought-swap.com',
-          username: 'admin',
-          password: '098f6bcd4621d373cade4e832627b4f6', // md5 hash of test
-          role: 'facilitator'
-        } 
-      });
+									 // it drops all current data
+		.then(function (results) {
+			User.findOrCreate({
+				where: {
+					email: 'test@thought-swap.com',
+					username: 'admin',
+					password: '098f6bcd4621d373cade4e832627b4f6', // md5 hash of test
+					role: 'facilitator'
+				} 
+			});
 
-      User.findOrCreate({
-        where: {
-          email: null,
-          username: 'sillyname',
-          password: '098f6bcd4621d373cade4e832627b4f6', // md5 hash of test
-          role: 'participant'
-        }
-      });
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
+			User.findOrCreate({
+				where: {
+					email: null,
+					username: 'sillyname',
+					password: '098f6bcd4621d373cade4e832627b4f6', // md5 hash of test
+					role: 'participant'
+				}
+			});
+		})
+		.catch(function (error) {
+			console.log(error);
+		});
 	console.log('Tables Synced');
-  
+	
 };
