@@ -1,8 +1,9 @@
 (function () {
 		'use strict';
  
-		angular
-				.module('app')
+		angular.module('authentication', [
+					'ngCookies'
+				])
 				.service('UserService', UserService);
  
 		UserService.$inject = ['$http', '$cookies', '$q'];
@@ -19,29 +20,44 @@
 			this.login = function (options) {
 				var deferred = $q.defer();
 
-				$http.post('/signin', {
-					user: {
-						username: options.username,
-						password: options.password
-					}   
-				})
-					.success(function (data) {
-						this.auth(data, deferred);
-					}.bind(this))
+				if (options.facilitator) {
+					$http.post('/signin', {
+						user: {
+							username: options.username,
+							password: options.password
+						}   
+					})
+						.success(function (data) {
+							this.auth(data, deferred);
+						}.bind(this))
 
-					.error(function (data, status) {
-						deferred.reject("Error login facilitator: ", data);
-					});
+						.error(function (data, status) {
+							deferred.reject("Error login facilitator: ", data);
+						});
+				} else {
+					$http.post('/signin', {
+						user: {
+							username: options.username
+						}   
+					})
+						.success(function (data) {
+							this.auth(data, deferred);
+						}.bind(this))
+
+						.error(function (data, status) {
+							deferred.reject(data);
+						});
+				}
 					
-					return deferred.promise;
+				return deferred.promise;
 			};
 
 			this.isLoggedIn = function() {
-				var loggedIn = this.hasOwnProperty('user') && this.user != null;
+				var isLoggedIn = this.hasOwnProperty('user') && this.user != null;
 
-				if (!loggedIn && $cookies.hasOwnProperty('thoughtswap-user')) {
+				if (!isLoggedIn && $cookies.hasOwnProperty('thoughtswap-user')) {
 					this.user = JSON.parse($cookies['thoughtswap-user']);
-					loggedIn = true;
+					isLoggedIn = true;
 				}
 
 				return isLoggedIn;
@@ -62,7 +78,7 @@
 						}.bind(this))
 
 						.error(function (data, status) {
-							deferred.reject("Error creating user: ", data);
+							deferred.reject(data);
 						});
 
 					return deferred.promise;
@@ -77,20 +93,7 @@
 
 
 
-	// this.login = function (user, pwHash, successCallback, errorCallback) {
-	//   $http.post('/api/user/login', {user: user, pwHash:pwHash})
-	//     .success(function(data) {
-	//       console.log('logged in!', data);
-	//       userService.user = {name:user, id:data.id, orgs:data.orgs, groups:data.groups};
-	//       userService.currentContext = userService.user;
-	//       $cookies['youScriber-user'] = JSON.stringify(userService.user);
-	//       $rootScope.$emit('user-logged-in');
-	//       successCallback(data);
-	//     })
-	//     .error(function(error) {
-	//       errorCallback(error);
-	//     });
-	// };
+
 
 	// this.logout = function (successCallback, errorCallback) {
 	//   console.log('implement logout?');
@@ -109,19 +112,6 @@
 	//       if (errorCallback) {
 	//         errorCallback(error);
 	//       }
-	//     });
-	// };
-
-	// this.registerOrg = function (title, description, successCallback, errorCallback) {
-	//   console.log('this.registerOrg::this.user:', this.user);
-	//   $http.post('/api/org', {title: title, description:description, user:this.user})
-	//     .success(function(data) {
-	//       console.log(data);
-	//       // userService.user.orgs.push = {name:user};
-	//       successCallback(data);
-	//     })
-	//     .error(function(error) {
-	//       errorCallback(error);
 	//     });
 	// };
 

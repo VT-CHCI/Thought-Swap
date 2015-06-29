@@ -13,7 +13,7 @@
       'ngCookies',
 
     /* Custom Components */
-    //	'htmlTrusted',
+      'authentication',
 
     /* 3rd-party modules */
       'btford.socket-io',
@@ -27,6 +27,15 @@
 
 	config.$inject = ['$routeProvider'];
 	function config($routeProvider) {
+		var isAuthenticated = {
+        	isloggedIn: function (UserService, $location) {
+        		if (!UserService.isLoggedIn()) {
+        			$location.path('/login');
+        		}
+        		return UserService.isLoggedIn();
+        	}
+        };
+
 	    $routeProvider
 
 	      /* Core Views */
@@ -35,7 +44,21 @@
 	      })
 	      .when('/login', {
 	        templateUrl: 'core/login.html',
-	        controller: 'LoginController'
+	        controller: 'LoginController',
+	        resolve: { 
+	        	isFacilitator: function () {
+	        		return false;
+	        	}
+	        }
+	      })
+	      .when('/login/facilitator', {
+	        templateUrl: 'core/login.html',
+	        controller: 'LoginController',
+	        resolve: {
+	        	isFacilitator: function () {
+	        		return true;
+	        	}
+	        }
 	      })
 	      .when('/register', {
 	        templateUrl: 'core/register.html',
@@ -45,20 +68,21 @@
 	      /* Facilitator Views */
 		  .when('/facilitator/mgmt/:id', {
 	        templateUrl: 'facilitator/group-mgmt.html',
-	        controller: 'GroupMgmtController'
+	        controller: 'GroupMgmtController',
+	        resolve: isAuthenticated
 	        // TODO: resolve block w/ isloggedIn() isFacilitator()
 	      })
 	      .when('/facilitator', { // TODO: add :groupId
 	        templateUrl: 'facilitator/reciever.html',
-	        controller: 'RecieverController'
-	        // TODO: resolve block w/ isloggedIn() isFacilitator()
+	        controller: 'RecieverController',
+	        resolve: isAuthenticated
 	      })
 
 	      /* Participant View */
 	      .when('/participant', { // TODO: add :groupId
 	        templateUrl: 'participant/sharer.html',
-	        controller: 'SharerController'
-	        // TODO: resolve block w/ isloggedIn() isParticipant()
+	        controller: 'SharerController',
+	        resolve: isAuthenticated
 	      })
 
 	      .otherwise({
