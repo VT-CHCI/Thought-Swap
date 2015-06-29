@@ -15,9 +15,9 @@ var RSVP = require('rsvp');
 var bodyParser = require('body-parser');
 var multer = require('multer'); 
 
-app.use(bodyParser.json()); // for parsing application/json
-app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
-app.use(multer()); // for parsing multipart/form-data
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(multer());
 // Self Dependencies
 var models = require('./app.models');
 
@@ -94,12 +94,10 @@ function findByUsername(u) {
 
 function createFacilitator(e, u, p) {
 	return models.User.create({
-		where: {
 			email: e,
 			username: u,
 			password: p,
 			role: 'facilitator'
-		}
 	});
 }
 
@@ -117,7 +115,7 @@ function createParticpant() {
 
 
 //=============================================================================
-// Init Server
+// Init Server & Files
 app.use(express.static(__dirname + '/app'));
 app.use('/bower_components', express.static(__dirname + '/bower_components'));
 
@@ -151,7 +149,7 @@ app.post('/signin', function(request, response) {
 								user: user
 							});
 						} else {
-							response.send("Invalid username or password.");
+							response.status(401).send("Invalid username or password.");
 						}
 					}
 					if (user.role === 'participant') {
@@ -170,41 +168,22 @@ app.post('/signin', function(request, response) {
 	}
 });
 
-app.get('/signup', function(request, response) {
-	if (!req.body.hasOwnProperty('user')) {
+app.post('/signup', function(request, response) {
+	if (!request.body.hasOwnProperty('user')) {
 		response.status(400).send("Request did not contain any information.")
 	} else {
-		var user = createFacilitator(request.user.email,
-				request.user.username,
-				request.user.password)
+		console.log("request body: ", request.body);
+		var user = createFacilitator(request.body.user.email,
+																 request.body.user.username,
+																 request.body.user.password)
 			.then(function (user) {
-				console.log('Searching for ', user.username);
-
-				if (user !== null) {
-					if (user.role === 'facilitator') {
-						if (request.user.username === user.username &&
-							request.user.password === user.password) {
-							response.status(200).json({
-								name: user.username,
-								auth: true
-							});
-						} else {
-							response.send("Invalid username or password.");
-						}
-					}
-					if (user.role === 'participant') {
-						if (request.user.username === user.username) {
-							response.status(200).json({
-								name: user.username,
-								auth: true
-							});
-						} else {
-							response.send("Invalid username");
-						}
-					}
-				} else {
-					response.send("Did not find username.");
-				}
+				console.log('Created user: ', user);	
+				response.status(200).json({
+					user: user
+				});
+			})
+			.catch(function (err) {
+				response.status(500).send("Error creating account");
 			});
 	}
 });
