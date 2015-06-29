@@ -12,8 +12,8 @@
         .module('app')
         .controller('LoginController', LoginController);
  
-    LoginController.$inject = ['$scope', '$location'];
-    function LoginController($scope, $location) {
+    LoginController.$inject = ['$scope', '$location', '$http', 'UserService'];
+    function LoginController($scope, $location, $http, UserService) {
  
         (function initController() {
             // reset login status
@@ -35,17 +35,16 @@
         };
 
         $scope.loginFacilitator = function () {
-            $location.path('facilitator');
-            // vm.dataLoading = true;
-            // AuthenticationService.Login(vm.username, vm.password, function (response) {
-            //     if (response.success) {
-            //         AuthenticationService.SetCredentials(vm.username, vm.password);
-            //         $location.path('/');
-            //     } else {
-            //         FlashService.Error(response.message);
-            //         vm.dataLoading = false;
-            //     }
-            // });
+            UserService.login({
+                username: $scope.username,
+                password: $scope.password
+            })
+                .then(function (user) {
+                    $location.path('/facilitator');
+                })
+                .catch(function (err) {
+                    $scope.error = err;
+                });
         };
     }
  

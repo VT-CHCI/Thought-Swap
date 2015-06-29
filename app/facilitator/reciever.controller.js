@@ -10,8 +10,8 @@
     angular.module('app')
         .controller('RecieverController', RecieverController);
  
-    RecieverController.$inject = ['$scope', '$modal', '$log', 'thoughtSocket'];
-    function RecieverController($scope, $modal, $log, thoughtSocket) {
+    RecieverController.$inject = ['$scope', '$modal', '$log', 'ThoughtSocket'];
+    function RecieverController($scope, $modal, $log, ThoughtSocket) {
         
         $scope.participantThoughts = [];
         $scope.topic = '';
@@ -20,7 +20,7 @@
         $scope.numConnected = 0;
  
         (function initController() {
-            thoughtSocket.emit('facilitator-join');
+            ThoughtSocket.emit('facilitator-join');
         })();
 
         $scope.openPrompt = function () {
@@ -40,7 +40,7 @@
             });
           };
 
-        thoughtSocket.on('participant-thought', function (content) {
+        ThoughtSocket.on('participant-thought', function (content) {
             $scope.participantThoughts.push({
                 thought: content
             });
@@ -70,15 +70,15 @@
     angular.module('app')
         .controller('PromptModalController', PromptModalController);
 
-    PromptModalController.$inject = ['$scope', '$modalInstance', 'topic', 'thoughtSocket'];
-    function PromptModalController($scope, $modalInstance, topic, thoughtSocket) {
+    PromptModalController.$inject = ['$scope', '$modalInstance', 'topic', 'ThoughtSocket'];
+    function PromptModalController($scope, $modalInstance, topic, ThoughtSocket) {
 
         $scope.topic = topic;
 
         $scope.submit = function () {
             console.log("Submit works");
             $modalInstance.close($scope.topic);
-            thoughtSocket.emit('new-prompt', $scope.topic)
+            ThoughtSocket.emit('new-prompt', $scope.topic)
         };
 
         $scope.cancel = function () {

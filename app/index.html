@@ -38,6 +38,7 @@
     <script src="bower_components/angular/angular.js"></script>
     <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
     <script src="bower_components/angular-route/angular-route.js"></script>
+    <script src="bower_components/angular-cookies/angular-cookies.js"></script>
     <script src="bower_components/angular-socket-io/socket.js"></script>
     <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
     <script src="bower_components/angular-md5/angular-md5.js"></script>
@@ -49,9 +50,11 @@
 
         <!-- build:js({.tmp,app}) scripts/scripts.js -->
         <script src="/socket.io/socket.io.js"></script>
-        <script> var socket = io();</script>
+        <!-- // <script> var socket = io();</script> -->
         <!-- http REF -->
-        <script src="/app.js"></script>
+        <script src="app.js"></script>
+        <script src="services/ThoughtSocket.service.js"></script>
+        <script src="services/user.service.js"></script>
         <script src="core/login.controller.js"></script>
         <script src="core/register.controller.js"></script>
         <script src="facilitator/group-mgmt.controller.js"></script>

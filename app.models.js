@@ -83,7 +83,7 @@ exports.Thought = Thought;
 exports.Distribution = Distribution;
 
 exports.start = function () {
-	sequelize.sync() // Use {force:true} only for updating the above models,
+	sequelize.sync({force: true}) // Use {force:true} only for updating the above models,
                    // it drops all current data
     .then(function (results) {
       User.findOrCreate({

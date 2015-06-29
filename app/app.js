@@ -10,6 +10,7 @@
 	angular.module('app', [
 		/* Angular Modules */
       'ngRoute',
+      'ngCookies',
 
     /* Custom Components */
     //	'htmlTrusted',
@@ -20,17 +21,17 @@
       'textAngular',
       'angular-md5'
 	])
-	.config(config)
+	.config(config);
 
-	.factory('thoughtSocket', function (socketFactory) {
-    var myIoSocket = io.connect('localhost:3030');
+	// .factory('thoughtSocket', function (socketFactory) {
+ //    var myIoSocket = io.connect('localhost:3030');
 
-    var thoughtSocket = socketFactory({
-      ioSocket: myIoSocket
-    });
+ //    var thoughtSocket = socketFactory({
+ //      ioSocket: myIoSocket
+ //    });
 
-    return thoughtSocket;
-  });
+ //    return thoughtSocket;
+ //  });
 
 	//===========================================================================
 
