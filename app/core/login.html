@@ -12,34 +12,34 @@
     <input type="checkbox" ng-change="switchRoute()" ng-model="isFacilitator" id="role"/>
     
     <!-- Facilitator Form -->
-    <form name="form" ng-submit="loginFacilitator()" role="form" ng-show="isFacilitator" novalidate>
-        <div class="form-group" ng-class="{ 'has-error': form.username.$dirty && form.username.$error.required }">
+    <form name="fform" ng-submit="loginFacilitator()" role="form" ng-show="isFacilitator" novalidate>
+        <div class="form-group" ng-class="{ 'has-error': fform.username.$dirty && fform.username.$error.required }">
             <label for="username">Username</label>
             <input type="text" name="username" id="username" class="form-control" ng-model="username" required />
-            <span ng-show="form.username.$dirty && form.username.$error.required" class="help-block">Username is required</span>
+            <span ng-show="fform.username.$dirty && fform.username.$error.required" class="help-block">Username is required</span>
         </div>
-        <div class="form-group" ng-class="{ 'has-error': form.password.$dirty && form.password.$error.required }">
+        <div class="form-group" ng-class="{ 'has-error': fform.password.$dirty && fform.password.$error.required }">
             <label for="password">Password</label>
             <input type="password" name="password" id="password" class="form-control" ng-model="password" required />
-            <span ng-show="form.password.$dirty && form.password.$error.required" class="help-block">Password is required</span>
+            <span ng-show="fform.password.$dirty && fform.password.$error.required" class="help-block">Password is required</span>
         </div>
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">Temp Login</button>
-            <button type="submit" ng-disabled="form.$invalid || dataLoading" class="btn btn-primary">Login</button>
+            <button type="submit" ng-disabled="fform.$invalid || dataLoading" class="btn btn-primary">Login</button>
             <img ng-if="dataLoading" src="resources/loading.gif" />
             <a href="#/register" class="btn btn-link">Register</a>
         </div>
     </form>
     
     <!-- Participant Form -->
-    <form name="form" ng-submit="loginParticipant()" role="form" ng-show="!isFacilitator" novalidate>
-        <div class="form-group" ng-class="{ 'has-error': form.sillyname.$dirty && form.sillyname.$error.required }">
+    <form name="pform" ng-submit="loginParticipant()" role="form" ng-show="!isFacilitator" novalidate>
+        <div class="form-group" ng-class="{ 'has-error': pform.sillyname.$dirty && pform.sillyname.$error.required }">
             <label for="sillyname">Silly Name</label>
             <input type="text" name="sillyname" id="sillyname" class="form-control" ng-model="sillyname" required />
-            <span ng-show="form.sillyname.$dirty && form.sillyname.$error.required" class="help-block">Silly Name is required</span>
+            <span ng-show="pform.sillyname.$dirty && pform.sillyname.$error.required" class="help-block">Silly Name is required</span>
         </div>
         <div class="form-actions">
-            <button type="submit" ng-disabled="form.$invalid || dataLoading" class="btn btn-primary">Login</button>
+            <button type="submit" ng-disabled="pform.$invalid || dataLoading" class="btn btn-primary">Login</button>
             <img ng-if="dataLoading" src="resources/loading.gif" />
         </div>
     </form>
