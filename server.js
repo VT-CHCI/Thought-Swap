@@ -150,7 +150,8 @@ app.post('/signin', function(request, response) {
 								user: user
 							});
 						} else {
-							response.status(401).send("Invalid username or password.");
+							// If you get this far, user is not null, so password is wrong
+							response.status(401).send("Invalid password.");
 						}
 					}
 					if (user.role === 'participant') {

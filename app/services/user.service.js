@@ -32,7 +32,7 @@
 						}.bind(this))
 
 						.error(function (data, status) {
-							deferred.reject("Error login facilitator: ", data);
+							deferred.reject(data);
 						});
 				} else {
 					$http.post('/signin', {

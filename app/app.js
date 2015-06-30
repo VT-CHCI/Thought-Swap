@@ -70,8 +70,8 @@
 	        templateUrl: 'facilitator/group-mgmt.html',
 	        controller: 'GroupMgmtController',
 	        resolve: isAuthenticated
-	        // TODO: resolve block w/ isloggedIn() isFacilitator()
 	      })
+	      
 	      .when('/facilitator', { // TODO: add :groupId
 	        templateUrl: 'facilitator/reciever.html',
 	        controller: 'RecieverController',

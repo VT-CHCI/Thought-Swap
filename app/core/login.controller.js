@@ -53,6 +53,15 @@
                     $scope.dataLoading = false;
                 });
         };
+
+        $scope.switchRoute = function () {
+            if ($location.path() === '/login') {
+                $location.path('/login/facilitator');
+            }
+            else if ($location.path() === '/login/facilitator') {
+                $location.path('/login');
+            }
+        };
     }
  
 })();
