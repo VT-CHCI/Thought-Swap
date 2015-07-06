@@ -59,7 +59,6 @@
 			$scope.dataLoading = true;
 			UserService.logout()
 				.then(function (user) {
-					GroupMgmtController.destroy();
 					$location.path('/login/facilitator');
 				})
 				.catch(function (err) {

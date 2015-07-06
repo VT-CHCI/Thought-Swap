@@ -44,6 +44,23 @@ html * {
   margin-left: 8%;
 }
 
+#header p {
+  display: inline;
+  color: #FFFFFF;
+  float: right;
+  margin: 18px 24px 0px 0px;
+}
+
+#header div {
+  display: inline;
+}
+
+#user-icon {
+  color: #FFFFFF;
+  float: right;
+  margin: 22px 0px 0px 0px;
+}
+
 .component {
   margin-top: 3%;
 }

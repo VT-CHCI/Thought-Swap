@@ -24,18 +24,6 @@
 			ThoughtSocket.emit('facilitator-join');
 		})();
 
-		$scope.logOut = function () {
-            $scope.dataLoading = true;
-            UserService.logout()
-                .then(function (user) {
-                    $location.path('/login/facilitator');
-                })
-                .catch(function (err) {
-                    console.log('Error logging out', err);
-                    $scope.dataLoading = false;
-                });
-        };
-
 		$scope.newSession = function () {
 			$scope.participantThoughts = [];
 			$scope.numThoughts = 0;
