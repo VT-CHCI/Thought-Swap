@@ -25,18 +25,6 @@
                 $scope.attemptedFacilitator = true;
             }
         })();
-
-        $scope.logOut = function () {
-            $scope.dataLoading = true;
-            UserService.logout()
-                .then(function (user) {
-                    $location.path('/login');
-                })
-                .catch(function (err) {
-                    console.log('Error logging out', err);
-                    $scope.dataLoading = false;
-                });
-        };
         
         $scope.submitThought = function () {
             $scope.htmlThoughts.push({thought: $scope.htmlThought})
