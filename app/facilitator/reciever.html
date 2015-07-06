@@ -1,0 +1,50 @@
+<div id="header">
+  <img src="resources/alphaLogo.png" />
+  <a class="btn btn-sm btn-warning" ng-click="logOut()">
+  Logout &nbsp; <i class="glyphicon glyphicon-log-out"></i>
+  <img class="loadIcon" ng-if="dataLoading" src="resources/loading.gif" /></a>
+</div>
+
+<div class="container component">
+
+  <div class="well well-lg text-center" id="controlBar">
+    <button class="btn btn-primary"  ng-click="distribute()">Distribute</button>
+      &nbsp;&nbsp;&nbsp;&nbsp;
+    <button class="btn btn-primary" ng-click="newSession()">New Session</button>
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <button class="btn btn-primary" ng-click="openPrompt()">New Prompt</button>
+    <p></p>
+    <span class="glyphicon glyphicon-comment">&nbsp;Thoughts: </span>
+      &nbsp;&nbsp;&nbsp;&nbsp;
+      <span>{{ numThoughts }}</span>
+      &nbsp;&nbsp;&nbsp;&nbsp;
+    <span class="glyphicon glyphicon-user">&nbsp;Submitters</span>
+      &nbsp;&nbsp;&nbsp;&nbsp;
+      <span>{{ numSubmitters }}</span>
+      &nbsp;&nbsp;&nbsp;&nbsp;
+    <span class="glyphicon glyphicon-globe">&nbsp;Connected</span>
+      &nbsp;&nbsp;&nbsp;&nbsp;
+      <span>{{ numConnected }}</span>
+  </div>
+
+  <textarea disabled class="form-control" id="prompt-display" ng-if="topic.length > 0">{{topic}}</textarea>
+  
+  <div class="panel panel-default" id="discussion">
+    <div class="panel-body" id="dashboard">
+      <ul ng-model="participantThoughts" id="thoughtList">
+        <li ng-repeat="thought in participantThoughts" class="thoughtItem">
+          <div ng-bind-html="thought.thought"></div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div>
+<!--     <script type="text/ng-template" id="promptModal.html">
+      
+    </script> -->
+
+  
+  </div>
+
+</div>
