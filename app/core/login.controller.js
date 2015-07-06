@@ -49,6 +49,7 @@
                 facilitator: $scope.isFacilitator
             })
                 .then(function (user) {
+                    console.log(user);
                     $location.path('/facilitator/mgmt/' + user.id);
                 })
                 .catch(function (err) {

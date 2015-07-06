@@ -88,7 +88,10 @@ function findByUsername (u) {
 	return models.User.findOne({
 		where: {
 			username: u
-		}
+		},
+		include: [
+			{ model: models.Group, as:'facilitated' }
+		]
 	});
 }
 
@@ -106,7 +109,7 @@ function findUserById (i) {
 function findAllGroupsByOwner (i) {
 	return models.Group.findAll({
 		where: {
-			owner: i
+			ownerId: i
 		},
 		include: [
 			{ model: models.User }

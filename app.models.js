@@ -41,7 +41,7 @@ var Prompt = sequelize.define('prompt', {
 
 var Group = sequelize.define('group', {
 		name: Sequelize.STRING,
-		owner: Sequelize.INTEGER
+		// owner: Sequelize.INTEGER
 });
 
 var Distribution = sequelize.define('distribution', {
@@ -52,8 +52,11 @@ var Distribution = sequelize.define('distribution', {
 Event.belongsTo(User);		// a user may have many events
 User.hasMany(Event);
 
-User.belongsTo(Group);		// a group may have many users
+User.belongsTo(Group);		// a group may have many users all about students
 Group.hasMany(User);
+
+Group.belongsTo(User, { as: 'owner', constraints: false });
+User.hasMany(Group, { as: 'facilitated', constraints: false });
 
 Prompt.belongsTo(User);		// a user may have many prompts
 User.hasMany(Prompt);
@@ -85,7 +88,7 @@ exports.start = function () {
 	return sequelize.sync({force: true}) // Use {force:true} only for updating the above models,
 								  // it drops all current data
 		.then( function (results) {
-			User.findOrCreate({
+			return User.findOrCreate({
 				where: {
 					email: 'test@thought-swap.com',
 					username: 'admin',
@@ -96,13 +99,13 @@ exports.start = function () {
 			});
 		})
 		
-		.then(function () {
-			
+		.then(function (userResults) {
+			// console.log('first user', userResults);
 
 			Group.findOrCreate({
 				where: {
 					name: 'My Test Group',
-					owner: 1,
+					ownerId: userResults[0].dataValues.id,
 				} 
 			})
 				.then(function (group) {
@@ -131,7 +134,7 @@ exports.start = function () {
 			Group.findOrCreate({
 				where: {
 					name: 'My Other Test Group',
-					owner: 1,
+					ownerId: userResults[0].dataValues.id,
 				} 
 			})
 				.then(function (group) {

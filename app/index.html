@@ -1,17 +1,16 @@
 <!DOCTYPE html>
+
 <head>
     <meta charset="utf-8">
     <title>ThoughtSwap</title>
     <meta name="description" content="Enabling anonymous group discussion.">
     <meta name="viewport" content="width=device-width">
     <link rel="shortcut icon" href="resources/favicon.ico">
-
     <!-- bower:css -->
     <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
     <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css" />
     <link rel="stylesheet" href="bower_components/textAngular/dist/textAngular.css">
     <!-- endbower -->
-    
     <!-- build:css({.tmp,app}) styles/main.css -->
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="core/core.style.css">
@@ -25,14 +24,11 @@
     <![endif]-->
 </head>
 
-  <body ng-app="app">
+<body ng-app="app">
     <!--[if lt IE 9]>
-      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+  <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
-    
     <div class="" ng-view=""></div>
-
-
     <!-- build:js scripts/vendor.js -->
     <!-- bower:js -->
     <script src="bower_components/jquery/dist/jquery.js"></script>
@@ -48,19 +44,19 @@
     <script src="bower_components/textAngular/dist/textAngular-sanitize.min.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
+    <!-- build:js({.tmp,app}) scripts/scripts.js -->
+    <script src="/socket.io/socket.io.js"></script>
+    <!-- http REF -->
+    <script src="services/user.service.js"></script>
+    <script src="services/groups.service.js"></script>
+    <script src="app.js"></script>
+    <script src="services/thought-socket.service.js"></script>
+    <script src="core/login.controller.js"></script>
+    <script src="core/register.controller.js"></script>
+    <script src="facilitator/group-mgmt.controller.js"></script>
+    <script src="facilitator/reciever.controller.js"></script>
+    <script src="participant/sharer.controller.js"></script>
+    <!-- endbuild -->
+</body>
 
-        <!-- build:js({.tmp,app}) scripts/scripts.js -->
-        <script src="/socket.io/socket.io.js"></script>
-        <!-- http REF -->
-        <script src="services/user.service.js"></script>
-        <script src="services/groups.service.js"></script>
-        <script src="app.js"></script>
-        <script src="services/thought-socket.service.js"></script>
-        <script src="core/login.controller.js"></script>
-        <script src="core/register.controller.js"></script>
-        <script src="facilitator/group-mgmt.controller.js"></script>
-        <script src="facilitator/reciever.controller.js"></script>
-        <script src="participant/sharer.controller.js"></script>
-        <!-- endbuild -->
-  </body>
 </html>
