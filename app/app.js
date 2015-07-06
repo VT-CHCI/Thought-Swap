@@ -12,8 +12,9 @@
       'ngRoute',
       'ngCookies',
 
-    /* Custom Components */
+    /* Custom Modules */
       'authentication',
+      'groups',
 
     /* 3rd-party modules */
       'btford.socket-io',
@@ -35,6 +36,13 @@
         		return UserService.isLoggedIn();
         	}
         };
+        var isFacilitator = {
+        	isFacilitator: function (UserService, $location) {
+        		if (!UserService.isFacilitator()) {
+        			$location.url('/participant?facilitator');
+        		}
+        	}
+        };
 
 	    $routeProvider
 
@@ -46,7 +54,7 @@
 	        templateUrl: 'core/login.html',
 	        controller: 'LoginController',
 	        resolve: { 
-	        	isFacilitator: function () {
+	        	facilitatorLogin: function () {
 	        		return false;
 	        	}
 	        }
@@ -55,7 +63,7 @@
 	        templateUrl: 'core/login.html',
 	        controller: 'LoginController',
 	        resolve: {
-	        	isFacilitator: function () {
+	        	facilitatorLogin: function () {
 	        		return true;
 	        	}
 	        }
@@ -69,13 +77,13 @@
 		  .when('/facilitator/mgmt/:id', {
 	        templateUrl: 'facilitator/group-mgmt.html',
 	        controller: 'GroupMgmtController',
-	        resolve: isAuthenticated
+	        resolve: isFacilitator
 	      })
 	      
-	      .when('/facilitator', { // TODO: add :groupId
+	      .when('/facilitator/:groupId', {
 	        templateUrl: 'facilitator/reciever.html',
 	        controller: 'RecieverController',
-	        resolve: isAuthenticated
+	        resolve: isFacilitator
 	      })
 
 	      /* Participant View */

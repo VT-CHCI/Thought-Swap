@@ -10,26 +10,38 @@
 	angular.module('app')
 		.controller('RecieverController', RecieverController);
 
-	RecieverController.$inject = ['$scope', '$modal', '$log', 'ThoughtSocket'];
-	function RecieverController($scope, $modal, $log, ThoughtSocket) {
-			
-		$scope.participantThoughts = [];
-		$scope.topic = '';
-		$scope.numThoughts = 0;
-		$scope.numSubmitters = 0;
-		$scope.numConnected = 0;
-		// $scope.currentPrompt = '';
+	RecieverController.$inject = ['$scope', '$modal', '$log', 'ThoughtSocket',
+		'UserService', '$location'];
+	function RecieverController($scope, $modal, $log, ThoughtSocket, UserService, $location) {
 
 		(function initController() {
+			$scope.participantThoughts = [];
+			$scope.topic = '';
+			$scope.numThoughts = 0;
+			$scope.numSubmitters = 0;
+			$scope.numConnected = 0;
+			$scope.dataLoading = true;
 			ThoughtSocket.emit('facilitator-join');
 		})();
+
+		$scope.logOut = function () {
+            $scope.dataLoading = true;
+            UserService.logout()
+                .then(function (user) {
+                    $location.path('/login/facilitator');
+                })
+                .catch(function (err) {
+                    console.log('Error logging out', err);
+                    $scope.dataLoading = false;
+                });
+        };
 
 		$scope.newSession = function () {
 			$scope.participantThoughts = [];
 			$scope.numThoughts = 0;
 			$scope.numSubmitters = 0;
 			newPrompt();
-		}
+		};
 
 		function newPrompt() {
 			$scope.topic = ''; //erase previous prompt
@@ -37,21 +49,21 @@
 
 		$scope.openPrompt = function () {
 			$scope.newSession();
-				var modalInstance = $modal.open({
-					animation: true,
-					templateUrl: 'facilitator/promptModal.html', // see script in reciever.html
-					controller: 'PromptModalController',
-					resolve: {
-						topic: function() {
-							return $scope.topic;
-						}
+			var modalInstance = $modal.open({
+				animation: true,
+				templateUrl: 'facilitator/promptModal.html', // see script in reciever.html
+				controller: 'PromptModalController',
+				resolve: {
+					topic: function() {
+						return $scope.topic;
 					}
-				});
+				}
+			});
 
-				modalInstance.result.then(function (newPrompt) {
-					$scope.topic = newPrompt;
-				});
-			};
+			modalInstance.result.then(function (newPrompt) {
+				$scope.topic = newPrompt;
+			});
+		};
 
 		ThoughtSocket.on('participant-thought', function (participantThought) {
 			$scope.participantThoughts.push({

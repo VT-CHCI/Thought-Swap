@@ -11,7 +11,7 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var mysql = require('mysql');
-var RSVP = require('rsvp');
+var Promise = require('bluebird');
 var bodyParser = require('body-parser');
 var multer = require('multer'); 
 
@@ -84,7 +84,7 @@ function numSubmitters(groupId) {
 /**
  * 
  */
-function findByUsername(u) {
+function findByUsername (u) {
 	return models.User.findOne({
 		where: {
 			username: u
@@ -92,27 +92,82 @@ function findByUsername(u) {
 	});
 }
 
-function createFacilitator(e, u, p) {
-	return models.User.create({
-			email: e,
-			username: u,
-			password: p,
-			role: 'facilitator'
-	});
-}
-
-function createParticpant() {
-	var sillyname = makeName();
-	return models.User.create({
+/**
+ *
+ */
+function findUserById (i) {
+	return models.User.findOne({
 		where: {
-			email: null,
-			username: sillyname,
-			password: null,
-			role: 'participant'
+			id: i
 		}
 	});
 }
 
+function findAllGroupsByOwner (i) {
+	return models.Group.findAll({
+		where: {
+			owner: i
+		},
+		include: [
+			{ model: models.User }
+		]
+	});
+}
+
+function findGroupById (i) {
+	return models.Group.findOne({
+		where: {
+			id: i
+		},
+		include: [
+			{ model: models.User }
+		]
+	});
+}
+
+function createFacilitator (e, u, p) {
+	return models.User.create({
+		email: e,
+		username: u,
+		password: p,
+		role: 'facilitator'
+	});
+}
+
+function createGroup (n, i) {
+	return models.Group.create({
+		name: n,
+		owner: i
+	});
+}
+
+function createParticpant(g) {
+	var sillyname = makeName();
+	console.log("Creating participant with sillyname: ", sillyname);
+	return models.User.create({
+		email: null,
+		username: sillyname,
+		password: null,
+		role: 'participant',
+		groupId: g
+	});
+}
+
+function bulkCreateParticipants (num, groupId) {
+	var createResults = [];
+	console.log("bulkCreateParticipants args: ", num, groupId);
+	for (var i = 0; i < num; i++) {
+		console.log("got into for loop", i);
+		createResults.push(createParticpant(groupId));
+	}
+	return Promise.all(createResults)
+		.then(function (results) {
+			return findGroupById(groupId);
+		})
+		.catch(function (err) {
+			console.log("Err in bulk results: ", err);
+		})
+}
 
 //=============================================================================
 // Init Server & Files
@@ -120,15 +175,15 @@ app.use(express.static(__dirname + '/app'));
 app.use('/bower_components', express.static(__dirname + '/bower_components'));
 
 var PORT = 3030;
-models.start();
-// .then( function () {
-http.listen(PORT, function() {
-	console.log('listening on *:', PORT);
-});
-// })
-// .catch( function (err) {
-//     console.error(err);
-// });
+models.start()
+	.then( function () {
+		http.listen(PORT, function() {
+			console.log('listening on *:', PORT);
+		});
+	})
+	.catch( function (err) {
+	    console.error(err);
+	});
 
 
 
@@ -136,7 +191,7 @@ http.listen(PORT, function() {
 // Routes for non-instant server communications
 app.post('/signin', function(request, response) {
 	if (!request.body.hasOwnProperty('user')) {
-		response.status(400).send("Request did not contain any information.")
+		response.status(400).send("Request did not contain any information.");
 	} else {
 		// console.log("request body: ", request.body);
 		var user = findByUsername(request.body.user.username)
@@ -168,34 +223,91 @@ app.post('/signin', function(request, response) {
 				}
 			});
 	}
+
 });
 
 app.post('/signup', function(request, response) {
 	if (!request.body.hasOwnProperty('user')) {
-		response.status(400).send("Request did not contain any information.")
+		response.status(400).send("Request did not contain any information.");
 	} else {
 		var user = createFacilitator(request.body.user.email,
-																 request.body.user.username,
-																 request.body.user.password)
+									 request.body.user.username,
+									 request.body.user.password)
 			.then(function (user) {
 				// console.log('Created user: ', user);	
-				response.status(200).json({
+				response.status(201).json({
 					user: user
 				});
 			})
 			.catch(function (err) {
+				console.log("Error in signup: ", err);
 				response.status(500).send("Error creating account");
+			});
+	}
+
+});
+
+app.post('/signout', function(request, response) {
+	if (!request.body.hasOwnProperty('user')) {
+		response.status(400).send("Request did not contain any information.");
+	} else {
+		var user = findUserById(request.body.user.id)
+			.then(function (user) {
+				//TODO: Log this in the events table
+				response.status(200).send("Successfully logged out.");
+			})
+			.catch(function (err) {
+				console.log("Error in signout: ", err);
+				response.status(500).send("Error logging out");
 			});
 	}
 });
 
-app.get('/signout', function(req, res) {
-
+app.get('/groups/:userId', function(request, response) {
+	if (!request.params.hasOwnProperty('userId')) {
+		response.status(400).send("Request did not contain any information.");
+	} else {
+		findAllGroupsByOwner(request.params.userId)
+			.then(function (groups) {
+				// Case of null groups handled client side by requesting user to create group
+				response.status(200).json({
+					groups: groups
+				});
+			})
+			.catch(function (err) {
+				console.log("Error in get groups: ", err);
+				response.status(500).send("Error finding groups");
+			});
+	}
 });
 
-app.get('/groups', function(req, res) {
-
+app.post('/groups/create', function(request, response) {
+	if (!request.body.hasOwnProperty('group')) {
+		response.status(400).send("Request did not contain any information.");
+	} else {
+		var group = createGroup(request.body.group.name,
+								request.body.group.owner)
+			.then(function (group) {
+				//TODO: Log this in the events table
+				bulkCreateParticipants(request.body.group.numParticipants,
+									   group.dataValues.id)
+					.then(function (group) {
+						console.log("Group Created: ", group);
+						response.status(200).json({
+							group: group
+						});
+					})
+			})
+			.catch(function (err) {
+				console.log("Error in create group: ", err);
+				response.status(500).send("Error creating group");
+			});
+	}
 });
+
+// app.delete('/groups/delete', function(request, response) {
+
+// });
 
 //=============================================================================
 // Socket Communications
@@ -248,17 +360,6 @@ io.on('connection', function(socket) {
 	 */
 	socket.on('new-session', function(groupId) {
 		//socket.broadcast.emit('flush-session');
-	});
-
-	/**
-	 * Sets up the new group by entering the provided data into the db,
-	 * creates the participant users, and then sends that data back to the client
-	 * 
-	 * @param: STRING groupName - User-given name to be associated with group in db
-	 * @param: INT numParticipants - Amount of participants assigned to group
-	 */
-	socket.on('new-group', function(groupName, numParticipants) {
-		//TODO: 
 	});
 
 	/**

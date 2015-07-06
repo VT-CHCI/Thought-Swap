@@ -3,7 +3,11 @@
 </div>
 
 <div class="container">
+
   <div class="jumbotron formBox">
+    <div ng-show="isChangingRoles" class="alert alert-warning">
+        Are you sure? Logging in as a facilitator will log out of the participant's session.
+    </div>
     <h2>Login</h2>
 
     <div ng-show="error" class="alert alert-danger">{{error}}</div>
@@ -25,7 +29,7 @@
         </div>
         <div class="form-actions">
             <button type="submit" ng-disabled="fform.$invalid || dataLoading" class="btn btn-primary">Login</button>
-            <img ng-if="dataLoading" src="resources/loading.gif" />
+            <img class="loadIcon" ng-if="dataLoading" src="resources/loading.gif" />
             <a href="#/register" class="btn btn-link">Register</a>
         </div>
     </form>
@@ -39,7 +43,7 @@
         </div>
         <div class="form-actions">
             <button type="submit" ng-disabled="pform.$invalid || dataLoading" class="btn btn-primary">Login</button>
-            <img ng-if="dataLoading" src="resources/loading.gif" />
+            <img class="loadIcon" ng-if="dataLoading" src="resources/loading.gif" />
         </div>
     </form>
   </div>

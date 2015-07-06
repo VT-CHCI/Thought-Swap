@@ -1,3 +1,10 @@
+<div id="header">
+  <img src="resources/alphaLogo.png" />
+  <a class="btn btn-sm btn-warning" ng-click="logOut()">
+  Logout &nbsp; <i class="glyphicon glyphicon-log-out"></i>
+  <img class="loadIcon" ng-if="dataLoading" src="resources/loading.gif" /></a>
+</div>
+
 <div class="container component">
 
   <div class="well well-lg text-center" id="controlBar">
@@ -23,10 +30,10 @@
   <textarea disabled class="form-control" id="prompt-display" ng-if="topic.length > 0">{{topic}}</textarea>
   
   <div class="panel panel-default" id="discussion">
-    <div class="panel-body">
+    <div class="panel-body" id="dashboard">
       <ul ng-model="participantThoughts" id="thoughtList">
         <li ng-repeat="thought in participantThoughts" class="thoughtItem">
-          <div ng-bind-html="thought.thought"></div> <!-- TODO: add '| htmlTrusted' for filter -->
+          <div ng-bind-html="thought.thought"></div>
         </li>
       </ul>
     </div>

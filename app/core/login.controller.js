@@ -12,14 +12,17 @@
         .module('app')
         .controller('LoginController', LoginController);
  
-    LoginController.$inject = ['$scope', '$location', '$http', 'UserService', 'isFacilitator'];
-    function LoginController($scope, $location, $http, UserService, isFacilitator) {
-
-        $scope.isFacilitator = isFacilitator;
+    LoginController.$inject = ['$scope', '$location', '$http', 'UserService', 'facilitatorLogin'];
+    function LoginController($scope, $location, $http, UserService, facilitatorLogin) {
  
         (function initController() {
-            // reset login status
-            //AuthenticationService.ClearCredentials();
+            // reset login status?
+
+            $scope.isFacilitator = facilitatorLogin;
+
+            if ('participant' in $location.search()) {
+                $scope.isChangingRoles = true;
+            }
         })();
  
         $scope.loginParticipant = function () {
@@ -46,7 +49,7 @@
                 facilitator: $scope.isFacilitator
             })
                 .then(function (user) {
-                    $location.path('/facilitator');
+                    $location.path('/facilitator/mgmt/' + user.id);
                 })
                 .catch(function (err) {
                     $scope.error = err;

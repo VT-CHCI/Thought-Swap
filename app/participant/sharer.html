@@ -1,6 +1,15 @@
-<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+<div id="header">
+  <img src="resources/alphaLogo.png" />
+  <a class="btn btn-sm btn-warning" ng-click="logOut()">
+  Logout &nbsp; <i class="glyphicon glyphicon-log-out"></i></a>
+  <img class="loadIcon" ng-if="dataLoading" src="resources/loading.gif" />
+</div>
 
 <div class="container component left">
+  <div ng-show="attemptedFacilitator" class="alert alert-info">
+    Are you trying to act as Facilitator? If so, 
+    <a href="#/login/facilitator?participant"><strong>this might help</strong></a>
+  </div>
   <div class="well well-lg" id="prompt">
     <h4>Prompt:</h4>
     <p>{{ topic }}</p>
@@ -30,12 +39,10 @@
                               ['insertImage','insertLink','wordcount']]"> 
                               <!-- 'pre' (code) functionality in first block? -->
         </div>
-        <input type="hidden" name="thoughtForm" id="thoughtForm" ng-model="htmlThought" required>
+        <input type="hidden" name="thoughtForm" id="thoughtForm" ng-model="htmlThought" required />
       <!-- -->
       <div class="form-actions">
           <button type="submit" ng-disabled="form.$invalid" class="btn btn-primary">Submit</button>
-            
-          <a href="/signout" class="btn btn-link pull-right">Logout</a>
       </div>
   </form>
 </div>
