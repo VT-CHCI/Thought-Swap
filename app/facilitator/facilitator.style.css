@@ -48,9 +48,9 @@
     clear:both;
 }
 
-@media screen and (max-height: 720px) {
+/*@media screen and (max-height: 720px) {
 	.panel-body {
 		height: 450px;
 	}
 
-}
+}*/

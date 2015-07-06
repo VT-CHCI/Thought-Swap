@@ -19,9 +19,9 @@
 	margin-right: 3%;
 }
 
-.panel-body {
+/*.panel-body {
 	height: 500px;
-}
+}*/
 
 @media screen and (max-width: 940px) {
 	.left {
@@ -38,7 +38,7 @@
 		margin-right: auto;
 	}
 
-	.panel-body {
+	/*.panel-body {
 		height: 150px;
-	}
+	}*/
 }
