@@ -74,7 +74,7 @@
 	      })
 
 	      /* Facilitator Views */
-		  .when('/facilitator/mgmt/:id', {
+		  .when('/facilitator/mgmt', {
 	        templateUrl: 'facilitator/group-mgmt.html',
 	        controller: 'GroupMgmtController',
 	        resolve: isFacilitator

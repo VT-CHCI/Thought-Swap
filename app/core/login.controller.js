@@ -50,7 +50,7 @@
             })
                 .then(function (user) {
                     console.log(user);
-                    $location.path('/facilitator/mgmt/' + user.id);
+                    $location.path('/facilitator/mgmt');
                 })
                 .catch(function (err) {
                     $scope.error = err;

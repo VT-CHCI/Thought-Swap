@@ -6,18 +6,32 @@
         </a> 
     </div>
 
-    <!-- Reverse order because float right is sequential -->
-    <div ng-show="shouldOfferLogin()">
-    	<a class="btn btn-sm btn-success pull-right" href="#/login">
-	  		Login &nbsp; <i class="glyphicon glyphicon-log-in"></i>
-	  	</a>
+    <div ng-if="shouldOfferLogin()">
+      <a class="btn btn-sm btn-success pull-right" href="#/login">
+        Login &nbsp; <i class="glyphicon glyphicon-log-in"></i>
+      </a>
     </div>
+
     <div ng-show="userService.isLoggedIn()">
-        <a class="btn btn-sm btn-warning pull-right" ng-click="logOut()">
-	  		Logout &nbsp; <i class="glyphicon glyphicon-log-out"></i>
-	  		<img class="loadIcon" ng-if="dataLoading" src="resources/loading.gif" />
-	  	</a>
-        <p class="pull-right" id="user">Hello {{userService.user.username}}!</p>
-        <i id="user-icon" class="glyphicon glyphicon-user">&nbsp;</i>
-    </div>
+      <div class="btn-group pull-right">
+        <div id="user-badge" class="btn btn-warning">
+          <i class="glyphicon glyphicon-user"></i>
+          Hello {{userService.user.username}}!
+        </div>
+        <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <span class="caret"></span>
+          <span class="sr-only">Toggle Dropdown</span>
+        </button>
+        <ul class="dropdown-menu">
+          <li ng-if="userService.isFacilitator()"><a href="#/facilitator/mgmt">Group Management</a></li>
+          <li ng-if="userService.isFacilitator()" role="separator" class="divider"></li>
+          <li id="logout">
+            <a ng-click="logOut()">Logout &nbsp;
+              <i class="glyphicon glyphicon-log-out"></i>
+              <i class="loadIcon" ng-if="dataLoading" src="resources/loading.gif"></i>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>     
 </div>

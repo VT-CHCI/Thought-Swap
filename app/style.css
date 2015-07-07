@@ -37,6 +37,28 @@ html * {
   box-shadow: 0 0 10px rgba(0,0,0,0.4);
 }
 
+#header .btn-group, a.btn {
+  margin-top: 13px;
+  margin-right: 8%;
+}
+
+.btn-warning {
+  background-color: #FCB040;
+  color: #212121;
+}
+
+#user-badge:hover {
+  color: #212121;
+  cursor: default;
+  border-color: transparent;
+  border-right-color: rgba(152,95,13,0.1);
+  background-color: #FCB040;
+}
+
+li#logout i {
+  display: inline;
+}
+
 #header img {
   width: 165px;
   height: 60px;
