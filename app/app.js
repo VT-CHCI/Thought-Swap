@@ -43,12 +43,21 @@
         		}
         	}
         };
+        var isParticipant = {
+        	isParticipant: function (UserService, $location) {
+        		if (UserService.isParticipant()) {
+        			$location.url('/participant');
+
+        		}
+        	}
+        }
 
 	    $routeProvider
 
 	      /* Core Views */
 	      .when('/', {
-	        templateUrl: 'core/landing.html'
+	        templateUrl: 'core/landing.html',
+	        resolve: isParticipant
 	      })
 	      .when('/login', {
 	        templateUrl: 'core/login.html',

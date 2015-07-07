@@ -75,6 +75,10 @@
 			return  this.isLoggedIn() && this.user.role === 'facilitator';	
 		};
 
+		this.isParticipant = function () {
+			return  this.isLoggedIn() && this.user.role === 'participant';	
+		};
+
 		this.register = function (options) {
 			var deferred = $q.defer();
 
