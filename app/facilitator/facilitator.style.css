@@ -7,7 +7,8 @@
 }
 
 .panel-body#dashboard {
-	height: 578px;
+	min-height: 578px;
+	padding: 15px 0px 15px 0px;
 }
 
 #groups {
@@ -23,12 +24,24 @@
 	height: 0px;
 }
 
-.thought {
-/*	background-color: #EEE; */	
+#thoughtList {
+	table-layout: fixed;
+	padding: 0px 15px 0px 15px;
+}
+
+.thoughtItem {
+	display: inline-block;
+	margin: 10px 10px 10px 10px;
+	border: 1px solid #212121;
 	border-radius: 10px;
-	text-align: center;
-	width: 20%;
-	height: 10%;
+	list-style: none;	
+	width: 282px;
+	height: 194px;
+	overflow: hidden;
+}
+
+.thoughtItem div {
+	padding: 10px 10px 10px 10px;
 }
 
 .thought i {
