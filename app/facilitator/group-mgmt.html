@@ -18,7 +18,7 @@
 		        <accordion-heading>
 		        	<div style="">
 		            <a style="margin-left: auto;" ng-href="#/facilitator/{{groups[0].id}}"><strong>{{groups[0].name}}</strong></a>
-		            <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': isFirstOpen, 'glyphicon-chevron-right': !isFirstOpen}"></i>
+		            <i class="pull-right fa" ng-class="{'fa-chevron-down': isFirstOpen, 'fa-chevron-right': !isFirstOpen}"></i>
 		          </div>
 		        </accordion-heading>
 		        <div ng-repeat=" participant in groups[0].users">
@@ -31,7 +31,7 @@
 		        <accordion-heading>
 		        	<div>
 		        		<a ng-href="#/facilitator/{{groups[$index+1].id}}"><strong>{{groups[$index+1].name}}</strong></a>
-		            <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': isOpen, 'glyphicon-chevron-right': !isOpen}"></i>
+		            <i class="pull-right fa" ng-class="{'fa-chevron-down': isOpen, 'fa-chevron-right': !isOpen}"></i>
 		          </div>
 		        </accordion-heading>
 		        <div ng-repeat=" participant in group.users">
