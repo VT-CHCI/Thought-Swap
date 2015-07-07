@@ -12,8 +12,8 @@
         .module('app')
         .controller('LoginController', LoginController);
  
-    LoginController.$inject = ['$scope', '$location', '$http', 'UserService', 'facilitatorLogin'];
-    function LoginController($scope, $location, $http, UserService, facilitatorLogin) {
+    LoginController.$inject = ['$scope', '$location', '$http', 'UserService', 'facilitatorLogin', 'md5'];
+    function LoginController($scope, $location, $http, UserService, facilitatorLogin, md5) {
  
         (function initController() {
             // reset login status?
@@ -45,7 +45,7 @@
             $scope.dataLoading = true;
             UserService.login({
                 username: $scope.username,
-                password: $scope.password,
+                password: md5.createHash($scope.password),
                 facilitator: $scope.isFacilitator
             })
                 .then(function (user) {
