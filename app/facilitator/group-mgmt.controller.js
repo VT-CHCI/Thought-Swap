@@ -12,19 +12,15 @@
 		.module('app')
 		.controller('GroupMgmtController', GroupMgmtController);
  
-	GroupMgmtController.$inject = ['$scope', 'UserService', '$location',
-	 'GroupsService', '$modal'];
-	function GroupMgmtController($scope, UserService, $location,
-	 GroupsService, $modal) {
+	GroupMgmtController.$inject = ['$scope', 'UserService', '$location', '$modal'];
+	function GroupMgmtController($scope, UserService, $location, $modal) {
 
 		(function initController() {
             // reset login status?
             $scope.dataLoading = true;
             $scope.isFirstOpen = true;
             $scope.isOpen = false;
-            $scope.groups = GroupsService.getGroups({
-            	id: UserService.user.id
-            })
+            UserService.getGroups()
             	.then(function (groups) {
             		$scope.groups = groups;
             	})
