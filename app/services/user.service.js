@@ -13,8 +13,8 @@
 			])
 			.service('UserService', UserService);
 
-	UserService.$inject = ['$http', '$cookies', '$q'];
-	function UserService($http, $cookies, $q) {
+	UserService.$inject = ['$http', '$cookies', '$q', 'GroupsService'];
+	function UserService($http, $cookies, $q, GroupsService) {
 		var userService = this;
 
 		// To be called on success of register and login
@@ -122,6 +122,13 @@
 		    });
 
 			return deferred.promise;
+		};
+
+		this.getGroups = function() {
+			console.log(this.user);
+			return GroupsService.getGroups({
+				id: this.user.id
+			});
 		};
 	
 	}
