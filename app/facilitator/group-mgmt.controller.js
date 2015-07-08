@@ -84,7 +84,6 @@
 		$scope.groups = groups;
 
 		$scope.submit = function () {
-			console.log("Submit works");
 			GroupsService.createGroup({
 				groupname: $scope.groupname,
 				ownerId: UserService.user.id,

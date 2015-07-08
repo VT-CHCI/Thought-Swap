@@ -49,10 +49,8 @@
                 facilitator: $scope.isFacilitator
             })
                 .then(function (user) {
-                    console.log(user);
                     UserService.getGroups()
                         .then(function (groups) {
-                            console.log('groups', groups);
                             if (groups.length === 1) {
                                 $location.path('/facilitator/'+groups[0].id);
                             } else {
