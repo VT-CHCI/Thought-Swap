@@ -2,7 +2,7 @@
   <form name="gform" ng-submit="submit()" role="form">
     <div class="form-group" ng-class="{ 'has-error': gform.groupname.$dirty && gform.groupname.$error.required }">
       <label for="groupname">Group Name</label>
-      <input type="text" name="groupname" id="groupname" class="form-control" ng-model="groupname" required />
+      <input type="text" name="groupname" id="groupname" class="form-control" ng-model="groupname" auto-focus required />
       <span ng-show="gform.groupname.$dirty && gform.groupname.$error.required" class="help-block">Group name is required.</span>
     </div>
     

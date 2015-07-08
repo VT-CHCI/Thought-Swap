@@ -20,7 +20,8 @@
       'btford.socket-io',
       'ui.bootstrap',
       'textAngular',
-      'angular-md5'
+      'angular-md5',
+      'mp.autoFocus',
 	])
 	.config(config);
 
