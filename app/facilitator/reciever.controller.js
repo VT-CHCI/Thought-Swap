@@ -11,20 +11,22 @@
 		.controller('RecieverController', RecieverController);
 
 	RecieverController.$inject = ['$scope', '$modal', '$log', 'ThoughtSocket',
-		'UserService', '$location', '$routeParams'];
+		'UserService', '$location', '$routeParams', '$rootScope'];
 	function RecieverController($scope, $modal, $log, ThoughtSocket,
-	 UserService, $location, $routeParams) {
+	 UserService, $location, $routeParams, $rootScope) {
 
 		(function initController() {
 			$scope.participantThoughts = [];
-			$scope.topic = '';
+			// $scope.topic = '';
+			$scope.prompt = {};
 			$scope.numThoughts = 0;
 			$scope.numSubmitters = 0;
 			$scope.numConnected = 0;
 			$scope.dataLoading = true;
 			ThoughtSocket.emit('facilitator-join', {
-				groupId: $routeParams.groupId
-			});
+				groupId: $routeParams.groupId,
+					userId: UserService.user.id
+				});
 			// ThoughtSocket.emit('session-sync-req', {
 			// 	user: UserService.user,
 			// 	groupId: $routeParams.groupId,
@@ -32,14 +34,20 @@
 			// });
 		})();
 
-		// ThoughtSocket.on('session-sync-res', function (data) {
-		// 	console.log("Recieved session sync response:", data);
-		// 	$scope.participantThoughts = data.prompt.thoughts;
-		// 	$scope.topic = data.prompt.content;
-		// 	$scope.numThoughts = data.prompt.thoughts.length();
-		// 	// $scope.numSubmitters = ?
+		ThoughtSocket.on('session-sync-res', function (data) {
+			console.log("Recieved session sync response:", data);
+			$scope.participantThoughts = data.prompt.thoughts;
+			$scope.prompt = data.prompt;
+			$scope.sessionId = data.sessionId;
+			// $scope.numThoughts = data.prompt.thoughts.length();
+			// $scope.numSubmitters = ?
 
-		// });
+		});
+
+		// $rootScope.$on("$routeChangeStart", function () {
+		// 	console.log('leaving fac');
+  //           ThoughtSocket.emit('facilitator-leave');
+  //       });
 
 		$scope.newSession = function () {
 			$scope.participantThoughts = [];
@@ -54,24 +62,28 @@
 		};
 
 		function newPrompt() {
-			$scope.topic = ''; //erase previous prompt
+			// $scope.topic = ''; //erase previous prompt
+			$scope.prompt = {};
 		}
 
-		$scope.openPrompt = function () {
+		$scope.openPromptInput = function () {
 			$scope.newSession();
 			var modalInstance = $modal.open({
 				animation: true,
 				templateUrl: 'facilitator/promptModal.html', // see script in reciever.html
 				controller: 'PromptModalController',
 				resolve: {
-					topic: function() {
-						return $scope.topic;
+					prompt: function() {
+						return $scope.prompt;
+					},
+					sessionId: function () {
+						return $scope.sessionId;
 					}
 				}
 			});
 
-			modalInstance.result.then(function (newPrompt) {
-				$scope.topic = newPrompt;
+			modalInstance.result.then(function (newPromptContent) {
+				$scope.prompt.content = newPromptContent;
 			});
 		};
 
@@ -83,8 +95,11 @@
 		});
 
 		$scope.distribute = function () {
-				console.log('should distribute in future NOT IMPLEMENTED!');
-		}
+			console.log('should distribute in future NOT IMPLEMENTED!');
+			ThoughtSocket.emit('distribute', {
+				groupId: $routeParams.groupId
+			});
+		};
 
 	};
 
@@ -101,18 +116,21 @@
 	angular.module('app')
 			.controller('PromptModalController', PromptModalController);
 
-	PromptModalController.$inject = ['$scope', '$modalInstance', 'topic', 'ThoughtSocket', 'UserService'];
-	function PromptModalController($scope, $modalInstance, topic, ThoughtSocket, UserService) {
+	PromptModalController.$inject = ['$scope', '$modalInstance', 'prompt', 'sessionId', 'ThoughtSocket', 'UserService', '$routeParams'];
+	function PromptModalController($scope, $modalInstance, prompt, sessionId, ThoughtSocket, UserService, $routeParams) {
 
-		$scope.topic = topic;
+		$scope.prompt = prompt;
+		$scope.sessionId = sessionId
 
 		$scope.submit = function () {
 			console.log("Submit works");
 			console.log('current user:', UserService.user);
-			$modalInstance.close($scope.topic);
+			$modalInstance.close($scope.prompt.content);
 			ThoughtSocket.emit('new-prompt', {
-				topic: $scope.topic,
-				author: UserService.user
+				prompt: $scope.prompt.content,
+				userId: UserService.user.id,
+				groupId: $routeParams.groupId,
+				sessionId: $scope.sessionId
 			});
 		};
 

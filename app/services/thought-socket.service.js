@@ -9,7 +9,7 @@
      * # various controllers to communicate with the server's socket
      */
     angular
-        .module('app')
+        .module('thoughtSwap', [])
         .factory('ThoughtSocket', ThoughtSocket);
 
     ThoughtSocket.$inject = ['socketFactory'];

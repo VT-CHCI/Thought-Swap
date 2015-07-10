@@ -7,40 +7,45 @@ sequelize = new Sequelize('thoughtswap', // database name
 
 
 var User = sequelize.define('user', {
-		email: Sequelize.STRING,
-		username: {type: Sequelize.STRING, unique: true},
-		password: Sequelize.STRING,		// is hashed client-side before storing
-		role: Sequelize.ENUM('facilitator',
-							 'participant')
+	email: Sequelize.STRING,
+	username: {type: Sequelize.STRING, unique: true},
+	password: Sequelize.STRING,		// is hashed client-side before storing
+	role: Sequelize.ENUM('facilitator',
+						 'participant')
+});
+
+var Socket = sequelize.define('socket', {
+	active: Sequelize.BOOLEAN,
+	socketioId: Sequelize.STRING
 });
 
 var Event = sequelize.define('event', {
-		type: Sequelize.ENUM('connect',
-							 'disconnect',
-							 'logIn',
-							 'logOut',
-							 'register',
-							 'authenticateError',
-							 'submitThought',
-							 'newSession',
-							 'newPrompt',
-							 'deleteThought',
-							 'reOrderThought',
-							 'distribution'),
-		data: Sequelize.INTEGER		// id for the subject of the event 
-																// i.e. Event{ type: logIn, data: userId }
+	type: Sequelize.ENUM('connect',
+						 'disconnect',
+						 'logIn',
+						 'logOut',
+						 'register',
+						 'authenticateError',
+						 'submitThought',
+						 'newSession',
+						 'newPrompt',
+						 'deleteThought',
+						 'reOrderThought',
+						 'distribution'),
+	data: Sequelize.INTEGER		// id for the subject of the event 
+								// i.e. Event{ type: logIn, data: userId }
 })
 
 var Thought = sequelize.define('thought', {
-		content: Sequelize.TEXT
+	content: Sequelize.TEXT
 });
 
 var Prompt = sequelize.define('prompt', {
-		content: Sequelize.TEXT
+	content: Sequelize.TEXT
 });
 
 var Group = sequelize.define('group', {
-		name: Sequelize.STRING,
+	name: Sequelize.STRING,
 });
 
 var Session = sequelize.define('session', {
@@ -49,7 +54,7 @@ var Session = sequelize.define('session', {
 });
 
 var Distribution = sequelize.define('distribution', {
-		readerId: Sequelize.INTEGER		// id of user recieving the distributed thought
+	readerId: Sequelize.INTEGER		// id of user recieving the distributed thought
 });
 
 
@@ -59,12 +64,18 @@ User.hasMany(Event);
 User.belongsTo(Group);		// a group may have many users all about students
 Group.hasMany(User);
 
+Socket.belongsTo(User);
+User.hasMany(Socket);
+
 Group.belongsTo(User, { as: 'owner', constraints: false });
 User.hasMany(Group, { as: 'facilitated', constraints: false });
 
 Group.belongsTo(Session, {as: 'CurrentSession', constraints: false});
 Group.hasMany(Session);
 Session.belongsTo(Group);
+
+Session.hasMany(Prompt);
+Prompt.belongsTo(Session);
 
 Prompt.belongsTo(User);		// a user may have many prompts
 User.hasMany(Prompt);
@@ -78,8 +89,8 @@ Prompt.hasMany(Thought);
 Distribution.belongsTo(Thought);		// a distribution may have many thoughts
 Thought.hasMany(Distribution);
 
-Prompt.belongsTo(Group);		// a group may have many prompts
-Group.hasMany(Prompt);
+// Prompt.belongsTo(Group);		// a group may have many prompts
+// Group.hasMany(Prompt);
 
 Distribution.belongsTo(Group);		// a group may have many distributions
 Group.hasMany(Distribution);
@@ -87,6 +98,7 @@ Group.hasMany(Distribution);
 
 exports.Event = Event;
 exports.User = User;
+exports.Socket = Socket;
 exports.Group = Group;
 exports.Session = Session;
 exports.Prompt = Prompt;

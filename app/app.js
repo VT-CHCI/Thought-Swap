@@ -20,9 +20,11 @@
       'btford.socket-io',
       'ui.bootstrap',
       'textAngular',
-      'angular-md5'
+      'angular-md5',
+      'thoughtSwap'
 	])
-	.config(config);
+	.config(config)
+	.run(run);
 
 	//===========================================================================
 
@@ -106,5 +108,29 @@
 	        redirectTo: '/'
 	      });
 
+	}
+
+	run.$inject = ['$rootScope', 'ThoughtSocket', '$cookies'];
+	function run ($rootScope, ThoughtSocket, $cookies) {
+		ThoughtSocket.on('socket-id', function (socketId) {
+			console.log('got socket id', socketId);
+			$cookies.putObject('TS-sid', {id:socketId});
+		});
+		$rootScope.$on('$locationChangeStart', function () {
+			if ($cookies.getObject('TS-sid') && $cookies.getObject('TS-sid').hasOwnProperty('id')) {
+				console.log($cookies.getObject('TS-sid').id);
+		        console.log('$locationChangeStart changed!', new Date());
+		        ThoughtSocket.emit('facilitator-leave', $cookies.getObject('TS-sid').id);
+				
+			}
+	    });
+	    $rootScope.$on('$routeChangeStart', function () {
+	    	if ($cookies.getObject('TS-sid') && $cookies.getObject('TS-sid').hasOwnProperty('id')) {
+				console.log($cookies.getObject('TS-sid').id);
+		        console.log('$routeChangeStart changed!', new Date());
+		        ThoughtSocket.emit('facilitator-leave', $cookies.getObject('TS-sid').id);
+				
+			}
+	    });
 	}
 })();

@@ -9,9 +9,10 @@
 var express = require('express');
 var app = express();
 var http = require('http').Server(app);
-var io = require('socket.io')(http);
-var mysql = require('mysql');
 var Promise = require('bluebird');
+var io = require('socket.io')(http);
+// Promise.promisifyAll(io);
+var mysql = require('mysql');
 var bodyParser = require('body-parser');
 var multer = require('multer'); 
 
@@ -123,42 +124,61 @@ function bulkCreateParticipants (num, groupId) {
 // });
 
 function initSession (groupId) {
-	console.log('Got into initSession with groupId)', groupId);
-	return createSession()
-					.then(function (session) {
-						updateGroupSession(groupId, session.get('id'))
-							.then(function (prompt) {
-								createPrompt('Awaiting a prompt..', null, groupId, session.get('id'))
-									.then(function (defaultPrompt) {
-										io.to('discussion-'+groupId).emit('session-sync-res', {
-											sessionId: session.get('id'),
-											currentPrompt: defaultPrompt.get('content'),
-										});
-									});
+	console.log('Got into initSession with groupId', groupId);
+	return new Promise(function (resolve, reject) {
+		createSession(groupId)
+			.then(function (session) {
+				console.log('got a session', session.get('id'));
+				return updateGroupSession(groupId, session.get('id'))
+					.then(function (recordsUpdated) {
+						console.log('updated session', session.get('id'));
+						resolve(session);
+						createPrompt('Awaiting a prompt..', null, groupId, session.get('id'))
+							.then(function (defaultPrompt) {
+								io.to('discussion-'+groupId).emit('session-sync-res', {
+									sessionId: session.get('id'),
+									prompt: defaultPrompt.get('content'),
+								});
 							});
-					})
-					.catch(function (error) {
-						console.log(">> Error initiating session.", error);
 					});
+			})
+			.catch(function (error) {
+				console.log(">> Error initiating session.", error);
+			});
+	});
 }
 
 function getActiveSession (groupId) {
-	return findGroupById(groupId)
-					.then(function (group) {
-						console.log("Active session:", group.getCurrentSession());
-							if(group.getCurrentSession() === null) {
-								return initSession(groupId);
-							} else {
-								console.log(group.getCurrentSession());
-								return  group.getCurrentSession();
-							}
-					})
+	console.log('beginning getActiveSession', groupId);
+	return new Promise(function (resolve, reject) {
+		findGroupById(groupId)
+			.then(function (group) {
+				return group.getCurrentSession()
+					.then(function (session) {
+						console.log("Active session:", session);
+						if (session === null) {
+							console.log('getActiveSession if');
+							initSession(groupId)
+								.then(function (session) {
+									console.log('the session', session.get('id'));
+									resolve(session);
+								})
+						} else {
+							console.log('getActiveSession else');
+							// console.log(group.getCurrentSession());
+							resolve(group.getCurrentSession());
+						}
+					});
+			});
+
+	});
 }
 
 //=============================================================================
 // Database Communication
 
 function findByUsername (u) {
+	console.log('findByUsername');
 	return models.User.findOne({
 		where: {
 			username: u
@@ -170,6 +190,7 @@ function findByUsername (u) {
 }
 
 function findUserById (i) {
+	console.log('findUserById');
 	return models.User.findOne({
 		where: {
 			id: i
@@ -177,18 +198,20 @@ function findUserById (i) {
 	});
 }
 
-function updateUserSocketId(i, s) {
-	return models.User.update({
-		currentSocketId: s
-	},
-	{
-		where: {
-			id: i
-		}
-	});
-}
+// function updateUserSocketId(i, s) {
+	console.log('updateUserSocketId');
+// 	return models.User.update({
+// 		currentSocketId: s
+// 	},
+// 	{
+// 		where: {
+// 			id: i
+// 		}
+// 	});
+// }
 
 function findAllGroupsByOwner (i) {
+	console.log('findAllGroupsByOwner');
 	return models.Group.findAll({
 		where: {
 			ownerId: i
@@ -199,7 +222,22 @@ function findAllGroupsByOwner (i) {
 	});
 }
 
+function findAllActiveSockets (groupId) {
+	return models.Socket.findAll({
+		where: {
+			active: true,
+
+		},
+		include: [
+			{model: models.User, where: {
+				groupId: groupId
+			}}
+		]
+	});
+}
+
 function findPromptByAuthorAndSession (i, s) {
+	console.log('findPromptByAuthorAndSession');
 	return models.Prompt.findOne({
 		where: {
 			userId: i,
@@ -212,19 +250,21 @@ function findPromptByAuthorAndSession (i, s) {
 }
 
 function findGroupById (i) {
+	console.log('findGroupById');
+	console.log('find', i);
 	return models.Group.findOne({
 		where: {
 			id: i
 		},
-		include: [{ 
-				users: models.User,
-				session: models.Session
-			}
+		include: [
+			{ model: models.User },
+			{ model: models.Session }
 		]
 	});
 }
 
 function updateGroupSession (g, i) {
+	console.log('updateGroupSession');
 	console.log("group update - group, currentSessionId", g, i);
 	return models.Group.update({
 		currentSessionId: i
@@ -237,6 +277,7 @@ function updateGroupSession (g, i) {
 }
 
 function createFacilitator (e, u, p) {
+	console.log('createFacilitator');
 	return models.User.create({
 		email: e,
 		username: u,
@@ -246,19 +287,24 @@ function createFacilitator (e, u, p) {
 }
 
 function createGroup (n, i) {
+	console.log('createGroup');
 	return models.Group.create({
 		name: n,
 		owner: i
 	});
 }
 
-function createSession () {
+function createSession (groupId) {
+	console.log('createSession');
+	console.log('createSession', groupId);
 	return models.Session.create({
-		start: new Date()
+		start: new Date(),
+		groupId: groupId
 	});
 }
 
 function createPrompt (c, i, g, s) {
+	console.log('createPrompt');
 	return models.Prompt.create({
 		content: c,
 		userId: i,
@@ -268,6 +314,7 @@ function createPrompt (c, i, g, s) {
 }
 
 function createThought (c, i, s, p) {
+	console.log('createThought');
 	return models.Thought.create({
 		content: c,
 		userId: i,
@@ -277,6 +324,7 @@ function createThought (c, i, s, p) {
 }
 
 function endSession (i) {
+	console.log('endSession');
 	return models.Session.update({
 		end: new Date()
 	},
@@ -288,6 +336,7 @@ function endSession (i) {
 }
 
 function createParticpant(g) {
+	console.log('createParticpant');
 	var sillyname = makeName();
 	console.log("Creating participant with sillyname: ", sillyname);
 	return models.User.create({
@@ -297,6 +346,36 @@ function createParticpant(g) {
 		role: 'participant',
 		groupId: g
 	});
+}
+
+function createSocket(info) {
+	console.log('createSocket');
+	return models.Socket.create({
+			socketioId: info.socketId,
+			userId: info.userId,
+			active: true
+	});
+}
+
+function setSocketInactive (socketId) {
+	console.log('setSocketInactive', socketId);
+	return models.Socket.update({
+		active: false
+	}, {
+		where: {
+			socketioId: socketId
+		}
+	});
+}
+
+// return a promise that tells the caller when all of 
+// the rooms have been left
+function leaveAllRooms (socket) {
+	console.log('leaveAllRooms');
+	// return Promise.all([]);
+	return Promise.all(socket.rooms.map(function (room) {
+		return socket.leaveAsync(room);
+	}));
 }
 
 
@@ -442,6 +521,8 @@ app.post('/groups/create', function(request, response) {
 // Socket Communications
 
 io.on('connection', function(socket) {
+	Promise.promisifyAll(socket);
+	socket.emit('socket-id', socket.id);
 	console.log('** Client Connected.');
 
 	// socket.on('disconnect', function() {
@@ -460,34 +541,39 @@ io.on('connection', function(socket) {
 	 * @param: INT groupId - The db id of group said facilitator wants to join
 	 */
 	socket.on('facilitator-join', function (data) {
-		socket.rooms.forEach(function (room) {
-			socket.leave(room);
-		});
-		socket.join('discussion-'+data.groupId, function () {
-			socket.join('facilitator-'+data.groupId, function () {
-				getActiveSession(data.groupId)
-					.then(function (session) {
-						if (session === null) {
-							initSession()
-								.then(function () {
-									console.log('completed fac-join');
+		console.log(data.groupId);
+		var leftAllRooms = leaveAllRooms(socket);
+		console.log(leftAllRooms);
+		leftAllRooms.then(function () {
+				console.log('done leaving');
+				socket.joinAsync('discussion-'+data.groupId)
+					.then(function () {
+						console.log('got here promisssssssss');
+						socket.join('facilitator-'+data.groupId, function () {
+							getActiveSession(data.groupId)
+								.then(function (session) {
+									console.log('gotten session', session.get('id'));
+									return createSocket({
+										socketId: socket.id,
+										userId: data.userId
+									});
 								})
-						} else {
-							findGroupById(data.groupId)
-								.then(function (group) {
-									endSession(group.get('CurrentSessionId'))
-										.then(function () {
+								.catch(function (error) {
+									console.log("Error in facilitator join", error);
+								});
+						}); // TODO: add + groupId
+					});	
+			});
+	});
 
-										})
-
-								})
-						}
-					})
-					.catch(function (error) {
-						console.log("Error in facilitator join", error);
-					});
-			}); // TODO: add + groupId
-		});	
+	socket.on('facilitator-leave', function (socketId) {
+		// TODO: market Socket Obj inactive
+		// socket.disconnect();
+		console.log('marking inactive', socketId);
+		setSocketInactive(socketId)
+			.then(function () {
+				console.log('complete');
+			});
 	});
 
 	/**
@@ -496,8 +582,8 @@ io.on('connection', function(socket) {
 	 * @param: STRING content - user given prompt to be broadcast to participants
 	 */
 	socket.on('new-prompt', function (data) {
-		// console.log('content of prompt', data);
-		createPrompt(data.topic, data.author.id, data.groupId, data.sessionId)
+		console.log('content of prompt', data);
+		createPrompt(data.prompt, data.userId, data.groupId, data.sessionId)
 			.then(function (prompt) {
 				socket.broadcast.to('participant').emit('facilitator-prompt', prompt);
 		});
@@ -537,6 +623,34 @@ io.on('connection', function(socket) {
 	 */
 	socket.on('distribute', function (data) {
 		//TODO:
+		findAllActiveSockets(data.groupId)
+			.then(function (results) {
+				console.log(results);
+			})
+		// get the connected people
+
+		// get the current prompt's thoughts
+
+		function possibleMatches(m, n) {
+		 var edges = [];
+		 for (var i=0; i < m; i++) {
+		   for (var j=0; j<n; j++) {
+		     if (i !== j) {
+		       edges.push([i,j]);
+		     }
+		   }
+		 }
+		 return edges;
+		}
+		// console.log(possibleMatches(3,4));
+
+		// let m represent the number of connected potential readers, 
+		// and let n rep the number of submitted thoughts
+
+		// function thoughtMatcher(m, n) {
+		//  return findMatching(m,n, possibleMatches(m,n));
+		// }
+
 	});
 
 	//=====================================================
@@ -549,22 +663,55 @@ io.on('connection', function(socket) {
 	 * 
 	 * @param: INT groupId - The db id of the group said participant belongs to
 	 */
+
+	 socket.on('facilitator-join', function (data) {
+		console.log(data.groupId);
+		var leftAllRooms = leaveAllRooms(socket);
+		console.log(leftAllRooms);
+		leftAllRooms.then(function () {
+				console.log('done leaving');
+				socket.joinAsync('discussion-'+data.groupId)
+					.then(function () {
+						console.log('got here promisssssssss');
+						socket.join('facilitator-'+data.groupId, function () {
+							getActiveSession(data.groupId)
+								.then(function (session) {
+									console.log('gotten session', session.get('id'));
+									return createSocket({
+										socketId: socket.id,
+										userId: data.userId
+									});
+								})
+								.catch(function (error) {
+									console.log("Error in facilitator join", error);
+								});
+						}); // TODO: add + groupId
+					});	
+			});
+	});
 	socket.on('participant-join', function (data) {
-		socket.rooms.forEach(function (room) {
-			socket.leave(room);
-		});
-		socket.join('discussion-'+data.groupId, function () {
-			socket.join('participant-'+data.groupId, function () {
+		leaveAllRooms(socket)
+			.then(function () {
+				return socket.joinAsync('discussion-'+data.groupId);
+			})
+			.then(function () {
+				return socket.joinAsync('participant-'+data.groupId);
+			})
+			.then(function () {
 				getActiveSession(data.groupId)
 					.then(function (session) {
-						console.log("Active Session:", session);
+						// console.log("Active Session:", session);
 							// End last session?
+						return createSocket({
+							socketId: socket.id,
+							userId: data.userId
+						});
 					})
 					.catch(function (error) {
 						console.log("Error in participant join", error);
 					});
-			}); // TODO: add + groupId
-		});
+			});
+				
 		// updateUserSocketId(data.userId, socket.id)
 		// 	.then(function () {
 		// 		console.log('   participant joined');
@@ -580,6 +727,11 @@ io.on('connection', function(socket) {
 		// 	.catch(function (error) {
 		// 		console.log(">> Error on participant join:", error);
 		// 	})
+	});
+
+	socket.on('participant-leave', function (data) {
+		// TODO: market Socket Obj inactive
+		socket.disconnect();
 	});
 
 	/**
