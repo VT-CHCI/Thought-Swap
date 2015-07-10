@@ -2,7 +2,7 @@
   <form name="form" ng-submit="submit()" role="form" novalidate>
     <div class="form-group">
       <label for="prompt">New Prompt</label>
-      <textarea rows="3" name="prompt" id="prompt" class="form-control" ng-model="topic" required></textarea>
+      <textarea rows="3" name="prompt" id="prompt" class="form-control" ng-model="topic" required auto-focus></textarea>
     </div>
     <div class="form-actions">
       <button type="submit" ng-disabled="form.$invalid" class="btn btn-primary">Submit</button>
