@@ -23,6 +23,7 @@
             if ('participant' in $location.search()) {
                 $scope.isChangingRoles = true;
             }
+            console.log("user:", UserService.user);
         })();
  
         $scope.loginParticipant = function () {

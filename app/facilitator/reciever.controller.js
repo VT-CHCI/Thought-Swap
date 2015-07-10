@@ -11,8 +11,9 @@
 		.controller('RecieverController', RecieverController);
 
 	RecieverController.$inject = ['$scope', '$modal', '$log', 'ThoughtSocket',
-		'UserService', '$location'];
-	function RecieverController($scope, $modal, $log, ThoughtSocket, UserService, $location) {
+		'UserService', '$location', '$routeParams'];
+	function RecieverController($scope, $modal, $log, ThoughtSocket,
+	 UserService, $location, $routeParams) {
 
 		(function initController() {
 			$scope.participantThoughts = [];
@@ -21,13 +22,34 @@
 			$scope.numSubmitters = 0;
 			$scope.numConnected = 0;
 			$scope.dataLoading = true;
-			ThoughtSocket.emit('facilitator-join');
+			ThoughtSocket.emit('facilitator-join', {
+				groupId: $routeParams.groupId
+			});
+			// ThoughtSocket.emit('session-sync-req', {
+			// 	user: UserService.user,
+			// 	groupId: $routeParams.groupId,
+			// 	sessionId: $scope.sessionId
+			// });
 		})();
+
+		// ThoughtSocket.on('session-sync-res', function (data) {
+		// 	console.log("Recieved session sync response:", data);
+		// 	$scope.participantThoughts = data.prompt.thoughts;
+		// 	$scope.topic = data.prompt.content;
+		// 	$scope.numThoughts = data.prompt.thoughts.length();
+		// 	// $scope.numSubmitters = ?
+
+		// });
 
 		$scope.newSession = function () {
 			$scope.participantThoughts = [];
 			$scope.numThoughts = 0;
 			$scope.numSubmitters = 0;
+			ThoughtSocket.emit('session-sync-req', {
+				user: UserService.user,
+				groupId: $routeParams.groupId,
+				sessionId: $scope.sessionId
+			});
 			newPrompt();
 		};
 

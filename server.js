@@ -82,8 +82,82 @@ function numSubmitters(groupId) {
 }
 
 /**
- * 
+ *
  */
+function bulkCreateParticipants (num, groupId) {
+	var createResults = [];
+	console.log("bulkCreateParticipants args: ", num, groupId);
+	for (var i = 0; i < num; i++) {
+		console.log("got into for loop", i);
+		createResults.push(createParticpant(groupId));
+	}
+	return Promise.all(createResults)
+		.then(function (results) {
+			return findGroupById(groupId);
+		})
+		.catch(function (err) {
+			console.log("Err in bulk results: ", err);
+		})
+}
+
+/**
+ * [description]
+ * @return Promise<> - db operation to create a default session
+ */
+
+// Remnant
+// findPromptByAuthorAndSession(data.user.id, session.get('id'))
+// 	.then(function (promptsAndThoughts) {
+// 		console.log("Recieved prompts and thoughts", promptAndThoughts);
+// 		if (promptsAndThoughts.length() === 0) {
+			// Default Prompt
+
+// } else {
+// 	io.to(data.user.role).emit('session-sync-res', {
+// 		sessionId: session.get('id'),
+// 		currentPrompt: promptAndThoughts[promptsAndThoughts.length()]
+// 										.get('content'),
+// 		promptAndThoughts: promptAndThoughts
+// 	});
+// }
+// });
+
+function initSession (groupId) {
+	console.log('Got into initSession with groupId)', groupId);
+	return createSession()
+					.then(function (session) {
+						updateGroupSession(groupId, session.get('id'))
+							.then(function (prompt) {
+								createPrompt('Awaiting a prompt..', null, groupId, session.get('id'))
+									.then(function (defaultPrompt) {
+										io.to('discussion-'+groupId).emit('session-sync-res', {
+											sessionId: session.get('id'),
+											currentPrompt: defaultPrompt.get('content'),
+										});
+									});
+							});
+					})
+					.catch(function (error) {
+						console.log(">> Error initiating session.", error);
+					});
+}
+
+function getActiveSession (groupId) {
+	return findGroupById(groupId)
+					.then(function (group) {
+						console.log("Active session:", group.getCurrentSession());
+							if(group.getCurrentSession() === null) {
+								return initSession(groupId);
+							} else {
+								console.log(group.getCurrentSession());
+								return  group.getCurrentSession();
+							}
+					})
+}
+
+//=============================================================================
+// Database Communication
+
 function findByUsername (u) {
 	return models.User.findOne({
 		where: {
@@ -95,11 +169,19 @@ function findByUsername (u) {
 	});
 }
 
-/**
- *
- */
 function findUserById (i) {
 	return models.User.findOne({
+		where: {
+			id: i
+		}
+	});
+}
+
+function updateUserSocketId(i, s) {
+	return models.User.update({
+		currentSocketId: s
+	},
+	{
 		where: {
 			id: i
 		}
@@ -117,14 +199,40 @@ function findAllGroupsByOwner (i) {
 	});
 }
 
+function findPromptByAuthorAndSession (i, s) {
+	return models.Prompt.findOne({
+		where: {
+			userId: i,
+			sessionId: s
+		},
+		include: [
+			{ model: models.Thought }
+		]
+	});
+}
+
 function findGroupById (i) {
 	return models.Group.findOne({
 		where: {
 			id: i
 		},
-		include: [
-			{ model: models.User }
+		include: [{ 
+				users: models.User,
+				session: models.Session
+			}
 		]
+	});
+}
+
+function updateGroupSession (g, i) {
+	console.log("group update - group, currentSessionId", g, i);
+	return models.Group.update({
+		currentSessionId: i
+	},
+	{
+		where: {
+			id: g
+		}
 	});
 }
 
@@ -144,6 +252,41 @@ function createGroup (n, i) {
 	});
 }
 
+function createSession () {
+	return models.Session.create({
+		start: new Date()
+	});
+}
+
+function createPrompt (c, i, g, s) {
+	return models.Prompt.create({
+		content: c,
+		userId: i,
+		groupId: g,
+		sessionId: s
+	});
+}
+
+function createThought (c, i, s, p) {
+	return models.Thought.create({
+		content: c,
+		userId: i,
+		sessionId: s,
+		promptId: p
+	});
+}
+
+function endSession (i) {
+	return models.Session.update({
+		end: new Date()
+	},
+	{
+		where: {
+			id: i
+		}
+	});
+}
+
 function createParticpant(g) {
 	var sillyname = makeName();
 	console.log("Creating participant with sillyname: ", sillyname);
@@ -156,24 +299,10 @@ function createParticpant(g) {
 	});
 }
 
-function bulkCreateParticipants (num, groupId) {
-	var createResults = [];
-	console.log("bulkCreateParticipants args: ", num, groupId);
-	for (var i = 0; i < num; i++) {
-		console.log("got into for loop", i);
-		createResults.push(createParticpant(groupId));
-	}
-	return Promise.all(createResults)
-		.then(function (results) {
-			return findGroupById(groupId);
-		})
-		.catch(function (err) {
-			console.log("Err in bulk results: ", err);
-		})
-}
 
 //=============================================================================
 // Init Server & Files
+
 app.use(express.static(__dirname + '/app'));
 app.use('/bower_components', express.static(__dirname + '/bower_components'));
 
@@ -188,10 +317,9 @@ models.start()
 	    console.error(err);
 	});
 
-
-
 //=============================================================================
 // Routes for non-instant server communications
+
 app.post('/signin', function(request, response) {
 	if (!request.body.hasOwnProperty('user')) {
 		response.status(400).send("Request did not contain any information.");
@@ -226,7 +354,6 @@ app.post('/signin', function(request, response) {
 				}
 			});
 	}
-
 });
 
 app.post('/signup', function(request, response) {
@@ -243,11 +370,10 @@ app.post('/signup', function(request, response) {
 				});
 			})
 			.catch(function (err) {
-				console.log("Error in signup: ", err);
+				console.log(">> Error in signup: ", err);
 				response.status(500).send("Error creating account");
 			});
 	}
-
 });
 
 app.post('/signout', function(request, response) {
@@ -260,7 +386,7 @@ app.post('/signout', function(request, response) {
 				response.status(200).send("Successfully logged out.");
 			})
 			.catch(function (err) {
-				console.log("Error in signout: ", err);
+				console.log(">> Error in signout: ", err);
 				response.status(500).send("Error logging out");
 			});
 	}
@@ -278,7 +404,7 @@ app.get('/groups/:userId', function(request, response) {
 				});
 			})
 			.catch(function (err) {
-				console.log("Error in get groups: ", err);
+				console.log(">> Error in get groups: ", err);
 				response.status(500).send("Error finding groups");
 			});
 	}
@@ -302,7 +428,7 @@ app.post('/groups/create', function(request, response) {
 					})
 			})
 			.catch(function (err) {
-				console.log("Error in create group: ", err);
+				console.log(">> Error in create group: ", err);
 				response.status(500).send("Error creating group");
 			});
 	}
@@ -314,14 +440,14 @@ app.post('/groups/create', function(request, response) {
 
 //=============================================================================
 // Socket Communications
-var connectionInfo = {};
+
 io.on('connection', function(socket) {
 	console.log('** Client Connected.');
 
-	socket.on('disconnect', function() {
-		console.log('** Client Disconnected.');
-		//Do DB logging stuff
-	});
+	// socket.on('disconnect', function() {
+	// 	console.log('** Client Disconnected.');
+	// 	//Do DB logging stuff
+	// });
 
 	//=====================================================
 	// Facilitator Specific Triggers
@@ -333,10 +459,35 @@ io.on('connection', function(socket) {
 	 * 
 	 * @param: INT groupId - The db id of group said facilitator wants to join
 	 */
-	socket.on('facilitator-join', function() {
-		console.log('   facilitator joined');
-		socket.leave('participant');
-		socket.join('facilitator'); // TODO: add + groupId
+	socket.on('facilitator-join', function (data) {
+		socket.rooms.forEach(function (room) {
+			socket.leave(room);
+		});
+		socket.join('discussion-'+data.groupId, function () {
+			socket.join('facilitator-'+data.groupId, function () {
+				getActiveSession(data.groupId)
+					.then(function (session) {
+						if (session === null) {
+							initSession()
+								.then(function () {
+									console.log('completed fac-join');
+								})
+						} else {
+							findGroupById(data.groupId)
+								.then(function (group) {
+									endSession(group.get('CurrentSessionId'))
+										.then(function () {
+
+										})
+
+								})
+						}
+					})
+					.catch(function (error) {
+						console.log("Error in facilitator join", error);
+					});
+			}); // TODO: add + groupId
+		});	
 	});
 
 	/**
@@ -344,26 +495,38 @@ io.on('connection', function(socket) {
 	 * 
 	 * @param: STRING content - user given prompt to be broadcast to participants
 	 */
-	socket.on('new-prompt', function(data) {
+	socket.on('new-prompt', function (data) {
 		// console.log('content of prompt', data);
-		models.Prompt.create({
-			content: data.topic,
-			userId: data.author.id
-		}).then(function (prompt) {
-			socket.broadcast.to('participant').emit('facilitator-prompt', prompt);
+		createPrompt(data.topic, data.author.id, data.groupId, data.sessionId)
+			.then(function (prompt) {
+				socket.broadcast.to('participant').emit('facilitator-prompt', prompt);
 		});
 	});
 
-	/**
-	 * Resets the given group's session to its initial blank state
-	 * All data from previous sessions, if existant should only exist 
-	 * in the db after calling.
-	 * 
-	 * @param: INT groupId - The db id of the group whose session needs reseting.
-	 */
-	socket.on('new-session', function(groupId) {
-		//socket.broadcast.emit('flush-session');
-	});
+	// Should: load new session if one does not exist
+	//				 send thoughts to facilitator, prompt to participants, 
+	// socket.on('session-sync-req', function (data) {
+	// 	console.log("Session sync request data:", data);
+	// 	findGroupById(data.groupId)
+	// 		.then(function (group) {
+	// 			if(group.get('currentSessionId') != null) {
+	// 				console.log("Recieved request for new session");
+	// 				endSession(group.get('currentSessionId'));
+	// 				initSession({
+	// 					user: data.user,
+	// 					groupId: data.groupId
+	// 				});
+	// 			} else {
+	// 				initSession({
+	// 					user: data.user,
+	// 					groupId: data.groupId
+	// 				});
+	// 			}
+	// 		})
+	// 		.catch(function (error) {
+	// 			console.log(">> Error syncing session:", error);
+	// 		});
+	// });
 
 	/**
 	 * **CORE FUNCTIONALITY** 
@@ -372,7 +535,7 @@ io.on('connection', function(socket) {
 	 * 
 	 * @param: INT groupId - The db id of the group whose session needs distribution
 	 */
-	socket.on('distribute', function(groupId) {
+	socket.on('distribute', function (data) {
 		//TODO:
 	});
 
@@ -386,10 +549,37 @@ io.on('connection', function(socket) {
 	 * 
 	 * @param: INT groupId - The db id of the group said participant belongs to
 	 */
-	socket.on('participant-join', function() {
-		console.log('   participant joined');
-		socket.leave('facilitator');
-		socket.join('participant'); // TODO: add + groupId
+	socket.on('participant-join', function (data) {
+		socket.rooms.forEach(function (room) {
+			socket.leave(room);
+		});
+		socket.join('discussion-'+data.groupId, function () {
+			socket.join('participant-'+data.groupId, function () {
+				getActiveSession(data.groupId)
+					.then(function (session) {
+						console.log("Active Session:", session);
+							// End last session?
+					})
+					.catch(function (error) {
+						console.log("Error in participant join", error);
+					});
+			}); // TODO: add + groupId
+		});
+		// updateUserSocketId(data.userId, socket.id)
+		// 	.then(function () {
+		// 		console.log('   participant joined');
+		// 		socket.leave('facilitator');
+		// 		socket.join('participant'); // TODO: add + groupId
+		// 		findGroupById(data.groupId)
+		// 			.then(function (group) {
+		// 				if(group.get('currentSessionId') === null) {
+		// 					createSession()
+		// 				}
+		// 			})	
+		// 	})
+		// 	.catch(function (error) {
+		// 		console.log(">> Error on participant join:", error);
+		// 	})
 	});
 
 	/**
@@ -399,12 +589,13 @@ io.on('connection', function(socket) {
 	 */
 	socket.on('new-thought', function(newThought) {
 		console.log(newThought);
-		models.Thought.create({
-			content: newThought.content,
-			userId: newThought.author.id
-		}).then(function (thought) {
-			socket.broadcast.to('facilitator').emit('participant-thought', thought);
-		});
+		createThought(data.content, data.author.id, data.sessionId, data.promptId)
+			.then(function (thought) {
+				socket.broadcast.to('facilitator').emit('participant-thought', thought);
+			})
+			.then(function (err) {
+				console.log(">> Error on new thought:", error);
+			})
 	});
 
 });

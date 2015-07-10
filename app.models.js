@@ -11,7 +11,7 @@ var User = sequelize.define('user', {
 		username: {type: Sequelize.STRING, unique: true},
 		password: Sequelize.STRING,		// is hashed client-side before storing
 		role: Sequelize.ENUM('facilitator',
-												 'participant')
+							 'participant')
 });
 
 var Event = sequelize.define('event', {
@@ -41,7 +41,11 @@ var Prompt = sequelize.define('prompt', {
 
 var Group = sequelize.define('group', {
 		name: Sequelize.STRING,
-		// owner: Sequelize.INTEGER
+});
+
+var Session = sequelize.define('session', {
+	start: Sequelize.DATE,
+	end: Sequelize.DATE
 });
 
 var Distribution = sequelize.define('distribution', {
@@ -57,6 +61,10 @@ Group.hasMany(User);
 
 Group.belongsTo(User, { as: 'owner', constraints: false });
 User.hasMany(Group, { as: 'facilitated', constraints: false });
+
+Group.belongsTo(Session, {as: 'CurrentSession', constraints: false});
+Group.hasMany(Session);
+Session.belongsTo(Group);
 
 Prompt.belongsTo(User);		// a user may have many prompts
 User.hasMany(Prompt);
@@ -80,6 +88,7 @@ Group.hasMany(Distribution);
 exports.Event = Event;
 exports.User = User;
 exports.Group = Group;
+exports.Session = Session;
 exports.Prompt = Prompt;
 exports.Thought = Thought;
 exports.Distribution = Distribution;
