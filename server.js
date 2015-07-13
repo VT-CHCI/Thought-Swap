@@ -315,7 +315,7 @@ function createGroup (n, i) {
 	console.log('createGroup');
 	return models.Group.create({
 		name: n,
-		owner: i
+		ownerId: i
 	});
 }
 
@@ -522,7 +522,7 @@ app.post('/groups/create', function(request, response) {
 			.then(function (group) {
 				//TODO: Log this in the events table
 				bulkCreateParticipants(request.body.group.numParticipants,
-									   group.dataValues.id)
+									   group.get('id'))
 					.then(function (group) {
 						console.log("Group Created: ", group);
 						response.status(200).json({
