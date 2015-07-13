@@ -49,7 +49,7 @@
         var isParticipant = {
         	isParticipant: function (UserService, $location) {
         		if (UserService.isParticipant()) {
-        			$location.url('/participant');
+        			$location.path('/participant');
 
         		}
         	}
