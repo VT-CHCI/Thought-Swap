@@ -35,14 +35,17 @@
 	border: 1px solid #212121;
 	border-radius: 10px;
 	list-style: none;	
-	width: 282px;
-	height: 194px;
-	overflow: hidden;
 }
 
-.thoughtItem div {
+.thought-content {
+	overflow: hidden;
 	padding: 10px 10px 10px 10px;
+	width: 282px;
+	height: 194px;
 }
+
+/*.thoughtItem div {
+}*/
 
 .thought i {
 	font: 20pt;
@@ -59,9 +62,27 @@
     clear:both;
 }
 
+
 /*@media screen and (max-height: 720px) {
 	.panel-body {
 		height: 450px;
 	}
 
 }*/
+
+.delete-thought-icon {
+	font-size: 30px;
+	margin-right: -20px;
+	margin-top: -12px;
+	float: right;
+}
+
+.highlighted-for_deletion .delete-thought-icon {
+	color: red;
+}
+
+.highlighted-for_deletion {
+	/*color: red;*/
+	/*background-color: red;*/
+	border-color: red;
+}

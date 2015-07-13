@@ -21,7 +21,8 @@
       'ui.bootstrap',
       'textAngular',
       'angular-md5',
-      'thoughtSwap'
+      'thoughtSwap',
+      'mp.autoFocus',
 	])
 	.config(config)
 	.run(run);
