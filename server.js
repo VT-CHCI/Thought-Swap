@@ -297,7 +297,7 @@ function updateGroupSession (g, i) {
 	console.log('updateGroupSession');
 	console.log("group update - group, currentSessionId", g, i);
 	return models.Group.update({
-		currentSessionId: i
+		CurrentSessionId: i
 	},
 	{
 		where: {

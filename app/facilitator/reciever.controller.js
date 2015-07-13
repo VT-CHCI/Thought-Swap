@@ -95,6 +95,16 @@
 			});
 		};
 
+		$scope.highlightForDeletion = function (idx) {
+			console.log('high', idx);
+			$scope.highlight = idx;
+		};
+
+		$scope.unHighlightForDeletion = function () {
+			console.log('unhigh');
+			$scope.highlight = -1;
+		};
+
 		ThoughtSocket.on('participant-thought', function (participantThought) {
 			$scope.participantThoughts.push({
 					thought: participantThought.content
@@ -108,6 +118,11 @@
 				groupId: $routeParams.groupId,
 				promptId: $scope.prompt.id
 			});
+		};
+
+		$scope.deleteThought = function (thoughtIndex) {
+			console.log('i should delete the thought at position', thoughtIndex, 'in $scope.participantThoughts');
+			var removed = $scope.participantThoughts.splice(thoughtIndex, 1);
 		};
 
 	};

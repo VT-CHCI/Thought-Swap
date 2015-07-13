@@ -7,7 +7,7 @@
     <form name="form" ng-submit="register()" role="form">
         <div class="form-group" ng-class="{ 'has-error': form.email.$dirty && form.email.$error.required }">
             <label for="email">Email</label>
-            <input type="text" name="email" id="email" class="form-control" ng-model="email" required />
+            <input type="text" name="email" id="email" class="form-control" ng-model="email" autofocus required />
             <span ng-show="form.email.$dirty && form.email.$error.required" class="help-block">Email is required</span>
         </div>
         <div class="form-group" ng-class="{ 'has-error': form.username.$dirty && form.username.$error.required }">
