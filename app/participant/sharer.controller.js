@@ -21,6 +21,7 @@
             $scope.htmlThoughts = [];
             $scope.distributedThought = '';
             $scope.dataLoading = false;
+            console.log('about to participant join as', UserService.user.id);
             ThoughtSocket.emit('participant-join', {
                 groupId: UserService.user.groupId,
                 userId: UserService.user.id
@@ -40,17 +41,20 @@
             });
         })();
 
-        // ThoughtSocket.on('session-sync-res', function (data) {
-        //     console.log("Recieved session sync data:", data);
-        //     $scope.topic = data.currentPrompt
-        // });
+        ThoughtSocket.on('session-sync-res', function (data) {
+            console.log("Recieved session sync data:", data);
+            $scope.prompt = data.prompt;
+            $scope.sessionId = data.sessionId;
+        });
         
         $scope.submitThought = function () {
             $scope.htmlThoughts.push({thought: $scope.htmlThought})
             console.log($scope.htmlThought);
+            console.log('current prompt:', $scope.prompt);
             ThoughtSocket.emit('new-thought', {
                 content: $scope.htmlThought, 
-                author: UserService.user
+                author: UserService.user,
+                promptId: $scope.prompt.id
             });
             $scope.htmlThought = null;
             // $('#thoughtForm').focus(); // does not work atm
@@ -58,7 +62,14 @@
 
         ThoughtSocket.on('facilitator-prompt', function (prompt) {
             console.log('got prompt:', prompt);
-            $scope.topic = prompt.content;
+            $scope.prompt = prompt;
+            // $scope.topic = prompt.content;
+        });
+
+        ThoughtSocket.on('distributed-thought', function (thoughtContent) {
+            console.log('got thought:', thoughtContent);
+            $scope.distributedThought = thoughtContent;
+            // $scope.topic = prompt.content;
         });
 
     }

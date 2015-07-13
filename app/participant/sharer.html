@@ -7,7 +7,7 @@
   </div>
   <div class="well well-lg" id="prompt">
     <h4>Prompt:</h4>
-    <p>{{ topic }}</p>
+    <p>{{ prompt.content }}</p>
   </div>
 
   <!--[if lt IE 9]>
@@ -40,6 +40,9 @@
           <button type="submit" ng-disabled="form.$invalid" class="btn btn-primary">Submit</button>
       </div>
   </form>
+  <div>
+    {{distributedThought}}
+  </div>
 </div>
 
 <div class="container component right">

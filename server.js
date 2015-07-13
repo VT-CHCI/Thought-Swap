@@ -15,6 +15,8 @@ var io = require('socket.io')(http);
 var mysql = require('mysql');
 var bodyParser = require('body-parser');
 var multer = require('multer'); 
+var findMatching = require("bipartite-matching")
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -114,7 +116,7 @@ function bulkCreateParticipants (num, groupId) {
 			// Default Prompt
 
 // } else {
-// 	io.to(data.user.role).emit('session-sync-res', {
+// 	io.to(data.user.role).emit('sessionsyncres', {
 // 		sessionId: session.get('id'),
 // 		currentPrompt: promptAndThoughts[promptsAndThoughts.length()]
 // 										.get('content'),
@@ -123,7 +125,7 @@ function bulkCreateParticipants (num, groupId) {
 // }
 // });
 
-function initSession (groupId) {
+function initSession (groupId, socket) {
 	console.log('Got into initSession with groupId', groupId);
 	return new Promise(function (resolve, reject) {
 		createSession(groupId)
@@ -135,10 +137,23 @@ function initSession (groupId) {
 						resolve(session);
 						createPrompt('Awaiting a prompt..', null, groupId, session.get('id'))
 							.then(function (defaultPrompt) {
-								io.to('discussion-'+groupId).emit('session-sync-res', {
+								var room = 'discussion-'+groupId;
+								var message = 'sessionsyncres';
+								var messageData = {
 									sessionId: session.get('id'),
-									prompt: defaultPrompt.get('content'),
-								});
+									prompt: defaultPrompt,
+								};
+								console.log('about to emit sessionsyncres to discussion-', groupId, session.get('id'));
+								console.log('socket info', room, message, messageData);
+								// setTimeout(function () {
+									console.log(Object.keys(io.nsps['/'].adapter.rooms[room]));
+									// socket.broadcast.to(room).emit(message, messageData);
+									io.to(room).emit(message, messageData);
+								// }, 2000);
+							})
+							.catch(function (error) {
+								console.error('somefin"s wrong');
+								console.error(error);
 							});
 					});
 			})
@@ -148,7 +163,7 @@ function initSession (groupId) {
 	});
 }
 
-function getActiveSession (groupId) {
+function getActiveSession (groupId, socket) {
 	console.log('beginning getActiveSession', groupId);
 	return new Promise(function (resolve, reject) {
 		findGroupById(groupId)
@@ -158,7 +173,7 @@ function getActiveSession (groupId) {
 						console.log("Active session:", session);
 						if (session === null) {
 							console.log('getActiveSession if');
-							initSession(groupId)
+							initSession(groupId, socket)
 								.then(function (session) {
 									console.log('the session', session.get('id'));
 									resolve(session);
@@ -222,6 +237,18 @@ function findAllGroupsByOwner (i) {
 	});
 }
 
+function findThoughts (info) {
+	console.log('findThoughts', info);
+	return models.Thought.findAll({
+		where: {
+			promptId: info
+		}
+	});
+	// return new Promise(function (resolve, reject) {
+	// 	resolve(info);
+	// });
+}
+
 function findAllActiveSockets (groupId) {
 	return models.Socket.findAll({
 		where: {
@@ -229,9 +256,12 @@ function findAllActiveSockets (groupId) {
 
 		},
 		include: [
-			{model: models.User, where: {
-				groupId: groupId
-			}}
+			{
+				model: models.User, 
+				where: {
+					groupId: groupId
+				}
+			}
 		]
 	});
 }
@@ -313,12 +343,11 @@ function createPrompt (c, i, g, s) {
 	});
 }
 
-function createThought (c, i, s, p) {
-	console.log('createThought');
+function createThought (c, i, p) {
+	console.log('createThought', c, i, p);
 	return models.Thought.create({
 		content: c,
 		userId: i,
-		sessionId: s,
 		promptId: p
 	});
 }
@@ -550,7 +579,7 @@ io.on('connection', function(socket) {
 					.then(function () {
 						console.log('got here promisssssssss');
 						socket.join('facilitator-'+data.groupId, function () {
-							getActiveSession(data.groupId)
+							getActiveSession(data.groupId, socket)
 								.then(function (session) {
 									console.log('gotten session', session.get('id'));
 									return createSocket({
@@ -585,7 +614,8 @@ io.on('connection', function(socket) {
 		console.log('content of prompt', data);
 		createPrompt(data.prompt, data.userId, data.groupId, data.sessionId)
 			.then(function (prompt) {
-				socket.broadcast.to('participant').emit('facilitator-prompt', prompt);
+				// socket.broadcast.to('participant-'+data.groupId).emit('facilitator-prompt', prompt);
+				io.to('discussion-'+data.groupId).emit('facilitator-prompt', prompt);
 		});
 	});
 
@@ -622,34 +652,105 @@ io.on('connection', function(socket) {
 	 * @param: INT groupId - The db id of the group whose session needs distribution
 	 */
 	socket.on('distribute', function (data) {
+		console.log('distribute', data);
 		//TODO:
-		findAllActiveSockets(data.groupId)
+		Promise.all([findAllActiveSockets(data.groupId), findThoughts(data.promptId)])
 			.then(function (results) {
-				console.log(results);
-			})
+
+				// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
+				// Returns a random integer between min (included) and max (excluded)
+				// Using Math.round() will give you a non-uniform distribution!
+				function getRandomInt(min, max) {
+				  return Math.floor(Math.random() * (max - min)) + min;
+				}
+
+				var activeSockets = results[0];
+				var thoughts = results[1];
+				var thoughtsLength = thoughts.length;
+				var numCopies = activeSockets.length-thoughts.length;
+				if (numCopies > 0) {
+					for (var i = 0; i < numCopies; i++) {
+						thoughts.push(thoughts[getRandomInt(0, thoughtsLength)]);
+					};
+				}
+				// console.log(results);
+
+				// need to make 2 dicts:
+				// 1. thought by author id
+				// 2. socketid by user id
+
+				var thoughtsAuthors = [];
+				thoughts.forEach(function (thought) {
+					// console.log(thought);
+					thoughtsAuthors.push(thought);
+				});
+
+				var presenters = [];
+				var socketsByUId = {};
+
+				activeSockets.forEach(function (connectedSocket) {
+					console.log(connectedSocket);
+					presenters.push(connectedSocket.get('userId'));
+					socketsByUId[connectedSocket.get('userId')] = connectedSocket;
+				});
+
+				console.log(presenters, thoughtsAuthors);
+
+				// TODO: is there a FIXME here? 
+				// FIXME: should we do the possibleMatches in a random manner? 
+				// right now i think the distribution is fairly regular and people 
+				// will probably always get the same other person's thought
+				function possibleMatches(thoughtAuthors, thoughtPresenters) {
+					var edges = [];
+					for (var i=0; i<thoughtAuthors.length; i++) {
+						for (var j=0; j<thoughtPresenters.length; j++) {
+							console.log(thoughtAuthors[i], thoughtPresenters[j]);
+							if (thoughtAuthors[i].get('userId') !== thoughtPresenters[j]) {
+								edges.push([i,j]);
+								console.log([i,j]);
+							}
+						}
+					}
+					console.log('possible matches', edges);
+					return edges;
+				}
+				// console.log(possibleMatches(3,4));
+
+				// let m represent the number of connected potential readers, 
+				// and let n rep the number of submitted thoughts
+
+				// function thoughtMatcher(m, n) {
+				// }
+
+				var distribution = findMatching(thoughtsAuthors.length, presenters.length, possibleMatches(thoughtsAuthors, presenters))
+				console.log(distribution);
+
+				distribution.forEach(function (pairing) {
+					console.log('currrent pairing', pairing);
+					var thoughtToSendIndex = pairing[0];
+					var presenterToReceive = pairing[1];
+					var presenterSocketIdx = presenters[presenterToReceive];
+					var socketIdOfReceipient = socketsByUId[presenterSocketIdx].get('socketioId');
+					var thoughtAuthorForSending = thoughtsAuthors[thoughtToSendIndex];
+					var thoughtContent = thoughtAuthorForSending.get('content');
+
+					console.log('thoughtToSendIndex', thoughtToSendIndex);
+					console.log('presenterToReceive', presenterToReceive);
+					console.log('presenterSocketIdx', presenterSocketIdx);
+					console.log('socketIdOfReceipient', socketIdOfReceipient);
+					console.log('thoughtAuthorForSending', thoughtAuthorForSending);
+					console.log('thoughtContent', thoughtContent);
+
+					console.log('io stuff');
+					console.log(io.sockets);
+					io.sockets.connected[socketIdOfReceipient].emit('distributed-thought', thoughtContent);
+					
+				});
+
+			});
 		// get the connected people
 
 		// get the current prompt's thoughts
-
-		function possibleMatches(m, n) {
-		 var edges = [];
-		 for (var i=0; i < m; i++) {
-		   for (var j=0; j<n; j++) {
-		     if (i !== j) {
-		       edges.push([i,j]);
-		     }
-		   }
-		 }
-		 return edges;
-		}
-		// console.log(possibleMatches(3,4));
-
-		// let m represent the number of connected potential readers, 
-		// and let n rep the number of submitted thoughts
-
-		// function thoughtMatcher(m, n) {
-		//  return findMatching(m,n, possibleMatches(m,n));
-		// }
 
 	});
 
@@ -664,32 +765,33 @@ io.on('connection', function(socket) {
 	 * @param: INT groupId - The db id of the group said participant belongs to
 	 */
 
-	 socket.on('facilitator-join', function (data) {
-		console.log(data.groupId);
-		var leftAllRooms = leaveAllRooms(socket);
-		console.log(leftAllRooms);
-		leftAllRooms.then(function () {
-				console.log('done leaving');
-				socket.joinAsync('discussion-'+data.groupId)
-					.then(function () {
-						console.log('got here promisssssssss');
-						socket.join('facilitator-'+data.groupId, function () {
-							getActiveSession(data.groupId)
-								.then(function (session) {
-									console.log('gotten session', session.get('id'));
-									return createSocket({
-										socketId: socket.id,
-										userId: data.userId
-									});
-								})
-								.catch(function (error) {
-									console.log("Error in facilitator join", error);
-								});
-						}); // TODO: add + groupId
-					});	
-			});
-	});
+	// socket.on('facilitator-join', function (data) {
+	// 	console.log(data.groupId);
+	// 	var leftAllRooms = leaveAllRooms(socket);
+	// 	console.log(leftAllRooms);
+	// 	leftAllRooms.then(function () {
+	// 			console.log('done leaving');
+	// 			socket.joinAsync('discussion-'+data.groupId)
+	// 				.then(function () {
+	// 					console.log('got here promisssssssss');
+	// 					socket.join('facilitator-'+data.groupId, function () {
+	// 						getActiveSession(data.groupId, socket)
+	// 							.then(function (session) {
+	// 								console.log('gotten session', session.get('id'));
+	// 								return createSocket({
+	// 									socketId: socket.id,
+	// 									userId: data.userId
+	// 								});
+	// 							})
+	// 							.catch(function (error) {
+	// 								console.log("Error in facilitator join", error);
+	// 							});
+	// 					}); // TODO: add + groupId
+	// 				});	
+	// 		});
+	// });
 	socket.on('participant-join', function (data) {
+		console.log('participant-join', data)
 		leaveAllRooms(socket)
 			.then(function () {
 				return socket.joinAsync('discussion-'+data.groupId);
@@ -698,7 +800,8 @@ io.on('connection', function(socket) {
 				return socket.joinAsync('participant-'+data.groupId);
 			})
 			.then(function () {
-				getActiveSession(data.groupId)
+				console.log('should have joined participant-'+data.groupId);
+				getActiveSession(data.groupId, socket)
 					.then(function (session) {
 						// console.log("Active Session:", session);
 							// End last session?
@@ -741,13 +844,13 @@ io.on('connection', function(socket) {
 	 */
 	socket.on('new-thought', function(newThought) {
 		console.log(newThought);
-		createThought(data.content, data.author.id, data.sessionId, data.promptId)
+		createThought(newThought.content, newThought.author.id, newThought.promptId)
 			.then(function (thought) {
-				socket.broadcast.to('facilitator').emit('participant-thought', thought);
+				socket.broadcast.to('facilitator-' + newThought.author.groupId).emit('participant-thought', thought);
 			})
-			.then(function (err) {
+			.catch(function (error) {
 				console.log(">> Error on new thought:", error);
-			})
+			});
 	});
 
 });

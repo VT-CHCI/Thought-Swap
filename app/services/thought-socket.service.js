@@ -14,7 +14,7 @@
 
     ThoughtSocket.$inject = ['socketFactory'];
     function ThoughtSocket(socketFactory) {
-        var myIoSocket = io.connect('http://localhost:3030');
+        var myIoSocket = io.connect(':3030/');
 
         var ThoughtSocket = socketFactory({
           ioSocket: myIoSocket

@@ -11,9 +11,9 @@
 		.controller('RecieverController', RecieverController);
 
 	RecieverController.$inject = ['$scope', '$modal', '$log', 'ThoughtSocket',
-		'UserService', '$location', '$routeParams', '$rootScope'];
+		'UserService', '$location', '$routeParams', '$rootScope', '$timeout'];
 	function RecieverController($scope, $modal, $log, ThoughtSocket,
-	 UserService, $location, $routeParams, $rootScope) {
+	 UserService, $location, $routeParams, $rootScope, $timeout) {
 
 		(function initController() {
 			$scope.participantThoughts = [];
@@ -23,8 +23,10 @@
 			$scope.numSubmitters = 0;
 			$scope.numConnected = 0;
 			$scope.dataLoading = true;
-			ThoughtSocket.emit('facilitator-join', {
-				groupId: $routeParams.groupId,
+
+			
+				ThoughtSocket.emit('facilitator-join', {
+					groupId: $routeParams.groupId,
 					userId: UserService.user.id
 				});
 			// ThoughtSocket.emit('session-sync-req', {
@@ -34,9 +36,14 @@
 			// });
 		})();
 
-		ThoughtSocket.on('session-sync-res', function (data) {
+		ThoughtSocket.on('facilitator-prompt', function (data) {
+			console.log('facilitator-prompt', data);
+			$scope.prompt = data;
+		});
+
+		ThoughtSocket.on('sessionsyncres', function (data) {
 			console.log("Recieved session sync response:", data);
-			$scope.participantThoughts = data.prompt.thoughts;
+			// $scope.participantThoughts = data.prompt.get('thoughts'); //TODO: at somepoint sync should send us the existing thoughts if we're late joining
 			$scope.prompt = data.prompt;
 			$scope.sessionId = data.sessionId;
 			// $scope.numThoughts = data.prompt.thoughts.length();
@@ -63,11 +70,11 @@
 
 		function newPrompt() {
 			// $scope.topic = ''; //erase previous prompt
-			$scope.prompt = {};
+			
 		}
 
 		$scope.openPromptInput = function () {
-			$scope.newSession();
+			// $scope.newSession();
 			var modalInstance = $modal.open({
 				animation: true,
 				templateUrl: 'facilitator/promptModal.html', // see script in reciever.html
@@ -83,6 +90,7 @@
 			});
 
 			modalInstance.result.then(function (newPromptContent) {
+				$scope.prompt = {};
 				$scope.prompt.content = newPromptContent;
 			});
 		};
@@ -95,9 +103,10 @@
 		});
 
 		$scope.distribute = function () {
-			console.log('should distribute in future NOT IMPLEMENTED!');
+			console.log('should distribute in future NOT IMPLEMENTED!', $scope.prompt);
 			ThoughtSocket.emit('distribute', {
-				groupId: $routeParams.groupId
+				groupId: $routeParams.groupId,
+				promptId: $scope.prompt.id
 			});
 		};
 
@@ -116,18 +125,19 @@
 	angular.module('app')
 			.controller('PromptModalController', PromptModalController);
 
-	PromptModalController.$inject = ['$scope', '$modalInstance', 'prompt', 'sessionId', 'ThoughtSocket', 'UserService', '$routeParams'];
-	function PromptModalController($scope, $modalInstance, prompt, sessionId, ThoughtSocket, UserService, $routeParams) {
+	PromptModalController.$inject = ['$scope', '$modalInstance', 'sessionId', 'ThoughtSocket', 'UserService', '$routeParams'];
+	function PromptModalController($scope, $modalInstance, sessionId, ThoughtSocket, UserService, $routeParams) {
 
-		$scope.prompt = prompt;
+		// $scope.prompt = prompt;
+		$scope.newPromptContent = '';
 		$scope.sessionId = sessionId
 
 		$scope.submit = function () {
 			console.log("Submit works");
 			console.log('current user:', UserService.user);
-			$modalInstance.close($scope.prompt.content);
+			$modalInstance.close($scope.newPromptContent);
 			ThoughtSocket.emit('new-prompt', {
-				prompt: $scope.prompt.content,
+				prompt: $scope.newPromptContent,
 				userId: UserService.user.id,
 				groupId: $routeParams.groupId,
 				sessionId: $scope.sessionId

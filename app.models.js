@@ -136,7 +136,7 @@ exports.start = function () {
 							username: 'sillyname',
 							password: null,
 							role: 'participant',
-							groupId: group[0].dataValues.id
+							groupId: group[0].get('id')
 						}
 					});
 
@@ -146,40 +146,53 @@ exports.start = function () {
 							username: 'testname',
 							password: null,
 							role: 'participant',
-							groupId: group[0].dataValues.id
-						}
-					});
-
-				});
-
-			Group.findOrCreate({
-				where: {
-					name: 'My Other Test Group',
-					ownerId: userResults[0].dataValues.id,
-				} 
-			})
-				.then(function (group) {
-					User.findOrCreate({
-						where: {
-							email: null,
-							username: 'goober',
-							password: null,
-							role: 'participant',
-							groupId: group[0].dataValues.id
+							groupId: group[0].get('id')
 						}
 					});
 
 					User.findOrCreate({
 						where: {
 							email: null,
-							username: 'jenkins',
+							username: 'adam',
 							password: null,
 							role: 'participant',
-							groupId: group[0].dataValues.id
+							groupId: group[0].get('id')
 						}
 					});
+
+				})
+				.then(function () {
+					Group.findOrCreate({
+						where: {
+							name: 'My Other Test Group',
+							ownerId: userResults[0].dataValues.id,
+						} 
+					})
+						.then(function (group) {
+							User.findOrCreate({
+								where: {
+									email: null,
+									username: 'goober',
+									password: null,
+									role: 'participant',
+									groupId: group[0].dataValues.id
+								}
+							});
+
+							User.findOrCreate({
+								where: {
+									email: null,
+									username: 'jenkins',
+									password: null,
+									role: 'participant',
+									groupId: group[0].dataValues.id
+								}
+							});
+							
+						});
 					
 				});
+
 
 			console.log('Tables Synced');
 		})
