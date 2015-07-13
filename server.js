@@ -267,7 +267,7 @@ function updateGroupSession (g, i) {
 	console.log('updateGroupSession');
 	console.log("group update - group, currentSessionId", g, i);
 	return models.Group.update({
-		currentSessionId: i
+		CurrentSessionId: i
 	},
 	{
 		where: {
@@ -741,11 +741,11 @@ io.on('connection', function(socket) {
 	 */
 	socket.on('new-thought', function(newThought) {
 		console.log(newThought);
-		createThought(data.content, data.author.id, data.sessionId, data.promptId)
+		createThought(newThought.content, newThought.author.id, newThought.sessionId, newThought.promptId)
 			.then(function (thought) {
 				socket.broadcast.to('facilitator').emit('participant-thought', thought);
 			})
-			.then(function (err) {
+			.catch(function (error) {
 				console.log(">> Error on new thought:", error);
 			})
 	});
