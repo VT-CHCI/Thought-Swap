@@ -29,7 +29,7 @@
       <ul ng-model="participantThoughts" id="thoughtList">
         <li ng-repeat="thought in participantThoughts" class="thoughtItem" ng-class="{'highlighted-for_deletion':highlight===$index}">
           <i class="fa fa-times-circle delete-thought-icon" ng-mouseenter="highlightForDeletion($index)" ng-mouseleave="unHighlightForDeletion()" ng-click="deleteThought($index)"></i>
-          <div class="thought-content" ng-bind-html="thought.thought"></div>
+          <div class="thought-content" ng-bind-html="thought.content"></div>
         </li>
       </ul>
     </div>

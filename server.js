@@ -402,6 +402,22 @@ function leaveAllRooms (socket) {
 	}));
 }
 
+function findSocketByID (socketioId) {
+	return models.Socket.findOne({
+		where: {
+			socketioId: socketioId
+		},
+		include: [
+			{
+				model: models.User,
+				include: [{ 
+					model: models.Group
+				}]
+			}
+		]
+	});
+}
+
 
 //=============================================================================
 // Init Server & Files
@@ -837,6 +853,7 @@ io.on('connection', function(socket) {
 										console.log(Object.keys(io.nsps['/'].adapter.rooms[room]));
 										// socket.broadcast.to(room).emit(message, messageData);
 										io.to(room).emit(message, messageData);
+										io.to('facilitator-'+data.groupId).emit('participant-join');
 									// }, 2000);
 								})
 
@@ -869,7 +886,20 @@ io.on('connection', function(socket) {
 
 	socket.on('participant-leave', function (data) {
 		// TODO: market Socket Obj inactive
-		socket.disconnect();
+		console.log('participant-leave');
+
+		findSocketByID(data)
+			.then(function (socket) {
+				console.log(socket);
+				console.log(socket.get('user').get('group').get('id'));
+				io.to('facilitator-'+socket.get('user').get('group').get('id')).emit('participant-leave');
+			})
+
+		setSocketInactive(data)
+			.then(function () {
+				console.log('complete');
+			});
+		// socket.disconnect();
 	});
 
 	/**

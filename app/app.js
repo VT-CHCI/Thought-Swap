@@ -111,8 +111,15 @@
 
 	}
 
-	run.$inject = ['$rootScope', 'ThoughtSocket', '$cookies'];
-	function run ($rootScope, ThoughtSocket, $cookies) {
+	run.$inject = ['$rootScope', 'ThoughtSocket', '$cookies', '$window'];
+	function run ($rootScope, ThoughtSocket, $cookies, $window) {
+
+    $window.onbeforeunload = function () {
+      // $cookies.putObject('ts-noticed-unload', {something:true});
+      ThoughtSocket.emit('facilitator-leave', $cookies.getObject('TS-sid').id);
+      ThoughtSocket.emit('participant-leave', $cookies.getObject('TS-sid').id);
+    };
+
 		ThoughtSocket.on('socket-id', function (socketId) {
 			console.log('got socket id', socketId);
 			$cookies.putObject('TS-sid', {id:socketId});
@@ -121,7 +128,8 @@
 			if ($cookies.getObject('TS-sid') && $cookies.getObject('TS-sid').hasOwnProperty('id')) {
 				console.log($cookies.getObject('TS-sid').id);
 		        console.log('$locationChangeStart changed!', new Date());
-		        ThoughtSocket.emit('facilitator-leave', $cookies.getObject('TS-sid').id);
+            ThoughtSocket.emit('facilitator-leave', $cookies.getObject('TS-sid').id);
+		        ThoughtSocket.emit('participant-leave', $cookies.getObject('TS-sid').id);
 				
 			}
 	    });
@@ -129,7 +137,8 @@
 	    	if ($cookies.getObject('TS-sid') && $cookies.getObject('TS-sid').hasOwnProperty('id')) {
 				console.log($cookies.getObject('TS-sid').id);
 		        console.log('$routeChangeStart changed!', new Date());
-		        ThoughtSocket.emit('facilitator-leave', $cookies.getObject('TS-sid').id);
+            ThoughtSocket.emit('facilitator-leave', $cookies.getObject('TS-sid').id);
+		        ThoughtSocket.emit('participant-leave', $cookies.getObject('TS-sid').id);
 				
 			}
 	    });

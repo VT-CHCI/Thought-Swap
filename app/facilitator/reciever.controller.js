@@ -41,6 +41,16 @@
 			$scope.prompt = data;
 		});
 
+		ThoughtSocket.on('participant-join', function () {
+			console.log('participant-join');
+			$scope.numConnected++;
+		});
+
+		ThoughtSocket.on('participant-leave', function () {
+			console.log('participant-leave');
+			$scope.numConnected--;
+		});
+
 		ThoughtSocket.on('sessionsyncres', function (data) {
 			console.log("Recieved session sync response:", data);
 			// $scope.participantThoughts = data.prompt.get('thoughts'); //TODO: at somepoint sync should send us the existing thoughts if we're late joining
@@ -106,10 +116,18 @@
 		};
 
 		ThoughtSocket.on('participant-thought', function (participantThought) {
-			$scope.participantThoughts.push({
-					thought: participantThought.content
-			});
+			$scope.participantThoughts.push(participantThought);
 			$scope.numThoughts++;
+
+			var submitters = [];
+			$scope.participantThoughts.forEach(function (thought) {
+				console.log(thought);
+				if (submitters.indexOf(thought.userId) < 0) {
+					submitters.push(thought.userId);
+				}
+			});
+
+			$scope.numSubmitters = submitters.length;
 		});
 
 		$scope.distribute = function () {
