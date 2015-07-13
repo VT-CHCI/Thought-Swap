@@ -41,7 +41,7 @@
             });
         })();
 
-        ThoughtSocket.on('session-sync-res', function (data) {
+        ThoughtSocket.on('sessionsyncres', function (data) {
             console.log("Recieved session sync data:", data);
             $scope.prompt = data.prompt;
             $scope.sessionId = data.sessionId;

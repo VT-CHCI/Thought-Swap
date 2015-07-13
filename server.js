@@ -136,21 +136,7 @@ function initSession (groupId, socket) {
 						console.log('updated session', session.get('id'));
 						resolve(session);
 						createPrompt('Awaiting a prompt..', null, groupId, session.get('id'))
-							.then(function (defaultPrompt) {
-								var room = 'discussion-'+groupId;
-								var message = 'sessionsyncres';
-								var messageData = {
-									sessionId: session.get('id'),
-									prompt: defaultPrompt,
-								};
-								console.log('about to emit sessionsyncres to discussion-', groupId, session.get('id'));
-								console.log('socket info', room, message, messageData);
-								// setTimeout(function () {
-									console.log(Object.keys(io.nsps['/'].adapter.rooms[room]));
-									// socket.broadcast.to(room).emit(message, messageData);
-									io.to(room).emit(message, messageData);
-								// }, 2000);
-							})
+							
 							.catch(function (error) {
 								console.error('somefin"s wrong');
 								console.error(error);
@@ -276,6 +262,15 @@ function findPromptByAuthorAndSession (i, s) {
 		include: [
 			{ model: models.Thought }
 		]
+	});
+}
+
+function findCurrentPromptForGroup (sessionId) {
+	return models.Prompt.findOne({
+		where: {
+			sessionId: sessionId
+		}, 
+		order: 'updatedAt DESC'
 	});
 }
 
@@ -571,26 +566,44 @@ io.on('connection', function(socket) {
 	 */
 	socket.on('facilitator-join', function (data) {
 		console.log(data.groupId);
-		var leftAllRooms = leaveAllRooms(socket);
-		console.log(leftAllRooms);
-		leftAllRooms.then(function () {
+		leaveAllRooms(socket)
+			.then(function () {
 				console.log('done leaving');
 				socket.joinAsync('discussion-'+data.groupId)
 					.then(function () {
 						console.log('got here promisssssssss');
-						socket.join('facilitator-'+data.groupId, function () {
-							getActiveSession(data.groupId, socket)
-								.then(function (session) {
-									console.log('gotten session', session.get('id'));
-									return createSocket({
-										socketId: socket.id,
-										userId: data.userId
+						socket.joinAsync('facilitator-'+data.groupId)
+							.then(function () {
+								getActiveSession(data.groupId, socket)
+									.then(function (session) {
+										console.log('gotten session', session.get('id'));
+
+										//getcurrentprompt
+										findCurrentPromptForGroup(session.get('id'))
+											.then(function (defaultPrompt) {
+												console.log('results from findCurrentPromptForGroup');
+												console.log(defaultPrompt);
+												var room = 'discussion-'+data.groupId;
+												var message = 'sessionsyncres';
+												var messageData = {
+													sessionId: session.get('id'),
+													prompt: defaultPrompt,
+												};
+												console.log('about to emit sessionsyncres to discussion-', data.groupId, session.get('id'));
+												console.log('socket info', room, message, messageData);
+												// setTimeout(function () {
+													console.log(Object.keys(io.nsps['/'].adapter.rooms[room]));
+													// socket.broadcast.to(room).emit(message, messageData);
+													io.to(room).emit(message, messageData);
+												// }, 2000);
+											})
+
+										return createSocket({
+											socketId: socket.id,
+											userId: data.userId
+										});
 									});
-								})
-								.catch(function (error) {
-									console.log("Error in facilitator join", error);
-								});
-						}); // TODO: add + groupId
+							});
 					});	
 			});
 	});
@@ -805,6 +818,28 @@ io.on('connection', function(socket) {
 					.then(function (session) {
 						// console.log("Active Session:", session);
 							// End last session?
+
+
+							//get current prompt
+							findCurrentPromptForGroup(session.get('id'))
+								.then(function (defaultPrompt) {
+									console.log('results for findCurrentPromptForGroup');
+									console.log(defaultPrompt);
+									var room = 'discussion-'+data.groupId;
+									var message = 'sessionsyncres';
+									var messageData = {
+										sessionId: session.get('id'),
+										prompt: defaultPrompt,
+									};
+									console.log('about to emit sessionsyncres to discussion-', data.groupId, session.get('id'));
+									console.log('socket info', room, message, messageData);
+									// setTimeout(function () {
+										console.log(Object.keys(io.nsps['/'].adapter.rooms[room]));
+										// socket.broadcast.to(room).emit(message, messageData);
+										io.to(room).emit(message, messageData);
+									// }, 2000);
+								})
+
 						return createSocket({
 							socketId: socket.id,
 							userId: data.userId
