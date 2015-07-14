@@ -20,6 +20,7 @@
             $scope.htmlThought = '';    // Only needed so that text-angular doesn't complain
             $scope.htmlThoughts = [];
             $scope.distributedThought = '';
+            $scope.viewingDistribution = false;
             $scope.dataLoading = false;
             console.log('about to participant join as', UserService.user.id);
             ThoughtSocket.emit('participant-join', {
@@ -45,8 +46,10 @@
             console.log("Recieved session sync data:", data);
             $scope.prompt = data.prompt;
             $scope.sessionId = data.sessionId;
+            $scope.viewingDistribution = false;
         });
         
+        // @pre - can only submit thought when not viewing a distributed thought
         $scope.submitThought = function () {
             $scope.htmlThoughts.push({thought: $scope.htmlThought})
             console.log($scope.htmlThought);
@@ -63,12 +66,14 @@
         ThoughtSocket.on('facilitator-prompt', function (prompt) {
             console.log('got prompt:', prompt);
             $scope.prompt = prompt;
+            $scope.viewingDistribution = false;
             // $scope.topic = prompt.content;
         });
 
         ThoughtSocket.on('distributed-thought', function (thoughtContent) {
             console.log('got thought:', thoughtContent);
             $scope.distributedThought = thoughtContent;
+            $scope.viewingDistribution = true;
             // $scope.topic = prompt.content;
         });
 

@@ -19,6 +19,16 @@
 	margin-right: 3%;
 }
 
+#history {
+	min-height: 612px;
+}
+
+#distributed-thought {
+	margin: 10px 10px 10px 10px;
+	border: 1px solid #212121;
+	border-radius: 10px;
+}
+
 /*.panel-body {
 	height: 500px;
 }*/
