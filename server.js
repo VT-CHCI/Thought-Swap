@@ -891,9 +891,11 @@ io.on('connection', function(socket) {
 		findSocketByID(data)
 			.then(function (socket) {
 				console.log(socket);
-				console.log(socket.get('user').get('group').get('id'));
-				io.to('facilitator-'+socket.get('user').get('group').get('id')).emit('participant-leave');
-			})
+				if (socket && socket.get('user') && socket.get('user').get('group') && socket.get('user').get('group').get('id')) {
+					console.log(socket.get('user').get('group').get('id'));
+					io.to('facilitator-'+socket.get('user').get('group').get('id')).emit('participant-leave');
+				}
+			});
 
 		setSocketInactive(data)
 			.then(function () {
