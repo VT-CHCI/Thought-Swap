@@ -37,7 +37,8 @@ var Event = sequelize.define('event', {
 })
 
 var Thought = sequelize.define('thought', {
-	content: Sequelize.TEXT
+	content: Sequelize.TEXT,
+	deleted: {type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false}
 });
 
 var Prompt = sequelize.define('prompt', {

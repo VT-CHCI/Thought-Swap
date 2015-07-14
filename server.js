@@ -347,6 +347,18 @@ function createThought (c, i, p) {
 	});
 }
 
+function deleteThought (thoughtId) {
+	console.log('deleteThought', thoughtId);
+	return models.Thought.update({
+			deleted: true
+		},
+		{
+			where: {
+				id: thoughtId
+			}
+		});
+}
+
 function endSession (i) {
 	console.log('endSession');
 	return models.Session.update({
@@ -918,6 +930,10 @@ io.on('connection', function(socket) {
 			.catch(function (error) {
 				console.log(">> Error on new thought:", error);
 			});
+	});
+
+	socket.on('fac-delete-thought', function (data) {
+		deleteThought(data.thoughtId);
 	});
 
 });

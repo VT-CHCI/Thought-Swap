@@ -141,6 +141,11 @@
 		$scope.deleteThought = function (thoughtIndex) {
 			console.log('i should delete the thought at position', thoughtIndex, 'in $scope.participantThoughts');
 			var removed = $scope.participantThoughts.splice(thoughtIndex, 1);
+			if (removed.length > 0) {
+				ThoughtSocket.emit('fac-delete-thought', {
+					thoughtId: removed[0].id
+				});
+			}
 		};
 
 	};
