@@ -24,7 +24,7 @@
     </form>
   <![endif]-->
 
-  <form  name="form" ng-submit="submitThought()" role="form">
+  <form  name="form" ng-submit="submitThought()" role="form" ng-show="!viewingDistribution">
       <!-- Rich Text Editor, hidden input ensures it is part of form -->
         <div focus-contenteditable text-angular ng-model="htmlThought" name="thoughtForm" id="thoughtForm"
                  ta-focussed-class="focussed" 
@@ -40,8 +40,8 @@
           <button type="submit" ng-disabled="form.$invalid" class="btn btn-primary">Submit</button>
       </div>
   </form>
-  <div>
-    {{distributedThought}}
+  <div id="distributed-thought" ng-if="viewingDistribution">
+    <div ng-bind-html="distributedThought"></div>
   </div>
 </div>
 
