@@ -11,11 +11,12 @@
 		.controller('RecieverController', RecieverController);
 
 	RecieverController.$inject = ['$scope', '$modal', '$log', 'ThoughtSocket',
-		'UserService', '$location', '$routeParams', '$rootScope', '$timeout'];
+		'UserService', '$location', '$routeParams', '$rootScope', '$timeout', 'toastr'];
 	function RecieverController($scope, $modal, $log, ThoughtSocket,
-	 UserService, $location, $routeParams, $rootScope, $timeout) {
+	 UserService, $location, $routeParams, $rootScope, $timeout, toastr) {
 
 		(function initController() {
+
 			$scope.participantThoughts = [];
 			// $scope.topic = '';
 			$scope.prompt = {};
@@ -39,6 +40,7 @@
 		ThoughtSocket.on('facilitator-prompt', function (data) {
 			console.log('facilitator-prompt', data);
 			$scope.prompt = data;
+			toastr.success('', 'New Prompt Created');
 		});
 
 		ThoughtSocket.on('participant-join', function () {
@@ -76,6 +78,7 @@
 				sessionId: $scope.sessionId
 			});
 			newPrompt();
+			toastr.sucess('', 'Starting New Session');
 		};
 
 		function newPrompt() {
@@ -131,6 +134,7 @@
 		});
 
 		$scope.distribute = function () {
+			toastr.success('', 'Thoughts Distributed!');
 			console.log('should distribute in future NOT IMPLEMENTED!', $scope.prompt);
 			ThoughtSocket.emit('distribute', {
 				groupId: $routeParams.groupId,
