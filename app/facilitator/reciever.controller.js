@@ -20,7 +20,7 @@
 			$scope.participantThoughts = [];
 			// $scope.topic = '';
 			$scope.prompt = {};
-			$scope.numThoughts = 0;
+			//$scope.participantThoughts.length = 0;
 			$scope.numSubmitters = 0;
 			$scope.numConnected = 0;
 			$scope.dataLoading = true;
@@ -70,7 +70,7 @@
 
 		$scope.newSession = function () {
 			$scope.participantThoughts = [];
-			$scope.numThoughts = 0;
+			//$scope.numThoughts = 0;
 			$scope.numSubmitters = 0;
 			ThoughtSocket.emit('session-sync-req', {
 				user: UserService.user,

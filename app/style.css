@@ -94,3 +94,7 @@ body {
 #prompt-display {
   width: 100%;
 }
+
+.facilitator-status input {
+  width: 20px;
+}
