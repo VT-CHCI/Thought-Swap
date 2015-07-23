@@ -29,6 +29,60 @@
 	padding: 0px 15px 0px 15px;
 }
 
+/* Drag & Drop List CSS ===================================================== */
+/* http://marceljuenemann.github.io/angular-drag-and-drop-lists/demo/#/simple */
+
+/* Needed for correct positioning of placeholder element */
+ul[dnd-list],
+ul[dnd-list] > li {
+	position: relative;
+}
+
+/* Must have min height, otherwise you can't drop once it's empty */
+ul[dnd-list] {
+    min-height: 42px;
+    padding-left: 0px;
+}
+
+/* Makes sense to hide original element being
+   dragged to give impression it is being moved */
+ul[dnd-list] .dndDraggingSource {
+    display: none;
+}
+
+/* Styling for the placeholder box that is auto added during dragging */
+ul[dnd-list] .dndPlaceholder {
+    display: inline-block;
+    background-color: #ddd;
+    width: 282px;
+	height: 194px;
+}
+
+/**
+ * The dnd-lists's child elements currently MUST have
+ * position: relative. Otherwise we can not determine
+ * whether the mouse pointer is in the upper or lower
+ * half of the element we are dragging over. In other
+ * browsers we can use event.offsetY for this.
+ */
+ul[dnd-list] li {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-top-right-radius: 4px;
+    border-top-left-radius: 4px;
+    display: inline-block;
+    padding: 10px 15px;
+    margin-bottom: -1px;
+}
+
+/* Show selected elements in green? */
+/*ul[dnd-list] li.selected {
+    background-color: #dff0d8;
+    color: #3c763d;
+}*/
+
+/* ========================================================================== */
+
 .thoughtItem {
 	display: inline-block;
 	margin: 10px 10px 10px 10px;

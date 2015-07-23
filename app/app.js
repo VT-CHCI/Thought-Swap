@@ -24,6 +24,7 @@
       'thoughtSwap',
       'mp.autoFocus',
       'toastr',
+      'dndLists'
 	])
 	.config(config)
 	.run(run);
