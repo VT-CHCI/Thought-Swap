@@ -9,9 +9,9 @@
     &nbsp;&nbsp;&nbsp;&nbsp;
     <button class="btn btn-primary" ng-click="openPromptInput()">New Prompt</button>
     <p></p>
-    <span class="fa fa-comment">&nbsp;Thoughts: </span>
+    <!-- <span class="fa fa-comment">&nbsp;Thoughts: </span>
       &nbsp;&nbsp;&nbsp;&nbsp;
-      <span>{{ numThoughts }}</span>
+      <span>{{ participantThoughts.length }}</span>
       &nbsp;&nbsp;&nbsp;&nbsp;
     <span class="fa fa-user">&nbsp;Submitters</span>
       &nbsp;&nbsp;&nbsp;&nbsp;
@@ -19,7 +19,28 @@
       &nbsp;&nbsp;&nbsp;&nbsp;
     <span class="fa fa-globe">&nbsp;Connected</span>
       &nbsp;&nbsp;&nbsp;&nbsp;
-      <span>{{ numConnected }}</span>
+      <span>{{ numConnected }}</span> -->
+
+    <form class="form-horizontal facilitator-status">
+      <label for="numthoughts"><i class="fa fa-comment"></i>Thoughts</label>
+      <code><input id="numthoughts" type="text" readonly ng-model="participantThoughts.length"></code>
+      
+      <label for="numSubmitters"><i class="fa fa-comment"></i>Submitters</label>
+      <code><input id="numSubmitters" type="text" readonly ng-model="numSubmitters"></code>
+      
+      <label for="numConnected"><i class="fa fa-comment"></i>Thoughts</label>
+      <code><input id="numConnected" type="text" readonly ng-model="numConnected"></code>
+    </form>
+
+    <!-- <dl>
+      <dt>Thoughts</dt>
+      <dd><code>{{participantThoughts.length}}</code></dd>
+      <dt>Thoughts</dt>
+      <dd><code>{{participantThoughts.length}}</code></dd>
+      <dt>Thoughts</dt>
+      <dd><code>{{participantThoughts.length}}</code></dd>
+    </dl> -->
+
   </div>
 
   <textarea disabled class="form-control" id="prompt-display" ng-if="prompt.content.length > 0">{{prompt.content}}</textarea>

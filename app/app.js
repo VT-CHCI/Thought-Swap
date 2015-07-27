@@ -23,6 +23,7 @@
       'angular-md5',
       'thoughtSwap',
       'mp.autoFocus',
+      'toastr',
 	])
 	.config(config)
 	.run(run);
