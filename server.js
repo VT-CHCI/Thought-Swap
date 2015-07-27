@@ -270,7 +270,10 @@ function findCurrentPromptForGroup (sessionId) {
 		where: {
 			sessionId: sessionId
 		}, 
-		order: 'updatedAt DESC'
+		order: 'updatedAt DESC',
+		include: [{
+			model: models.Thought
+		}]
 	});
 }
 
