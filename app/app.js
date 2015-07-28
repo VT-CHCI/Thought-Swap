@@ -30,8 +30,12 @@
 
 	//===========================================================================
 
-	config.$inject = ['$routeProvider'];
-	function config($routeProvider) {
+	config.$inject = ['$routeProvider', 'toastrConfig'];
+	function config($routeProvider, toastrConfig) {
+		angular.extend(toastrConfig, {
+			closeButton: true,
+		});
+
 		var isAuthenticated = {
         	isloggedIn: function (UserService, $location) {
         		if (!UserService.isLoggedIn()) {
