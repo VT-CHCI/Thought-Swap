@@ -1,10 +1,8 @@
 <ts-header></ts-header>
-
 <div class="container component">
-
   <div class="well well-lg text-center" id="controlBar">
-    <button class="btn btn-primary"  ng-click="distribute()">Distribute</button>
-      &nbsp;&nbsp;&nbsp;&nbsp;
+    <button class="btn btn-primary" ng-click="distribute()">Distribute</button>
+    &nbsp;&nbsp;&nbsp;&nbsp;
     <button class="btn btn-primary" ng-click="newSession()">New Session</button>
     &nbsp;&nbsp;&nbsp;&nbsp;
     <button class="btn btn-primary" ng-click="openPromptInput()">New Prompt</button>
@@ -20,18 +18,14 @@
     <span class="fa fa-globe">&nbsp;Connected</span>
       &nbsp;&nbsp;&nbsp;&nbsp;
       <span>{{ numConnected }}</span> -->
-
     <form class="form-horizontal facilitator-status">
       <label for="numthoughts"><i class="fa fa-comment"></i>Thoughts</label>
-      <code><input id="numthoughts" type="text" readonly ng-model="participantThoughts.length"></code>
-      
-      <label for="numSubmitters"><i class="fa fa-comment"></i>Submitters</label>
+      <code><input id="numthoughts" type="text" readonly ng-model="participantThoughts.length" class= ></code>
+      <label for="numSubmitters"><i class="fa fa-user"></i>Submitters</label>
       <code><input id="numSubmitters" type="text" readonly ng-model="numSubmitters"></code>
-      
-      <label for="numConnected"><i class="fa fa-comment"></i>Thoughts</label>
+      <label for="numConnected"><i class="fa fa-globe"></i>Connected</label>
       <code><input id="numConnected" type="text" readonly ng-model="numConnected"></code>
     </form>
-
     <!-- <dl>
       <dt>Thoughts</dt>
       <dd><code>{{participantThoughts.length}}</code></dd>
@@ -40,28 +34,27 @@
       <dt>Thoughts</dt>
       <dd><code>{{participantThoughts.length}}</code></dd>
     </dl> -->
-
   </div>
-
   <textarea disabled class="form-control" id="prompt-display" ng-if="prompt.content.length > 0">{{prompt.content}}</textarea>
-  
   <div class="panel panel-default" id="discussion">
     <div class="panel-body" id="dashboard">
       <ul ng-model="participantThoughts" id="thoughtList">
         <li ng-repeat="thought in participantThoughts" class="thoughtItem" ng-class="{'highlighted-for_deletion':highlight===$index}">
-          <i class="fa fa-times-circle delete-thought-icon" ng-mouseenter="highlightForDeletion($index)" ng-mouseleave="unHighlightForDeletion()" ng-click="deleteThought($index)"></i>
-          <div class="thought-content" ng-bind-html="thought.content"></div>
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <i class="fa fa-times-circle delete-thought-icon" ng-mouseenter="highlightForDeletion($index)" ng-mouseleave="unHighlightForDeletion()" ng-click="deleteThought($index)"></i>
+            </div>
+            <div class="panel-body">
+              <div class="thought-content" ng-bind-html="displayThought(thought)"></div>
+            </div>
+          </div>
         </li>
       </ul>
     </div>
   </div>
-
   <div>
-<!--     <script type="text/ng-template" id="promptModal.html">
+    <!--     <script type="text/ng-template" id="promptModal.html">
       
     </script> -->
-
-  
   </div>
-
 </div>
