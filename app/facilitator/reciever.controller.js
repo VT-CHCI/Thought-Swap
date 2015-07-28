@@ -119,6 +119,7 @@
 		};
 
 		ThoughtSocket.on('participant-thought', function (participantThought) {
+			console.log(participantThought);
 			$scope.participantThoughts.push(participantThought);
 			$scope.numThoughts++;
 
@@ -150,6 +151,10 @@
 					thoughtId: removed[0].id
 				});
 			}
+		};
+
+		$scope.displayThought = function (thought) {
+			return '<span class="thought-id">' + thought.id + '</span>' + thought.content;
 		};
 
 	};
