@@ -1,7 +1,8 @@
 var Sequelize = require('sequelize');
-sequelize = new Sequelize('thoughtswap', // database name
-						  'thoughtswap', // username
-						  'thoughtswap', // password
+sequelize = new Sequelize(
+	'thoughtswap', // database name
+	'thoughtswap', // username
+	'thoughtswap', // password
 	{ logging: function () {} }
 );
 
@@ -10,8 +11,9 @@ var User = sequelize.define('user', {
 	email: Sequelize.STRING,
 	username: {type: Sequelize.STRING, unique: true},
 	password: Sequelize.STRING,		// is hashed client-side before storing
-	role: Sequelize.ENUM('facilitator',
-						 'participant')
+	role: Sequelize.ENUM(
+		'facilitator',
+		'participant')
 });
 
 var Socket = sequelize.define('socket', {
@@ -20,21 +22,24 @@ var Socket = sequelize.define('socket', {
 });
 
 var Event = sequelize.define('event', {
-	type: Sequelize.ENUM('connect',
-						 'disconnect',
-						 'logIn',
-						 'logOut',
-						 'register',
-						 'authenticateError',
-						 'submitThought',
-						 'newSession',
-						 'newPrompt',
-						 'deleteThought',
-						 'reOrderThought',
-						 'distribution'),
-	data: Sequelize.INTEGER		// id for the subject of the event 
-								// i.e. Event{ type: logIn, data: userId }
-})
+	type: Sequelize.ENUM(
+	 'connect',
+	 'disconnect',
+	 'logIn',
+	 'logOut',
+	 'register',
+	 'authenticateError',
+	 'submitThought',
+	 'newSession',
+	 'newPrompt',
+	 'deleteThought',
+	 'reOrderThought',
+	 'distribution'
+	),
+	data: Sequelize.INTEGER		
+	// id for the subject of the event 
+	// i.e. Event{ type: logIn, data: userId }
+});
 
 var Thought = sequelize.define('thought', {
 	content: Sequelize.TEXT,
@@ -65,18 +70,18 @@ User.hasMany(Event);
 User.belongsTo(Group);		// a group may have many users all about students
 Group.hasMany(User);
 
-Socket.belongsTo(User);
+Socket.belongsTo(User);		// a user has many sockets
 User.hasMany(Socket);
 
 Group.belongsTo(User, { as: 'owner', constraints: false });
 User.hasMany(Group, { as: 'facilitated', constraints: false });
 
 Group.belongsTo(Session, {as: 'CurrentSession', constraints: false});
+Session.belongsTo(Group);	// a group has many sessions
 Group.hasMany(Session);
-Session.belongsTo(Group);
 
+Prompt.belongsTo(Session);	// a session has many prompts
 Session.hasMany(Prompt);
-Prompt.belongsTo(Session);
 
 Prompt.belongsTo(User);		// a user may have many prompts
 User.hasMany(Prompt);
@@ -89,9 +94,6 @@ Prompt.hasMany(Thought);
 
 Distribution.belongsTo(Thought);		// a distribution may have many thoughts
 Thought.hasMany(Distribution);
-
-// Prompt.belongsTo(Group);		// a group may have many prompts
-// Group.hasMany(Prompt);
 
 Distribution.belongsTo(Group);		// a group may have many distributions
 Group.hasMany(Distribution);
@@ -122,8 +124,6 @@ exports.start = function () {
 		})
 		
 		.then(function (userResults) {
-			// console.log('first user', userResults);
-
 			Group.findOrCreate({
 				where: {
 					name: 'My Test Group',
@@ -195,10 +195,10 @@ exports.start = function () {
 				});
 
 
-			console.log('Tables Synced');
+			console.info('Tables Synced');
 		})
 		.catch(function (error) {
-			console.log(error);
+			console.error(error);
 		});
 	
 };
