@@ -154,7 +154,7 @@
 		};
 
 		$scope.displayThought = function (thought) {
-			return '<span class="thought-id">' + thought.id + '</span>' + thought.content;
+			return thought.content;
 		};
 
 	};

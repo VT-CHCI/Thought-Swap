@@ -98,3 +98,10 @@ body {
 .facilitator-status input {
   width: 20px;
 }
+
+.panel-heading {
+    padding: 20px 25px;
+    border-bottom: 1px solid transparent;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+}
