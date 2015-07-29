@@ -115,6 +115,11 @@
 		  	})
 		    .success(function (data) {
 		      console.log(data);
+
+		      GroupsService.groups = [];
+
+
+
 		      deferred.resolve();
 		    })
 		    .error(function (data, status) {

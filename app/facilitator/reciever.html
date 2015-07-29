@@ -43,12 +43,12 @@
                 'highlighted-for_deletion': highlight===$index}" class="thoughtItem">
           <div class="panel panel-default">
             <div class="panel-heading">
-{{thought.id}}
+              {{thought.id}}
 
               <i class="fa fa-times-circle delete-thought-icon" ng-mouseenter="highlightForDeletion($index)" ng-mouseleave="unHighlightForDeletion()" ng-click="deleteThought($index)"></i>
             </div>
             <div class="panel-body">
-              <div class="thought-content"  ng-bind-html="displayThought(thought)"></div>
+              <div class="thought-content" ng-bind-html="displayThought(thought)"></div>
             </div>
           </div>
         </li>

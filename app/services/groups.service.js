@@ -31,7 +31,7 @@
 
 					.error(function (data, status) {
 						deferred.reject(data);
-					})
+					});
 			} else {
 				deferred.resolve(this.groups);
 			}

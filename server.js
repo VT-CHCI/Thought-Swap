@@ -458,7 +458,7 @@ app.post('/signin', function(request, response) {
 		// console.log("request body: ", request.body);
 		var user = findByUsername(request.body.user.username)
 			.then(function(user) {
-				// console.log('Searching for ', user);
+				console.log('Found ', user);
 				if (user !== null) {
 					if (user.role === 'facilitator') {
 						if (request.body.user.username === user.username &&

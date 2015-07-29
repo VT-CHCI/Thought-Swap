@@ -13,14 +13,14 @@
         .module('app')
         .controller('RegisterController', RegisterController);
  
-    RegisterController.$inject = ['$scope', '$location', 'UserService'];
-    function RegisterController($scope, $location, UserService) {
+    RegisterController.$inject = ['$scope', '$location', 'UserService', 'md5'];
+    function RegisterController($scope, $location, UserService, md5) {
 
         $scope.register = function () {
             UserService.register({
                 email: $scope.email,
                 username: $scope.username,
-                password: $scope.password
+                password: md5.createHash($scope.password)
             })
                 .then(function (user) {
                     $location.path('/facilitator/mgmt');
