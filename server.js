@@ -76,15 +76,6 @@ function makeName() {
 }
 
 /**
- * [numSubmitters description]
- * @param: INT groupId - The db id of the group of interest.
- * @return: INT - is number of participants determined to have submitted
- */
-function numSubmitters(groupId) {
-
-}
-
-/**
  *
  */
 function bulkCreateParticipants (num, groupId) {
@@ -125,26 +116,28 @@ function bulkCreateParticipants (num, groupId) {
 // }
 // });
 
-function initSession (groupId, socket) {
-	console.log('Got into initSession with groupId', groupId);
+function initSession (data) {
+	// TODO: Use userid to update socketid?
+	console.log('Got into initSession with data', data);
 	return new Promise(function (resolve, reject) {
-		createSession(groupId)
+		createSession(data.groupId)
 			.then(function (session) {
 				console.log('got a session', session.get('id'));
-				return updateGroupSession(groupId, session.get('id'))
+				return updateGroupSession(data.groupId, session.get('id'))
 					.then(function (recordsUpdated) {
 						console.log('updated session', session.get('id'));
-						resolve(session);
-						createPrompt('Awaiting a prompt..', null, groupId, session.get('id'))
-							
+						return createPrompt('Awaiting a prompt..', null, data.groupId, session.get('id'))
+							.then(function (defaultPrompt) {
+								console.log('resolving with', defaultPrompt);
+								resolve(defaultPrompt);
+							})
 							.catch(function (error) {
-								console.error('somefin"s wrong');
-								console.error(error);
+								console.error('Error initSession default prompt.', error);
 							});
 					});
 			})
 			.catch(function (error) {
-				console.log(">> Error initiating session.", error);
+				console.error(">> Error initiating session.", error);
 			});
 	});
 }
@@ -159,7 +152,9 @@ function getActiveSession (groupId, socket) {
 						console.log("Active session:", session);
 						if (session === null) {
 							console.log('getActiveSession if');
-							initSession(groupId, socket)
+							initSession({
+								groupId: groupId
+							})
 								.then(function (session) {
 									console.log('the session', session.get('id'));
 									resolve(session);
@@ -200,7 +195,7 @@ function findUserById (i) {
 }
 
 // function updateUserSocketId(i, s) {
-	console.log('updateUserSocketId');
+// console.log('updateUserSocketId');
 // 	return models.User.update({
 // 		currentSocketId: s
 // 	},
@@ -599,14 +594,13 @@ io.on('connection', function(socket) {
 				console.log('done leaving');
 				socket.joinAsync('discussion-'+data.groupId)
 					.then(function () {
-						console.log('got here promisssssssss');
 						socket.joinAsync('facilitator-'+data.groupId)
 							.then(function () {
 								getActiveSession(data.groupId, socket)
 									.then(function (session) {
 										console.log('gotten session', session.get('id'));
 
-										//getcurrentprompt
+										//TODO: replace with call to get-current-prompt
 										findCurrentPromptForGroup(session.get('id'))
 											.then(function (defaultPrompt) {
 												console.log('results from findCurrentPromptForGroup');
@@ -661,29 +655,27 @@ io.on('connection', function(socket) {
 	});
 
 	// Should: load new session if one does not exist
-	//				 send thoughts to facilitator, prompt to participants, 
-	// socket.on('session-sync-req', function (data) {
-	// 	console.log("Session sync request data:", data);
-	// 	findGroupById(data.groupId)
-	// 		.then(function (group) {
-	// 			if(group.get('currentSessionId') != null) {
-	// 				console.log("Recieved request for new session");
-	// 				endSession(group.get('currentSessionId'));
-	// 				initSession({
-	// 					user: data.user,
-	// 					groupId: data.groupId
-	// 				});
-	// 			} else {
-	// 				initSession({
-	// 					user: data.user,
-	// 					groupId: data.groupId
-	// 				});
-	// 			}
-	// 		})
-	// 		.catch(function (error) {
-	// 			console.log(">> Error syncing session:", error);
-	// 		});
-	// });
+	// send thoughts to facilitator, prompt to participants, 
+	socket.on('session-sync-req', function (data) {
+		console.log("Session sync request data:", data);
+		findGroupById(data.groupId)
+			.then(function (group) {
+				console.log("The group", group);
+				if(group.get('CurrentSessionId') != null) {
+					console.log("Recieved request for new session");
+					endSession(group.get('CurrentSessionId'));
+				}
+				initSession({
+					groupId: data.groupId
+				})
+					.then(function (newPrompt) {
+						io.to('discussion-'+data.groupId).emit('new-session-prompt', newPrompt);
+					});
+			})
+			.catch(function (error) {
+				console.log(">> Error syncing session:", error);
+			});
+	});
 
 	/**
 	 * **CORE FUNCTIONALITY** 
@@ -775,13 +767,6 @@ io.on('connection', function(socket) {
 					var thoughtAuthorForSending = thoughtsAuthors[thoughtToSendIndex];
 					var thoughtContent = thoughtAuthorForSending.get('content');
 
-					console.log('thoughtToSendIndex', thoughtToSendIndex);
-					console.log('presenterToReceive', presenterToReceive);
-					console.log('presenterSocketIdx', presenterSocketIdx);
-					console.log('socketIdOfReceipient', socketIdOfReceipient);
-					console.log('thoughtAuthorForSending', thoughtAuthorForSending);
-					console.log('thoughtContent', thoughtContent);
-
 					console.log('io stuff');
 					console.log(io.sockets);
 					io.sockets.connected[socketIdOfReceipient].emit('distributed-thought', thoughtContent);
@@ -805,32 +790,6 @@ io.on('connection', function(socket) {
 	 * 
 	 * @param: INT groupId - The db id of the group said participant belongs to
 	 */
-
-	// socket.on('facilitator-join', function (data) {
-	// 	console.log(data.groupId);
-	// 	var leftAllRooms = leaveAllRooms(socket);
-	// 	console.log(leftAllRooms);
-	// 	leftAllRooms.then(function () {
-	// 			console.log('done leaving');
-	// 			socket.joinAsync('discussion-'+data.groupId)
-	// 				.then(function () {
-	// 					console.log('got here promisssssssss');
-	// 					socket.join('facilitator-'+data.groupId, function () {
-	// 						getActiveSession(data.groupId, socket)
-	// 							.then(function (session) {
-	// 								console.log('gotten session', session.get('id'));
-	// 								return createSocket({
-	// 									socketId: socket.id,
-	// 									userId: data.userId
-	// 								});
-	// 							})
-	// 							.catch(function (error) {
-	// 								console.log("Error in facilitator join", error);
-	// 							});
-	// 					}); // TODO: add + groupId
-	// 				});	
-	// 		});
-	// });
 	socket.on('participant-join', function (data) {
 		console.log('participant-join', data)
 		leaveAllRooms(socket)

@@ -49,6 +49,12 @@
             $scope.viewingDistribution = false;
             toastr.info('', 'New Session');
         });
+
+        ThoughtSocket.on('new-session-prompt', function (prompt) {
+            console.log("Got data in new-session-prompt", prompt);
+            $scope.htmlThoughts = [];
+            $scope.prompt = prompt;
+        });
         
         // @pre - can only submit thought when not viewing a distributed thought
         $scope.submitThought = function () {
