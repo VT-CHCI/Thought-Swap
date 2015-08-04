@@ -26,7 +26,7 @@
                     $location.path('/facilitator/mgmt');
                 })
                 .catch(function (err) {
-                    $scope.error = err;
+                    $scope.error = err.data.message;
                 });            
         };
     }

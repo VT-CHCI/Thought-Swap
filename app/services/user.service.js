@@ -72,11 +72,11 @@
 		};
 
 		this.isFacilitator = function () {
-			return  this.isLoggedIn() && this.user.role === 'facilitator';	
+			return  this.isLoggedIn() && this.user && this.user.role === 'facilitator';	
 		};
 
 		this.isParticipant = function () {
-			return  this.isLoggedIn() && this.user.role === 'participant';	
+			return  this.isLoggedIn() && this.user && this.user.role === 'participant';	
 		};
 
 		this.register = function (options) {
@@ -89,13 +89,14 @@
 					password: options.password
 				}
 			})
-				.success(function (data) {
+				.then(function (data) {
+					console.log('Got http success', data);
 					this.auth(data, deferred);
-				}.bind(this))
-
-				.error(function (data, status) {
-					deferred.reject(data);
-				});
+				}.bind(this),
+					function (data, status) {
+						console.log('Error');
+						deferred.reject(data);
+					});
 
 			return deferred.promise;
 		};
