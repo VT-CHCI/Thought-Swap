@@ -490,14 +490,18 @@ app.post('/signup', function(request, response) {
 									 request.body.user.username,
 									 request.body.user.password)
 			.then(function (user) {
-				// console.log('Created user: ', user);	
+				console.log('Created (existing!!!!!) user: ', user);	
 				response.status(201).json({
 					user: user
 				});
 			})
 			.catch(function (err) {
 				console.log(">> Error in signup: ", err);
-				response.status(500).send("Error creating account");
+				console.log("Error creating account.", err.errors[0].message);
+				response.status(500).json({
+					message: "Error creating account: "+ err.errors[0].message[0].toUpperCase() + err.errors[0].message.slice(1),
+					error: err
+				});
 			});
 	}
 });
