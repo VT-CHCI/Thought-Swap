@@ -1,10 +1,8 @@
 <ts-header></ts-header>
-<div class="container component">
+<div class="container component facilitator-controls">
   <div class="well well-lg text-center" id="controlBar">
     <button class="btn btn-primary" ng-click="distribute()">Distribute</button>
-    &nbsp;&nbsp;&nbsp;&nbsp;
     <button class="btn btn-primary" ng-click="newSession()">New Session</button>
-    &nbsp;&nbsp;&nbsp;&nbsp;
     <button class="btn btn-primary" ng-click="openPromptInput()">New Prompt</button>
     <p></p>
     <!-- <span class="fa fa-comment">&nbsp;Thoughts: </span>
@@ -20,11 +18,11 @@
       <span>{{ numConnected }}</span> -->
     <form class="form-horizontal facilitator-status">
       <label for="numthoughts"><i class="fa fa-comment"></i>Thoughts</label>
-      <code><input id="numthoughts" type="text" readonly ng-model="participantThoughts.length" class= ></code>
+      <code><span id="numThoughts">{{participantThoughts.length}}</span></code>
       <label for="numSubmitters"><i class="fa fa-user"></i>Submitters</label>
-      <code><input id="numSubmitters" type="text" readonly ng-model="numSubmitters"></code>
+      <code><span id="numSubmitters">{{numSubmitters}}</span></code>
       <label for="numConnected"><i class="fa fa-globe"></i>Connected</label>
-      <code><input id="numConnected" type="text" readonly ng-model="numConnected"></code>
+      <code><span id="numConnected">{{numConnected}}</span></code>
     </form>
     <!-- <dl>
       <dt>Thoughts</dt>

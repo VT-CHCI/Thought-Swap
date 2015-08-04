@@ -11,31 +11,52 @@
 		.controller('RecieverController', RecieverController);
 
 	RecieverController.$inject = ['$scope', '$modal', '$log', 'ThoughtSocket',
-		'UserService', '$location', '$routeParams', '$rootScope', '$timeout', 'toastr'];
+		'UserService', '$location', '$routeParams', '$rootScope', '$timeout',
+		'toastr', '$animate'];
 	function RecieverController($scope, $modal, $log, ThoughtSocket,
-	 UserService, $location, $routeParams, $rootScope, $timeout, toastr) {
+		UserService, $location, $routeParams, $rootScope, $timeout, 
+	 toastr, $animate) {
 
 		(function initController() {
-
 			$scope.participantThoughts = [];
-			// $scope.topic = '';
 			$scope.prompt = {};
-			//$scope.participantThoughts.length = 0;
 			$scope.numSubmitters = 0;
 			$scope.numConnected = 0;
 			$scope.dataLoading = true;
 
-			
-				ThoughtSocket.emit('facilitator-join', {
-					groupId: $routeParams.groupId,
-					userId: UserService.user.id
-				});
-			// ThoughtSocket.emit('session-sync-req', {
-			// 	user: UserService.user,
-			// 	groupId: $routeParams.groupId,
-			// 	sessionId: $scope.sessionId
-			// });
+			ThoughtSocket.emit('facilitator-join', {
+				groupId: $routeParams.groupId,
+				userId: UserService.user.id
+			});
+
 		})();
+
+		$scope.animatedBounce = function (elemId) {
+			$animate.addClass($(elemId), 'animated bounce')
+				.then(function () {
+					$timeout(function () {
+						$animate.removeClass($('#numConnected'),'animated bounce');
+					}, 1000);
+				});
+		};
+
+		$scope.$watch('participantThoughts.length', function (nv, ov) {
+			if (nv !== ov) {
+				$scope.animatedBounce('#numThoughts');
+			}
+		});
+
+		$scope.$watch('numSubmitters', function (nv, ov) {
+			if (nv !== ov) {
+				$scope.animatedBounce('#numSubmitters');
+			}
+		});
+
+		$scope.$watch('numConnected', function (nv, ov) {
+			if (nv !== ov) {
+				$scope.animatedBounce('#numConnected');
+			}
+		});
 
 		ThoughtSocket.on('facilitator-prompt', function (data) {
 			console.log('facilitator-prompt', data);
@@ -54,19 +75,13 @@
 		});
 
 		ThoughtSocket.on('sessionsyncres', function (data) {
-			console.log("Recieved session sync response:", data);
+			console.log('Recieved session sync response:', data);
 			// $scope.participantThoughts = data.prompt.get('thoughts'); //TODO: at somepoint sync should send us the existing thoughts if we're late joining
 			$scope.prompt = data.prompt;
 			$scope.sessionId = data.sessionId;
 			// $scope.numThoughts = data.prompt.thoughts.length();
 			// $scope.numSubmitters = ?
-
 		});
-
-		// $rootScope.$on("$routeChangeStart", function () {
-		// 	console.log('leaving fac');
-  //           ThoughtSocket.emit('facilitator-leave');
-  //       });
 
 		$scope.newSession = function () {
 			$scope.participantThoughts = [];
@@ -94,7 +109,7 @@
 				templateUrl: 'facilitator/promptModal.html', // see script in reciever.html
 				controller: 'PromptModalController',
 				resolve: {
-					prompt: function() {
+					prompt: function () {
 						return $scope.prompt;
 					},
 					sessionId: function () {
@@ -126,7 +141,6 @@
 
 			var submitters = [];
 			$scope.participantThoughts.forEach(function (thought) {
-				console.log(thought);
 				if (submitters.indexOf(thought.userId) < 0) {
 					submitters.push(thought.userId);
 				}
@@ -158,7 +172,7 @@
 			return thought.content;
 		};
 
-	};
+	}
 
 	/**
 	 * @ngdoc The controller for the modal that handles prompt input.
@@ -178,7 +192,7 @@
 
 		// $scope.prompt = prompt;
 		$scope.newPromptContent = '';
-		$scope.sessionId = sessionId
+		$scope.sessionId = sessionId;
 
 		$scope.submit = function () {
 			console.log("Submit works");
@@ -195,6 +209,6 @@
 		$scope.cancel = function () {
 			$modalInstance.dismiss('cancel');
 		};
-	};
+	}
 
 })();
