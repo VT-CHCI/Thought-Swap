@@ -73,18 +73,19 @@
 			//$scope.numThoughts = 0;
 			$scope.numSubmitters = 0;
 			ThoughtSocket.emit('session-sync-req', {
-				user: UserService.user,
+				userId: UserService.user.id,
 				groupId: $routeParams.groupId,
 				sessionId: $scope.sessionId
 			});
-			newPrompt();
-			toastr.sucess('', 'Starting New Session');
+			
+			toastr.success('', 'Started New Session');
 		};
 
-		function newPrompt() {
-			// $scope.topic = ''; //erase previous prompt
-			
-		}
+		ThoughtSocket.on('new-session-prompt', function (prompt) {
+			console.log("Got data in new-session-prompt", prompt);
+			// $scope.prompt = {};
+			$scope.prompt = prompt;
+		});
 
 		$scope.openPromptInput = function () {
 			// $scope.newSession();
