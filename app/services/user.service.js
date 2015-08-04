@@ -89,14 +89,14 @@
 					password: options.password
 				}
 			})
-				.then(function (data) {
+				.success(function (data) {
 					console.log('Got http success', data);
 					this.auth(data, deferred);
-				}.bind(this),
-					function (data, status) {
-						console.log('Error');
-						deferred.reject(data);
-					});
+				}.bind(this))
+				.error(function (data, status) {
+					console.log('Error');
+					deferred.reject(data);
+				});
 
 			return deferred.promise;
 		};
