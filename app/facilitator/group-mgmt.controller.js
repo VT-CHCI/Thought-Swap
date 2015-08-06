@@ -23,6 +23,12 @@
             UserService.getGroups()
             	.then(function (groups) {
             		$scope.groups = groups;
+            		$scope.groups.map(function (item) {
+            			item.isOpen = false;
+            		});
+            		if ($scope.groups.length > 0) {
+            			$scope.groups[0].isOpen = true;
+            		}
             	})
             	.catch(function (err) {
             		console.log('Error loading groups', err);
@@ -61,6 +67,16 @@
 					console.log('Error logging out', err);
 					$scope.dataLoading = false;
 				});
+		};
+
+		$scope.expand = function (idx) {
+			console.log('expand');
+			$scope.groups[idx].isOpen = !$scope.groups[idx].isOpen;
+		};
+
+		$scope.nav = function ($event) {
+			// console.log(groupId, $event);
+			$event.stopPropagation();
 		};
 		
 	}

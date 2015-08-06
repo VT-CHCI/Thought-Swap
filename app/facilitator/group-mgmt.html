@@ -14,11 +14,11 @@
 
 		  <accordion close-others="true">
 		    <!-- First Group -->
-		    <accordion-group is-open="isFirstOpen" ng-if="groups.length > 0">
+		    <accordion-group is-open="groups[0].isOpen" ng-if="groups.length > 0" is-disabled="true">
 		        <accordion-heading>
-		        	<div style="">
-		            <a style="margin-left: auto;" ng-href="#/facilitator/{{groups[0].id}}"><strong>{{groups[0].name}}</strong></a>
-		            <i class="pull-right fa" ng-class="{'fa-chevron-down': isFirstOpen, 'fa-chevron-right': !isFirstOpen}"></i>
+		        	<div style="" ng-click="expand(0)">
+		            <a style="margin-left: auto;" ng-href="#/facilitator/{{groups[0].id}}" ng-click="nav($event)"><strong>{{groups[0].name}}</strong></a>
+		            <i class="pull-right fa" ng-class="{'fa-chevron-down': groups[0].isOpen, 'fa-chevron-right': !groups[0].isOpen}"></i>
 		          </div>
 		        </accordion-heading>
 		        <div ng-repeat=" participant in groups[0].users">
@@ -27,11 +27,11 @@
 		    </accordion-group>
 
 		    <!-- All Remaining Groups -->
-		    <accordion-group ng-repeat="group in groups.slice(1)" is-open="isOpen">
+		    <accordion-group ng-repeat="group in groups.slice(1)" is-open="group.isOpen" is-disabled="true">
 		        <accordion-heading>
-		        	<div>
-		        		<a ng-href="#/facilitator/{{group.id}}"><strong>{{group.name}}</strong></a>
-		            <i class="pull-right fa" ng-class="{'fa-chevron-down': isOpen, 'fa-chevron-right': !isOpen}"></i>
+		        	<div ng-click="expand($index+1)">
+		        		<a ng-href="#/facilitator/{{group.id}}" ng-click="nav($event)"><strong>{{group.name}}</strong></a>
+		            <i class="pull-right fa" ng-class="{'fa-chevron-down': group.isOpen, 'fa-chevron-right': !group.isOpen}"></i>
 		          </div>
 		        </accordion-heading>
 		        <div ng-repeat=" participant in group.users">
