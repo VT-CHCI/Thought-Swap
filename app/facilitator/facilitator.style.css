@@ -19,6 +19,10 @@
 	height: 0px;
 }
 
+#promptDisplay {
+  margin-bottom: 0px;
+}
+
 code {
   border: 1px solid gray;
 }
@@ -108,85 +112,14 @@ code span {
 }
 /* ========================================================================== */
 
+.panel-default#discussion {
+  border-width: 3px;
+  border-top-width: 1px;
+}
+
 .panel-body#dashboard {
   min-height: 578px;
   padding: 15px 0px 15px 0px;
-}
-
-/*#thoughtList {
-	table-layout: fixed;
-	padding: 0px 15px 0px 15px;
-}*/
-
-/* Drag & Drop List CSS ===================================================== */
-/* http://marceljuenemann.github.io/angular-drag-and-drop-lists/demo/#/simple */
-
-/* Needed for correct positioning of placeholder element */
-ul[dnd-list],
-ul[dnd-list] > li {
-	position: relative;
-}
-
-/* Must have min height, otherwise you can't drop once it's empty */
-ul[dnd-list] {
-    min-height: 168px;
-    padding-left: 0px;
-}
-
-/* Makes sense to hide original element being
-   dragged to give impression it is being moved */
-ul[dnd-list] .dndDraggingSource {
-    display: none;
-}
-
-/* Styling for the placeholder box that is auto added during dragging */
-ul[dnd-list] .dndPlaceholder .inner {
-  background-color: #ddd;
-  z-index: 1;
-  border-radius: 4px;
-  display: inline-block;
-  width: 25%;
-  height: 168px;
-  top: 0;
-  bottom: -10px;
-  left: 10px;
-  right: 0;
-  margin-bottom: -1px;
-}
-
-/**
- * The dnd-lists's child elements currently MUST have
- * position: relative. Otherwise we can not determine
- * whether the mouse pointer is in the upper or lower
- * half of the element we are dragging over. In other
- * browsers we can use event.offsetY for this.
- */
-ul[dnd-list] li {
-    background-color: #fff;
-    border-radius: 4px;
-    display: inline-block;
-    width: 25%;
-    height: 168px;
-    margin-bottom: -1px;
-}
-
-.grid-content {
-  height: 138px;
-  overflow: hidden;
-}
-
-/* Show selected elements in green? */
-/*ul[dnd-list] li.selected {
-    background-color: #dff0d8;
-    color: #3c763d;
-}*/
-
-/* ========================================================================== */
-
-.thought i {
-	font: 20pt;
-	float: right;
-	margin-left: 10px;
 }
 
 .cB {
@@ -203,9 +136,3 @@ ul[dnd-list] li {
 /*.highlighted-for_deletion .delete-thought-icon {
 	color: red;
 }*/
-
-.highlighted-for_deletion {
-	/*color: red;*/
-	/*background-color: red;*/
-	border-color: red;
-}

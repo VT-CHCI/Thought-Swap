@@ -135,16 +135,6 @@
 			});
 		};
 
-		$scope.highlightForDeletion = function (idx) {
-			console.log('high', idx);
-			$scope.highlight = idx;
-		};
-
-		$scope.unHighlightForDeletion = function () {
-			console.log('unhigh');
-			$scope.highlight = -1;
-		};
-
 		ThoughtSocket.on('participant-thought', function (participantThought) {
 			console.log(participantThought);
 			$scope.participantThoughts.push(participantThought);
@@ -170,7 +160,6 @@
 		};
 
 		$scope.deleteThought = function (thoughtIndex) {
-			console.log('i should delete the thought at position', thoughtIndex, 'in $scope.participantThoughts');
 			var removed = $scope.participantThoughts.splice(thoughtIndex, 1);
 			if (removed.length > 0) {
 				ThoughtSocket.emit('fac-delete-thought', {
@@ -178,6 +167,10 @@
 				});
 			}
 		};
+
+		$scope.morphThought = function (thoughtIndex) {
+			console.log("Morphing thought number " + thoughtIndex + "!");
+		}
 
 		$scope.displayThought = function (thought) {
 			return thought.content;

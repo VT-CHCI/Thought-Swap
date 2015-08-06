@@ -19,54 +19,41 @@
       <code><span id="numConnected">{{numConnected}}</span></code>
     </form>
   </div>
+  
+  <div class="container component">
+    <div class="well" id="promptDisplay" ng-if="prompt.content.length > 0">
+      {{prompt.content}}
+    </div>
+    <div class="panel panel-default" id="discussion">
+      <div class="panel-body grid-container" id="dashboard">
+        <ul dnd-list="participantThoughts" id="grid" class="grid">
 
+          <li ng-repeat="thought in participantThoughts" 
+              class="thought"
+              dnd-draggable="thought" 
+              dnd-moved="participantThoughts.splice($index, 1)" 
+              dnd-effect-allowed="move" 
+              dnd-selected="models.selected = thought" > 
 
-  <textarea disabled class="form-control" id="prompt-display" ng-if="prompt.content.length > 0">{{prompt.content}}</textarea>
-  <div class="panel panel-default" id="discussion">
-    <div class="panel-body grid-container" id="dashboard">
-      <ul dnd-list="participantThoughts" id="grid" class="grid">
-
-        <li ng-repeat="thought in participantThoughts" 
-            dnd-draggable="thought" 
-            dnd-moved="participantThoughts.splice($index, 1)" 
-            dnd-effect-allowed="move" 
-            dnd-selected="models.selected = thought" 
-            ng-class="{'selected': models.selected === thought, 
-                       'highlighted-for_deletion': highlight===$index}" 
-            >
-
-            <div class="inner">
-              <div class="controls">
-                <span class="util">{{thought.id}}</span>
-                <!-- TODO: Enlarge thought via ngMorph -->
-
-                <!-- Delete Thought -->
-                <i class="fa fa-times-circle delete-thought-icon util" 
-                   ng-mouseenter="highlightForDeletion($index)" 
-                   ng-mouseleave="unHighlightForDeletion()" 
-                   ng-click="deleteThought($index)">
-                </i>
+              <div class="inner">
+                <div class="controls">
+                  <!-- TODO: Enlarge thought via ngMorph -->
+                  <i id="enlarge" class="fa fa-expand util"
+                    ng-click="morphThought($index)">
+                  </i>
+                  <!-- Delete Thought -->
+                  <i id="delete" class="fa fa-times-circle util" 
+                     ng-click="deleteThought($index)">
+                  </i>
+                </div>
+                <div class="grid-content" ng-bind-html="displayThought(thought)">
+                </div>
               </div>
-              <div class="grid-content" ng-bind-html="displayThought(thought)">
-              </div>
-            </div>
 
-          <!-- <div class="panel panel-default">
-            <div class="panel-heading">
-              {{thought.id}}
-              <i class="fa fa-times-circle delete-thought-icon" 
-                 ng-mouseenter="highlightForDeletion($index)" 
-                 ng-mouseleave="unHighlightForDeletion()" 
-                 ng-click="deleteThought($index)">
-              </i>
-            </div>
-            <div class="panel-body">
-              <div class="thought-content" ng-bind-html="displayThought(thought)"></div>
-            </div>
-          </div> -->
-        </li>
+          </li>
 
-      </ul>
+        </ul>
+      </div>
     </div>
   </div>
 </div>

@@ -1,3 +1,54 @@
+/* Drag & Drop List CSS ======================================= MIT Licence = */
+/* http://marceljuenemann.github.io/angular-drag-and-drop-lists/demo/#/simple */
+
+/* Needed for correct positioning of placeholder element */
+ul[dnd-list],
+ul[dnd-list] > li {
+  position: relative;
+}
+
+/* Must have min height, otherwise you can't drop once it's empty */
+ul[dnd-list] {
+    min-height: 168px;
+    padding-left: 0px;
+}
+
+/* Makes sense to hide original element being
+   dragged to give impression it is being moved */
+ul[dnd-list] .dndDraggingSource {
+    display: none;
+}
+
+/* Styling for the placeholder box that is auto added during dragging */
+/*ul[dnd-list] .dndPlaceholder {
+  Behavior moved to grid css
+}*/
+
+/**
+ * The dnd-lists's child elements currently MUST have
+ * position: relative. Otherwise we can not determine
+ * whether the mouse pointer is in the upper or lower
+ * half of the element we are dragging over. In other
+ * browsers we can use event.offsetY for this.
+ */
+/*ul[dnd-list] li {
+  Behavior moved to grid css
+}*/
+
+.grid-content {
+  height: 138px;
+  overflow: hidden;
+}
+
+/* Show selected elements in green? */
+/*ul[dnd-list] li.selected {
+    background-color: #dff0d8;
+    color: #3c763d;
+}*/
+/* ========================================================================== */
+
+/* Grid List CSS ============================================================ */
+
 /*.grid-container {
   position: absolute;
   top: 66px;
@@ -6,58 +57,73 @@
   bottom: 0;
   overflow-y: hidden;
 }*/
+
 .grid {
   position: relative;
   height: 100%;
   list-style: none;
-  padding: 10px 10px 10px 10px;
 }
-  .grid li {
-    position: absolute;
-    z-index: 2;
-    text-align: center;
-    cursor: pointer;
-    -webkit-transition: top 0.2s,
-                        left 0.2s,
-                        width 0.2s,
-                        height 0.2s,
-                        font-size 0.2s,
-                        line-height 0.2s;
-  }
-  .grid li .inner {
-    position: absolute;
-    background: #fff;
-    border: 1px solid #bbb;
-    top: 0;
-    bottom: 10px;
-    left: 10px;
-    right: 0;
-    padding-top: 10px;
-    -webkit-transition: background 3s;
-  }
-  .grid .controls {
-    position: absolute;
-    top: 0;
-    right: 0;
-    float: right;
-    font-size: 0.4em;
-    font-weight: normal;
-    line-height: 1em;
-    opacity: 0;
-    -webkit-transition: opacity 0.2s;
-  }
-    .grid .controls .util {
-      font-size: 0.6em;
-      float: left;
-      margin: 5px 5px 0 0;
-      padding: 0.3em;
-      background: #fafafa;
-      color: #444;
-      text-decoration: none;
-    }
-    .grid .controls .util:hover {
-      background: #f1f1f1;
-    }
-  .grid li:hover .controls {
-    opacity: 1;
-  }
+
+.grid li.dndPlaceholder {
+  top: 19px;
+}
+
+.grid li {
+  z-index: 1;
+  cursor: pointer;
+  width: 25%;
+  height: 178px;
+  display: inline-block;
+}
+.grid li .inner {
+  background: #fff;
+  border: 1px solid #bbb;
+  padding: 10px;
+  margin: 10px;
+  height: 160px;
+}
+
+.grid li.dndPlaceholder .inner {
+  background-color: #bbb;
+}
+
+.grid .controls {
+  position: absolute;
+  top: 0;
+  right: 0;
+  float: right;
+  font-size: 0.4em;
+  font-weight: normal;
+  line-height: 1em;
+  opacity: 0;
+  -webkit-transition: opacity 0.2s;
+}
+
+.grid .controls .util {
+  font-size: 3em;
+  float: left;
+  margin: 15px 15px 0 0;
+  padding: 0.3em;
+  background: #FFF;
+  color: #444;
+  /*text-decoration: none;*/
+}
+
+.grid .controls .util:first-child {
+  margin: 15px 5px 0 0;
+  /*text-decoration: none;*/
+}
+
+.grid .controls #delete {
+  color: #8F0000;
+}
+
+.grid .controls .util:hover {
+  background: #F1F1F1;
+}
+
+.grid li:hover .controls {
+  opacity: 1;
+}
+
+/* ========================================================================== */
