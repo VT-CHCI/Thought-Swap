@@ -23,6 +23,12 @@
 			$scope.numSubmitters = 0;
 			$scope.numConnected = 0;
 			$scope.dataLoading = true;
+			$scope.ngmSettings = {
+        	    closeEl: '.close',
+        	    overlay: {
+        	        templateUrl: 'facilitator/thoughtOverlay.html'
+        	    }
+        	};
 
 			ThoughtSocket.emit('facilitator-join', {
 				groupId: $routeParams.groupId,
@@ -167,10 +173,6 @@
 				});
 			}
 		};
-
-		$scope.morphThought = function (thoughtIndex) {
-			console.log("Morphing thought number " + thoughtIndex + "!");
-		}
 
 		$scope.displayThought = function (thought) {
 			return thought.content;

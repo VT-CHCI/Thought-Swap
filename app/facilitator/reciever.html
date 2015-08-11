@@ -28,18 +28,20 @@
       <div class="panel-body grid-container" id="dashboard">
         <ul dnd-list="participantThoughts" id="grid" class="grid">
 
-          <li ng-repeat="thought in participantThoughts" 
-              class="thought"
+          <li ng-repeat="thought in participantThoughts"
+
               dnd-draggable="thought" 
               dnd-moved="participantThoughts.splice($index, 1)" 
               dnd-effect-allowed="move" 
-              dnd-selected="models.selected = thought" > 
+              dnd-selected="models.selected = thought"
+              > 
 
               <div class="inner">
                 <div class="controls">
                   <!-- TODO: Enlarge thought via ngMorph -->
                   <i id="enlarge" class="fa fa-expand util"
-                    ng-click="morphThought($index)">
+                     ng-morph-overlay="{{ngmSettings}}" 
+                     ng-morph-model="{{thought}}">
                   </i>
                   <!-- Delete Thought -->
                   <i id="delete" class="fa fa-times-circle util" 

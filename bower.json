@@ -13,12 +13,14 @@
     "angular-cookies": "~1.4.1",
     "angular-auto-focus": "~1.0.4",
     "angular-toastr": "~1.4.1",
-    "angular-drag-and-drop-lists": "~1.2.0"
+    "angular-drag-and-drop-lists": "~1.2.0",
+    "angular-morph": "~0.1.0"
   },
   "devDependencies": {
     "angular-mocks": "~1.4.0"
   },
   "resolutions": {
-    "jquery": "~2.1.3"
+    "jquery": "~2.1.3",
+    "angular": "~1.4.0"
   }
 }

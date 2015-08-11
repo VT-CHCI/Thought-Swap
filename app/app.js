@@ -24,7 +24,8 @@
       'thoughtSwap',
       'mp.autoFocus',
       'toastr',
-      'dndLists'
+      'dndLists',
+      'ngMorph'
 	])
 	.config(config)
 	.run(run);

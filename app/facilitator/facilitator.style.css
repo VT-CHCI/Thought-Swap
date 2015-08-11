@@ -122,6 +122,27 @@ code span {
   padding: 15px 0px 15px 0px;
 }
 
+.close {
+  font-size: 24pt;
+  color: #FFF;
+  opacity: .5;
+}
+
+.close:hover {
+  opacity: 1;
+  color: #FFF;
+}
+
+.overlay {
+  background-color: #2B54A3;
+  color: #FFF;
+}
+
+.overlay-content {
+  margin: 7% 10% 0 10%;
+  font-size: 24pt;
+}
+
 .cB {
     clear: both;
 }
