@@ -12,10 +12,10 @@
 
 	RecieverController.$inject = ['$scope', '$modal', '$log', 'ThoughtSocket',
 		'UserService', '$location', '$routeParams', '$rootScope', '$timeout',
-		'toastr', '$animate'];
+		'toastr', '$animate', 'LoggerService'];
 	function RecieverController($scope, $modal, $log, ThoughtSocket,
 		UserService, $location, $routeParams, $rootScope, $timeout, 
-	 toastr, $animate) {
+	 toastr, $animate, Logger) {
 
 		(function initController() {
 			$scope.participantThoughts = [];
@@ -42,7 +42,11 @@
 		$scope.testThoughts = function () {
 			console.log("got testThoughts cmd");
 			for (var i = 0; i < 16; i++) {
+				Logger.createEvent({
+					data: 'content: ' + i + " Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+				});
 				$scope.participantThoughts.push({
+					localIdx: $scope.participantThoughts.length,
 					content: i + " Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
 				});
 			}
@@ -74,6 +78,11 @@
 				$scope.animatedBounce('#numConnected');
 			}
 		});
+
+		$scope.thoughtMoved = function (idx) {
+			$scope.participantThoughts.splice(idx, 1);
+			$scope.updateLocalIdx();
+		};
 
 		ThoughtSocket.on('facilitator-prompt', function (data) {
 			console.log('facilitator-prompt', data);
@@ -109,7 +118,10 @@
 				groupId: $routeParams.groupId,
 				sessionId: $scope.sessionId
 			});
-			
+			Logger.createEvent({
+				data: 'new session for group: ' + $routeParams.groupId,
+				type: 'newSession'
+			});
 			toastr.success('', 'Started New Session');
 		};
 
@@ -143,8 +155,8 @@
 
 		ThoughtSocket.on('participant-thought', function (participantThought) {
 			console.log(participantThought);
+			participantThought.localIdx = $scope.participantThoughts.length;
 			$scope.participantThoughts.push(participantThought);
-			$scope.numThoughts++;
 
 			var submitters = [];
 			$scope.participantThoughts.forEach(function (thought) {
@@ -157,11 +169,20 @@
 		});
 
 		$scope.distribute = function () {
-			toastr.success('', 'Thoughts Distributed!');
-			console.log('should distribute in future NOT IMPLEMENTED!', $scope.prompt);
 			ThoughtSocket.emit('distribute', {
 				groupId: $routeParams.groupId,
 				promptId: $scope.prompt.id
+			});
+			Logger.createEvent({
+				data: 'distributing thoughts for groupId: ' + $routeParams.groupId + ', promptId: ' + $scope.prompt.id,
+				type: 'distribution'
+			});
+			toastr.success('', 'Thoughts Distributed!');
+		};
+
+		$scope.updateLocalIdx = function () {
+			$scope.participantThoughts.forEach(function (thought, newIdx) {
+				thought.idx = newIdx;
 			});
 		};
 
@@ -170,6 +191,12 @@
 			if (removed.length > 0) {
 				ThoughtSocket.emit('fac-delete-thought', {
 					thoughtId: removed[0].id
+				});
+				$scope.updateLocalIdx();
+				Logger.createEvent({
+					data: UserService.user.username + 
+						' Deleted thought with content: ' + removed[0],
+					type: 'deleteThought'
 				});
 			}
 		};
@@ -193,8 +220,10 @@
 	angular.module('app')
 			.controller('PromptModalController', PromptModalController);
 
-	PromptModalController.$inject = ['$scope', '$modalInstance', 'sessionId', 'ThoughtSocket', 'UserService', '$routeParams'];
-	function PromptModalController($scope, $modalInstance, sessionId, ThoughtSocket, UserService, $routeParams) {
+	PromptModalController.$inject = ['$scope', '$modalInstance', 'sessionId',
+		'ThoughtSocket', 'UserService', '$routeParams', 'LoggerService'];
+	function PromptModalController($scope, $modalInstance, sessionId,
+		ThoughtSocket, UserService, $routeParams, Logger) {
 
 		// $scope.prompt = prompt;
 		$scope.newPromptContent = '';
@@ -209,6 +238,11 @@
 				userId: UserService.user.id,
 				groupId: $routeParams.groupId,
 				sessionId: $scope.sessionId
+			});
+			Logger.createEvent({
+				data: 'new prompt from ' + UserService.user.username +
+					'with content: '+ $scope.newPromptContent,
+				type: 'newPrompt'
 			});
 		};
 

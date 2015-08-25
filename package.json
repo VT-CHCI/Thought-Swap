@@ -1,7 +1,10 @@
 {
   "name": "ThoughtSwap",
-  "version": "0.0.1",
-  "repository": {},
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/VT-CHCI/Thought-Swap.git"
+  },
   "dependencies": {
     "bipartite-matching": "^1.0.0",
     "bluebird": "^2.9.32",
@@ -27,5 +30,6 @@
   "engines": {
     "node": ">=0.10.0"
   },
+  "licence": "MIT",
   "scripts": {}
 }

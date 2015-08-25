@@ -12,8 +12,10 @@
         .module('app')
         .controller('LoginController', LoginController);
  
-    LoginController.$inject = ['$scope', '$location', '$http', 'UserService', 'facilitatorLogin', 'md5'];
-    function LoginController($scope, $location, $http, UserService, facilitatorLogin, md5) {
+    LoginController.$inject = ['$scope', '$location', '$http', 'UserService',
+        'facilitatorLogin', 'md5', 'LoggerService'];
+    function LoginController($scope, $location, $http, UserService,
+        facilitatorLogin, md5, Logger) {
  
         (function initController() {
             // reset login status?
@@ -34,10 +36,19 @@
             })
                 .then(function (user) {
                     $location.path('/participant');
+                    Logger.createEvent({
+                        data: $scope.sillyname + ' successfully logged in',
+                        type: 'logIn'
+                    });
                 })
                 .catch(function (err) {
                     $scope.error = err;
                     $scope.dataLoading = false;
+                    Logger.createEvent({
+                        data: 'participant' + $scope.sillyname + 
+                            'encountered error ' + err + ' while logging in',
+                        type: 'authenticateError'
+                    });
 
                 });
         };
@@ -58,10 +69,19 @@
                                 $location.path('/facilitator/mgmt');
                             }
                         });
+                    Logger.createEvent({
+                        data: $scope.username + ' successfully logged in',
+                        type: 'logIn'
+                    });
                 })
                 .catch(function (err) {
                     $scope.error = err;
                     $scope.dataLoading = false;
+                    Logger.createEvent({
+                        data: 'facilitator ' + $scope.username + 
+                            ' encountered error ' + err + ' while logging in',
+                        type: 'authenticateError'
+                    });
                 });
         };
 

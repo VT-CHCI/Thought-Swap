@@ -29,13 +29,13 @@
         <ul dnd-list="participantThoughts" id="grid" class="grid">
 
           <li ng-repeat="thought in participantThoughts"
-
               dnd-draggable="thought" 
-              dnd-moved="participantThoughts.splice($index, 1)" 
+              dnd-moved="thoughtMoved($index)" 
               dnd-effect-allowed="move" 
               dnd-selected="models.selected = thought"
-              > 
-
+              data-index="$index"
+              >
+              <div class="hidden"></div>
               <div class="inner">
                 <div class="controls">
                   <!-- TODO: Enlarge thought via ngMorph -->
