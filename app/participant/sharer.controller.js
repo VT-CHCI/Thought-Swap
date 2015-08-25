@@ -12,9 +12,9 @@
         .controller('SharerController', SharerController);
  
     SharerController.$inject = ['$scope', '$location', 'ThoughtSocket',
-     'UserService', '$rootScope', 'toastr'];
+     'UserService', '$rootScope', 'toastr', 'LoggerService'];
     function SharerController($scope, $location, ThoughtSocket,
-     UserService, $rootScope, toastr) {
+     UserService, $rootScope, toastr, Logger) {
 
         (function initController() {
             $scope.htmlThought = '';    // Only needed so that text-angular doesn't complain
@@ -30,12 +30,6 @@
             if ('facilitator' in $location.search()) {
                 $scope.attemptedFacilitator = true;
             }
-            console.log('session:', $scope.sessionId )
-            // ThoughtSocket.emit('session-sync-req', {
-            //     user: UserService.user,
-            //     groupId: UserService.user.groupId,
-            //     sessionId: $scope.sessionId
-            // });
 
             $rootScope.$on("$routeChangeStart", function () {
                 ThoughtSocket.emit('participant-leave');
@@ -52,9 +46,11 @@
         
         // @pre - can only submit thought when not viewing a distributed thought
         $scope.submitThought = function () {
-            $scope.htmlThoughts.push({thought: $scope.htmlThought})
-            console.log($scope.htmlThought);
-            console.log('current prompt:', $scope.prompt);
+            $scope.htmlThoughts.push({thought: $scope.htmlThought});
+            Logger.createEvent({
+                data: 'new thought from ' + UserService.user.username + ': ' + $scope.htmlThought,
+                type: 'submitThought'
+            });
             ThoughtSocket.emit('new-thought', {
                 content: $scope.htmlThought, 
                 author: UserService.user,

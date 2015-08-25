@@ -1,17 +1,24 @@
 var Sequelize = require('sequelize');
-sequelize = new Sequelize('thoughtswap', // database name
-						  'thoughtswap', // username
-						  'thoughtswap', // password
+var sequelize = new Sequelize(
+	process.env.TS_DB, // database name
+	process.env.TS_USER, // username
+	process.env.TS_PASS, // password
 	{ logging: function () {} }
 );
+if (process.env.TS_DROP === null) {
+	var DROPTABLES = false;
+} else {
+	var DROPTABLES = process.env.TS_DROP;
+}
 
 
 var User = sequelize.define('user', {
 	email: Sequelize.STRING,
 	username: {type: Sequelize.STRING, unique: true},
 	password: Sequelize.STRING,		// is hashed client-side before storing
-	role: Sequelize.ENUM('facilitator',
-						 'participant')
+	role: Sequelize.ENUM(
+		'facilitator',
+		'participant')
 });
 
 var Socket = sequelize.define('socket', {
@@ -19,22 +26,28 @@ var Socket = sequelize.define('socket', {
 	socketioId: Sequelize.STRING
 });
 
-var Event = sequelize.define('event', {
-	type: Sequelize.ENUM('connect',
-						 'disconnect',
-						 'logIn',
-						 'logOut',
-						 'register',
-						 'authenticateError',
-						 'submitThought',
-						 'newSession',
-						 'newPrompt',
-						 'deleteThought',
-						 'reOrderThought',
-						 'distribution'),
-	data: Sequelize.INTEGER		// id for the subject of the event 
-								// i.e. Event{ type: logIn, data: userId }
-})
+var Event = sequelize.define('event', {					// jshint ignore:line
+	type: Sequelize.ENUM(
+	 'connect',
+	 'disconnect',
+	 'logIn',
+	 'logOut',
+	 'register',
+	 'authenticateError',
+	 'submitThought',
+	 'newSession',
+	 'newPrompt',
+	 'deleteThought',
+	 'reOrderThought',
+	 'distribution',
+	 'navigation',
+	 'other'
+	),
+	data: Sequelize.TEXT,
+	socket: Sequelize.STRING		
+	// id for the subject of the event 
+	// i.e. Event{ type: logIn, data: userId }
+});
 
 var Thought = sequelize.define('thought', {
 	content: Sequelize.TEXT,
@@ -55,7 +68,6 @@ var Session = sequelize.define('session', {
 });
 
 var Distribution = sequelize.define('distribution', {
-	readerId: Sequelize.INTEGER		// id of user recieving the distributed thought
 });
 
 
@@ -65,18 +77,18 @@ User.hasMany(Event);
 User.belongsTo(Group);		// a group may have many users all about students
 Group.hasMany(User);
 
-Socket.belongsTo(User);
+Socket.belongsTo(User);		// a user has many sockets
 User.hasMany(Socket);
 
 Group.belongsTo(User, { as: 'owner', constraints: false });
 User.hasMany(Group, { as: 'facilitated', constraints: false });
 
 Group.belongsTo(Session, {as: 'CurrentSession', constraints: false});
+Session.belongsTo(Group);	// a group has many sessions
 Group.hasMany(Session);
-Session.belongsTo(Group);
 
+Prompt.belongsTo(Session);	// a session has many prompts
 Session.hasMany(Prompt);
-Prompt.belongsTo(Session);
 
 Prompt.belongsTo(User);		// a user may have many prompts
 User.hasMany(Prompt);
@@ -87,14 +99,13 @@ User.hasMany(Thought);
 Thought.belongsTo(Prompt);		// a prompt may have may thoughts
 Prompt.hasMany(Thought);
 
-Distribution.belongsTo(Thought);		// a distribution may have many thoughts
-Thought.hasMany(Distribution);
+Distribution.belongsTo(Thought);		// the thought that was distributed
+Distribution.belongsTo(User);		// the user who received this distribution's thought
+Distribution.belongsTo(Group);		// the group that the distribution occurred in
 
-// Prompt.belongsTo(Group);		// a group may have many prompts
-// Group.hasMany(Prompt);
-
-Distribution.belongsTo(Group);		// a group may have many distributions
-Group.hasMany(Distribution);
+Thought.hasMany(Distribution);		// a thought can be distributed to multiple users
+Group.hasMany(Distribution);		// each mapping is created as a single distribution object
+User.hasMany(Distribution);
 
 
 exports.Event = Event;
@@ -107,7 +118,7 @@ exports.Thought = Thought;
 exports.Distribution = Distribution;
 
 exports.start = function () {
-	return sequelize.sync({force: true}) // Use {force:true} only for updating the above models,
+	return sequelize.sync({force: DROPTABLES}) // Use {force:true} only for updating the above models,
 								  // it drops all current data
 		.then( function (results) {
 			return User.findOrCreate({
@@ -122,9 +133,7 @@ exports.start = function () {
 		})
 		
 		.then(function (userResults) {
-			// console.log('first user', userResults);
-
-			Group.findOrCreate({
+			return Group.findOrCreate({
 				where: {
 					name: 'My Test Group',
 					ownerId: userResults[0].dataValues.id,
@@ -195,10 +204,16 @@ exports.start = function () {
 				});
 
 
-			console.log('Tables Synced');
+		})
+		.then( function () {
+			if (DROPTABLES) {
+				console.log('Development: All Table Data Dropped');
+			}
+			console.info('Tables Synced');
+			return true;
 		})
 		.catch(function (error) {
-			console.log(error);
+			console.error(error);
 		});
 	
 };

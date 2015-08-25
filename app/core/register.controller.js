@@ -13,20 +13,30 @@
         .module('app')
         .controller('RegisterController', RegisterController);
  
-    RegisterController.$inject = ['$scope', '$location', 'UserService'];
-    function RegisterController($scope, $location, UserService) {
+    RegisterController.$inject = ['$scope', '$location', 'UserService', 'md5',
+        'LoggerService'];
+    function RegisterController($scope, $location, UserService, md5,
+        Logger) {
 
         $scope.register = function () {
             UserService.register({
                 email: $scope.email,
                 username: $scope.username,
-                password: $scope.password
+                password: md5.createHash($scope.password)
             })
-                .then(function (user) {
+                .then(function () {
                     $location.path('/facilitator/mgmt');
+                    Logger.createEvent({
+                        data: $scope.username + ' successfully registered',
+                        type: 'register'
+                    });
                 })
                 .catch(function (err) {
-                    $scope.error = err;
+                    $scope.error = err.data.message;
+                    Logger.createEvent({
+                        data: $scope.username + ' encountered error ' + err + ' while registering',
+                        type: 'authenticateError'
+                    });
                 });            
         };
     }

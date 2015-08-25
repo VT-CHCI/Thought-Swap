@@ -13,8 +13,8 @@
 			])
 			.service('UserService', UserService);
 
-	UserService.$inject = ['$http', '$cookies', '$q', 'GroupsService'];
-	function UserService($http, $cookies, $q, GroupsService) {
+	UserService.$inject = ['$http', '$cookies', '$q', 'GroupsService', 'LoggerService'];
+	function UserService($http, $cookies, $q, GroupsService, Logger) {
 		var userService = this;
 
 		// To be called on success of register and login
@@ -22,7 +22,7 @@
 			this.user = data.user;
 			$cookies.putObject('thoughtswap-user', this.user);
 			deferred.resolve(this.user);
-		}
+		};
 			
 		this.login = function (options) {
 			var deferred = $q.defer();
@@ -72,11 +72,11 @@
 		};
 
 		this.isFacilitator = function () {
-			return  this.isLoggedIn() && this.user.role === 'facilitator';	
+			return  this.isLoggedIn() && this.user && this.user.role === 'facilitator';	
 		};
 
 		this.isParticipant = function () {
-			return  this.isLoggedIn() && this.user.role === 'participant';	
+			return  this.isLoggedIn() && this.user && this.user.role === 'participant';	
 		};
 
 		this.register = function (options) {
@@ -90,10 +90,11 @@
 				}
 			})
 				.success(function (data) {
+					console.log('Got http success', data);
 					this.auth(data, deferred);
 				}.bind(this))
-
 				.error(function (data, status) {
+					console.log('Error');
 					deferred.reject(data);
 				});
 
@@ -102,9 +103,11 @@
 
 		this.logout = function () {
 		  var deferred = $q.defer();
-
 		  $cookies.remove('thoughtswap-user');
-		  console.log(this.user);
+		  Logger.createEvent({
+		  	data: this.user.role + ' ' + this.user.username + ' successfully logged out',
+		  	type: 'logOut'
+		  });
 		  var userId = this.user.id;
 		  this.user = null;
 
@@ -115,6 +118,7 @@
 		  	})
 		    .success(function (data) {
 		      console.log(data);
+		      GroupsService.groups = [];
 		      deferred.resolve();
 		    })
 		    .error(function (data, status) {
