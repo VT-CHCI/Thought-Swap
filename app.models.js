@@ -206,7 +206,7 @@ exports.start = function () {
 		})
 		.then( function () {
 			if (DROPTABLES) {
-				console.log('Development: All Table Data Dropped');
+				console.log('Testing: All Table Data Dropped');
 			}
 			console.info('Tables Synced');
 			return true;
