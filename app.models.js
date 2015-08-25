@@ -5,10 +5,9 @@ var sequelize = new Sequelize(
 	process.env.TS_PASS, // password
 	{ logging: function () {} }
 );
-if (process.env.TS_DROP === null) {
-	var DROPTABLES = false;
-} else {
-	var DROPTABLES = process.env.TS_DROP;
+var DROPTABLES = false;
+if (process.env.TS_DROP === true) {
+	DROPTABLES = true;
 }
 
 
