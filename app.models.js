@@ -1,10 +1,15 @@
 var Sequelize = require('sequelize');
-sequelize = new Sequelize(
-	'thoughtswap', // database name
-	'thoughtswap', // username
-	'thoughtswap', // password
+var sequelize = new Sequelize(
+	process.env.TS_DB, // database name
+	process.env.TS_USER, // username
+	process.env.TS_PASS, // password
 	{ logging: function () {} }
 );
+if (process.env.TS_DROP === null) {
+	var DROPTABLES = false;
+} else {
+	var DROPTABLES = process.env.TS_DROP;
+}
 
 
 var User = sequelize.define('user', {
@@ -21,7 +26,7 @@ var Socket = sequelize.define('socket', {
 	socketioId: Sequelize.STRING
 });
 
-var Event = sequelize.define('event', {
+var Event = sequelize.define('event', {					// jshint ignore:line
 	type: Sequelize.ENUM(
 	 'connect',
 	 'disconnect',
@@ -34,9 +39,12 @@ var Event = sequelize.define('event', {
 	 'newPrompt',
 	 'deleteThought',
 	 'reOrderThought',
-	 'distribution'
+	 'distribution',
+	 'navigation',
+	 'other'
 	),
-	data: Sequelize.INTEGER		
+	data: Sequelize.TEXT,
+	socket: Sequelize.STRING		
 	// id for the subject of the event 
 	// i.e. Event{ type: logIn, data: userId }
 });
@@ -60,7 +68,6 @@ var Session = sequelize.define('session', {
 });
 
 var Distribution = sequelize.define('distribution', {
-	readerId: Sequelize.INTEGER		// id of user recieving the distributed thought
 });
 
 
@@ -92,11 +99,13 @@ User.hasMany(Thought);
 Thought.belongsTo(Prompt);		// a prompt may have may thoughts
 Prompt.hasMany(Thought);
 
-Distribution.belongsTo(Thought);		// a distribution may have many thoughts
-Thought.hasMany(Distribution);
+Distribution.belongsTo(Thought);		// the thought that was distributed
+Distribution.belongsTo(User);		// the user who received this distribution's thought
+Distribution.belongsTo(Group);		// the group that the distribution occurred in
 
-Distribution.belongsTo(Group);		// a group may have many distributions
-Group.hasMany(Distribution);
+Thought.hasMany(Distribution);		// a thought can be distributed to multiple users
+Group.hasMany(Distribution);		// each mapping is created as a single distribution object
+User.hasMany(Distribution);
 
 
 exports.Event = Event;
@@ -109,7 +118,7 @@ exports.Thought = Thought;
 exports.Distribution = Distribution;
 
 exports.start = function () {
-	return sequelize.sync({force: true}) // Use {force:true} only for updating the above models,
+	return sequelize.sync({force: DROPTABLES}) // Use {force:true} only for updating the above models,
 								  // it drops all current data
 		.then( function (results) {
 			return User.findOrCreate({
@@ -124,7 +133,7 @@ exports.start = function () {
 		})
 		
 		.then(function (userResults) {
-			Group.findOrCreate({
+			return Group.findOrCreate({
 				where: {
 					name: 'My Test Group',
 					ownerId: userResults[0].dataValues.id,
@@ -195,7 +204,13 @@ exports.start = function () {
 				});
 
 
+		})
+		.then( function () {
+			if (DROPTABLES) {
+				console.log('Development: All Table Data Dropped');
+			}
 			console.info('Tables Synced');
+			return true;
 		})
 		.catch(function (error) {
 			console.error(error);
