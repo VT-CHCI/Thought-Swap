@@ -109,3 +109,11 @@ body {
 .fa {
   margin-right: 8px;
 }
+
+.red {
+  background-color: red;
+}
+
+.orange {
+  background-color: orange;
+}

@@ -793,7 +793,7 @@ io.on('connection', function(socket) {
 
 					// console.log('io stuff');
 					// console.log(io.sockets);
-					io.sockets.connected[socketIdOfReceipient].emit('distributed-thought', thoughtContent);
+					io.sockets.connected[socketIdOfReceipient].emit('distributed-thought', {id: thoughtAuthorForSending.get('id'), content: thoughtContent});
 					
 				});
 
@@ -898,6 +898,12 @@ io.on('connection', function(socket) {
 			.catch(function (error) {
 				console.error(">> Error on new thought:", error);
 			});
+	});
+
+	socket.on('choose-group', function(chosenInfo) {
+		// get the groupID for this class
+		// then
+		socket.broadcast.to('facilitator-'+chosenInfo.groupId).emit('group-chosen', chosenInfo);
 	});
 
 	socket.on('fac-delete-thought', function (data) {

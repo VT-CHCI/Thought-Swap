@@ -35,6 +35,11 @@
 				userId: UserService.user.id
 			});
 
+			$scope.BG_COLORS = {
+				1: 'red',
+				2: 'orange',
+			}
+
 		})();
 
 		// TEMP METHOD: Test thoughts - adds some thoughts automatically to the
@@ -168,6 +173,14 @@
 			$scope.numSubmitters = submitters.length;
 		});
 
+		ThoughtSocket.on('group-chosen', function (info) {
+			$scope.participantThoughts.forEach(function (thought) {
+				if(thought.id === info.thoughtId) {
+					thought.bg = $scope.BG_COLORS[info.thoughtGroupId];
+				}
+			});
+		});
+
 		$scope.distribute = function () {
 			ThoughtSocket.emit('distribute', {
 				groupId: $routeParams.groupId,
@@ -202,7 +215,7 @@
 		};
 
 		$scope.displayThought = function (thought) {
-			return thought.content;
+			return thought.group + ' ' + thought.content;
 		};
 
 	}

@@ -22,6 +22,16 @@
             $scope.distributedThought = '';
             $scope.viewingDistribution = false;
             $scope.dataLoading = false;
+            $scope.possibleGroups = [
+                {
+                    name:"Red",
+                    id:1
+                }, {
+                    name:"Orange",
+                    id:2
+                }
+            ];
+            $scope.selectedGroup = {};
             console.log('about to participant join as', UserService.user.id);
             ThoughtSocket.emit('participant-join', {
                 groupId: UserService.user.groupId,
@@ -49,6 +59,17 @@
             $scope.htmlThoughts = [];
             $scope.prompt = prompt;
         });
+
+        $scope.setGroup = function () {
+            console.log('just selected', $scope.selectedGroup);
+            // emit a message to the server that tells it what group this thought belongs to
+
+            ThoughtSocket.emit('choose-group', {
+                thoughtId: $scope.distributedThought.id, 
+                thoughtGroupId: $scope.selectedGroup.id,
+                groupId: UserService.user.groupId,
+            });
+        };
         
         // @pre - can only submit thought when not viewing a distributed thought
         $scope.submitThought = function () {
@@ -62,6 +83,9 @@
                 author: UserService.user,
                 promptId: $scope.prompt.id
             });
+
+
+
             toastr.success('', 'Thought Submitted');
             $scope.htmlThought = null;
             // $('#thoughtForm').focus(); // does not work atm
@@ -75,10 +99,10 @@
             // $scope.topic = prompt.content;
         });
 
-        ThoughtSocket.on('distributed-thought', function (thoughtContent) {
+        ThoughtSocket.on('distributed-thought', function (thought) {
             toastr.info('', 'Received Thought!');
-            console.log('got thought:', thoughtContent);
-            $scope.distributedThought = thoughtContent;
+            console.log('got thought:', thought);
+            $scope.distributedThought = thought.content;
             $scope.viewingDistribution = true;
             // $scope.topic = prompt.content;
         });

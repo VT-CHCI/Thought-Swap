@@ -41,7 +41,18 @@
       </div>
   </form>
   <div id="distributed-thought" ng-if="viewingDistribution">
-    <div ng-bind-html="distributedThought"></div>
+    <select class="form-control" ng-model="selectedGroup" ng-change="setGroup()" ng-options="item as item.name for item in possibleGroups">
+    <!--   <option>Group</option>
+      <option>Red</option>
+      <option>Orange</option>
+      <option>Yellow</option>
+      <option>Green</option>
+      <option>Blue</option>
+      <option>Indigo</option>
+      <option>Violet</option> -->
+    </select>
+    <div ng-bind-html="distributedThought">
+    </div>
   </div>
 </div>
 
