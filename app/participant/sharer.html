@@ -59,12 +59,16 @@
 <div class="container component right">
   <div class="panel panel-default" id="history">
     <div class="panel-body">
-      <h4>Previous Thoughts:</h4>
-      <ul ng-model="htmlThoughts" id="thoughtHistory">
-        <li ng-repeat="thought in htmlThoughts" class="thoughtItem">
-          <div ng-bind-html="thought.thought"></div> <!-- TODO: add '| htmlTrusted' for filter -->
-        </li>
-      </ul>
+      <accordion>
+        <accordion-group heading="Previous Thoughts"  is-open="status.isFirstOpen">
+          <ul ng-model="htmlThoughts" id="thoughtHistory">
+            <li ng-repeat="thought in htmlThoughts" class="thoughtItem">
+              <div ng-bind-html="thought.thought"></div> <!-- TODO: add '| htmlTrusted' for filter -->
+            </li>
+          </ul>
+        </accordion-group>
+      </accordion>
+    
     </div>
     
   </div>
