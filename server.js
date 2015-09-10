@@ -427,6 +427,18 @@ function createDistribution (data) {
 	});
 }
 
+function getGroupColors () {
+	return models.GroupColor.findAll();
+}
+
+function setDistributionColors (options) { //distId, colorId
+	return models.Distribution.findById(options.distId)
+		.then(function (distribution) {
+			distribution.groupColorId = options.colorId;
+			return distribution.save();
+		});
+}
+
 
 //=============================================================================
 // Init Server & Files
@@ -611,6 +623,12 @@ io.on('connection', function(socket) {
 									.then(function (session) {
 										findCurrentPromptForGroup(session.get('id'))
 											.then(function (defaultPrompt) {
+
+												getGroupColors()
+													.then(function (colors) {
+														socket.emit('group-colors', colors);
+													});
+
 												var room = 'discussion-'+data.groupId;
 												var message = 'sessionsyncres';
 												var messageData = {
@@ -721,9 +739,9 @@ io.on('connection', function(socket) {
 
 				// console.log(presenters, thoughtsAuthors);
 				// via http://stackoverflow.com/a/6274381/3850442
-				function shuffle(o){
-				    for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
-				    return o;
+				function shuffle (o) {
+			    for (var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
+			    return o;
 				}
 
 				// TODO: is there a FIXME here? 
@@ -773,7 +791,7 @@ io.on('connection', function(socket) {
 						'matches: ' + formatDistribution(distribution),
 					type: 'distribution'
 				});
-
+				
 				distribution.forEach(function (pairing) {
 					// console.log('currrent pairing', pairing);
 					var thoughtToSendIndex = pairing[0];
@@ -789,11 +807,15 @@ io.on('connection', function(socket) {
 						recipient: presenterSocketIdx,
 						thought: thoughtAuthorForSending.get('id'),
 						group: thoughtAuthorForSending.get('user').get('groupId')
-					});
+					})
+						.then(function (newDistribution) {
+							console.log('created distribution');
+							console.log(newDistribution.get('id'));
+							// console.log('io stuff');
+							// console.log(io.sockets);
+							io.sockets.connected[socketIdOfReceipient].emit('distributed-thought', {id: thoughtAuthorForSending.get('id'), content: thoughtContent, distId: newDistribution.get('id')});
+						});
 
-					// console.log('io stuff');
-					// console.log(io.sockets);
-					io.sockets.connected[socketIdOfReceipient].emit('distributed-thought', {id: thoughtAuthorForSending.get('id'), content: thoughtContent});
 					
 				});
 
@@ -816,6 +838,12 @@ io.on('connection', function(socket) {
 	 * @param: INT groupId - The db id of the group said participant belongs to
 	 */
 	socket.on('participant-join', function (data) {
+
+		getGroupColors()
+			.then(function (colors) {
+				socket.emit('group-colors', colors);
+			});
+
 		leaveAllRooms(socket)
 			.then(function () {
 				return socket.joinAsync('discussion-'+data.groupId);
@@ -901,8 +929,14 @@ io.on('connection', function(socket) {
 	});
 
 	socket.on('choose-group', function(chosenInfo) {
+		// chosenInfo has keys: thoughtId, thoughtGroupId, groupId
 		// get the groupID for this class
 		// then
+		console.log('choose-group', chosenInfo);
+		setDistributionColors ({ //distId, colorId
+			distId: chosenInfo.distId,
+			colorId: chosenInfo.thoughtGroupId,
+		});
 		socket.broadcast.to('facilitator-'+chosenInfo.groupId).emit('group-chosen', chosenInfo);
 	});
 
