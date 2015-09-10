@@ -1,3 +1,4 @@
+'use strict';
 var Sequelize = require('sequelize');
 var sequelize = new Sequelize(
 	process.env.TS_DB, // database name
@@ -5,8 +6,11 @@ var sequelize = new Sequelize(
 	process.env.TS_PASS, // password
 	{ logging: function () {} }
 );
+
 var DROPTABLES = false;
-if (process.env.TS_DROP === true) {
+
+
+if (process.env.TS_DROP === 'true') {
 	DROPTABLES = true;
 }
 
@@ -69,6 +73,11 @@ var Session = sequelize.define('session', {
 var Distribution = sequelize.define('distribution', {
 });
 
+var GroupColor = sequelize.define('group_color', {
+	name: Sequelize.STRING,
+	color: Sequelize.STRING,
+});
+
 
 Event.belongsTo(User);		// a user may have many events
 User.hasMany(Event);
@@ -106,6 +115,9 @@ Thought.hasMany(Distribution);		// a thought can be distributed to multiple user
 Group.hasMany(Distribution);		// each mapping is created as a single distribution object
 User.hasMany(Distribution);
 
+GroupColor.hasMany(Distribution);
+Distribution.belongsTo(GroupColor);
+
 
 exports.Event = Event;
 exports.User = User;
@@ -115,11 +127,13 @@ exports.Session = Session;
 exports.Prompt = Prompt;
 exports.Thought = Thought;
 exports.Distribution = Distribution;
+exports.GroupColor = GroupColor;
 
 exports.start = function () {
 	return sequelize.sync({force: DROPTABLES}) // Use {force:true} only for updating the above models,
 								  // it drops all current data
-		.then( function (results) {
+		.then( function () {
+			//create a new user as a faciliatator with username admin
 			return User.findOrCreate({
 				where: {
 					email: 'test@thought-swap.com',
@@ -132,6 +146,7 @@ exports.start = function () {
 		})
 		
 		.then(function (userResults) {
+			// create a new group ("class") with name My Test Group
 			return Group.findOrCreate({
 				where: {
 					name: 'My Test Group',
@@ -139,6 +154,7 @@ exports.start = function () {
 				} 
 			})
 				.then(function (group) {
+					// create 3 new users to be students/participants in class/group mytestgroup
 					User.findOrCreate({
 						where: {
 							email: null,
@@ -171,6 +187,7 @@ exports.start = function () {
 
 				})
 				.then(function () {
+					// make a 2nd test group with 2 participants
 					Group.findOrCreate({
 						where: {
 							name: 'My Other Test Group',
@@ -202,6 +219,51 @@ exports.start = function () {
 					
 				});
 
+
+		})
+		.then(function () {  //thanks to the following for the colors: https://personal.sron.nl/~pault/
+			GroupColor.findOrCreate({
+				where: {
+					name: 'red',
+					color: '#EE3333'
+				}
+			});
+			GroupColor.findOrCreate({
+				where: {
+					name: 'orange',
+					color: '#EE7722'
+				}
+			});
+			GroupColor.findOrCreate({
+				where: {
+					name: 'yellow',
+					color: '#FFEE33'
+				}
+			});
+			GroupColor.findOrCreate({
+				where: {
+					name: 'green',
+					color: '#66AA55'
+				}
+			});
+			GroupColor.findOrCreate({
+				where: {
+					name: 'turquoise',
+					color: '#11AA99'
+				}
+			});
+			GroupColor.findOrCreate({
+				where: {
+					name: 'blue',
+					color: '#3366AA'
+				}
+			});
+			GroupColor.findOrCreate({
+				where: {
+					name: 'purple',
+					color: '#992288'
+				}
+			});
 
 		})
 		.then( function () {
