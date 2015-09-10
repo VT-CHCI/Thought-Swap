@@ -22,16 +22,8 @@
             $scope.distributedThought = '';
             $scope.viewingDistribution = false;
             $scope.dataLoading = false;
-            $scope.possibleGroups = [
-                {
-                    name:"Red",
-                    id:1
-                }, {
-                    name:"Orange",
-                    id:2
-                }
-            ];
-            $scope.selectedGroup = {};
+            $scope.possibleGroups = [];
+            // $scope.selectedGroup = {};
             console.log('about to participant join as', UserService.user.id);
             ThoughtSocket.emit('participant-join', {
                 groupId: UserService.user.groupId,
@@ -41,13 +33,22 @@
                 $scope.attemptedFacilitator = true;
             }
 
-            $rootScope.$on("$routeChangeStart", function () {
+            $rootScope.$on('$routeChangeStart', function () {
                 ThoughtSocket.emit('participant-leave');
             });
+
+            $scope.groupSelection = {
+                selectedGroupId: ''
+            };
         })();
 
+        ThoughtSocket.on('group-colors', function (colors) {
+            console.log('group-colors', colors);
+            $scope.possibleGroups = colors;
+        });
+
         ThoughtSocket.on('sessionsyncres', function (data) {
-            console.log("Recieved session sync data:", data);
+            console.log('Recieved session sync data:', data);
             $scope.prompt = data.prompt;
             $scope.sessionId = data.sessionId;
             $scope.viewingDistribution = false;
@@ -55,21 +56,31 @@
         });
 
         ThoughtSocket.on('new-session-prompt', function (prompt) {
-            console.log("Got data in new-session-prompt", prompt);
+            console.log('Got data in new-session-prompt', prompt);
             $scope.htmlThoughts = [];
             $scope.prompt = prompt;
         });
 
         $scope.setGroup = function () {
-            console.log('just selected', $scope.selectedGroup);
+            // console.log(something);
+            var chooseGroupInfo = {
+                thoughtId: $scope.distributedThought.id, 
+                distId: $scope.distributedThought.distId,
+                thoughtGroupId: $scope.groupSelection.selectedGroupId,
+                groupId: UserService.user.groupId,
+                presenter: UserService.user.id,
+            };
+            console.log('just selected', chooseGroupInfo);
             // emit a message to the server that tells it what group this thought belongs to
 
-            ThoughtSocket.emit('choose-group', {
-                thoughtId: $scope.distributedThought.id, 
-                thoughtGroupId: $scope.selectedGroup.id,
-                groupId: UserService.user.groupId,
-            });
+            ThoughtSocket.emit('choose-group', chooseGroupInfo);
         };
+
+        $scope.$watch('groupSelection.selectedGroupId', function () {
+            // console.log(a,b);
+            // console.log($scope.groupSelection.selectedGroupId);
+            $scope.setGroup($scope.groupSelection.selectedGroupId);
+        });
         
         // @pre - can only submit thought when not viewing a distributed thought
         $scope.submitThought = function () {
@@ -102,7 +113,7 @@
         ThoughtSocket.on('distributed-thought', function (thought) {
             toastr.info('', 'Received Thought!');
             console.log('got thought:', thought);
-            $scope.distributedThought = thought.content;
+            $scope.distributedThought = thought;
             $scope.viewingDistribution = true;
             // $scope.topic = prompt.content;
         });

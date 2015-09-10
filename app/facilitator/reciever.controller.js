@@ -36,9 +36,16 @@
 			});
 
 			$scope.BG_COLORS = {
-				1: 'red',
-				2: 'orange',
-			}
+				// 1: 'red',
+				// 2: 'orange',
+			};
+
+			ThoughtSocket.on('group-colors', function (colors) {
+        console.log('group-colors', colors);
+        colors.forEach(function (color) {
+        	$scope.BG_COLORS[color.id] = color;
+        });
+      });
 
 		})();
 
@@ -174,12 +181,46 @@
 		});
 
 		ThoughtSocket.on('group-chosen', function (info) {
+			console.log('group-chosen', info);
 			$scope.participantThoughts.forEach(function (thought) {
+				console.log(thought, thought.id === info.thoughtId);
 				if(thought.id === info.thoughtId) {
-					thought.bg = $scope.BG_COLORS[info.thoughtGroupId];
+					// thought.style
+					if (!thought.hasOwnProperty('bgColors')) {
+						thought.bgColors = {};
+					}
+					console.log($scope.BG_COLORS);
+					console.log(info.thoughtGroupId);
+					console.log($scope.BG_COLORS[info.thoughtGroupId]);
+					
+					thought.bgColors[info.presenter] = $scope.BG_COLORS[info.thoughtGroupId].color;
 				}
 			});
 		});
+
+		$scope.thoughtStyle = function (thought) {
+			if (!thought.hasOwnProperty('bgColors')) {
+				return '';
+			} else {
+				var colors = [];
+				Object.keys(thought.bgColors).forEach(function (color) {
+					colors.push(thought.bgColors[color]);
+				});
+
+				var theStyle = {};
+				if (colors.length === 1) {
+					theStyle = {
+						'background-color': colors[0]
+					};
+				} else {
+					theStyle = {
+						'background': 'linear-gradient(135deg, ' + colors.join(',') + ')'
+					};
+				}
+				console.log(theStyle);
+				return theStyle;
+			}
+		};
 
 		$scope.distribute = function () {
 			ThoughtSocket.emit('distribute', {
@@ -215,7 +256,7 @@
 		};
 
 		$scope.displayThought = function (thought) {
-			return thought.group + ' ' + thought.content;
+			return thought.content;
 		};
 
 	}

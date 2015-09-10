@@ -48,7 +48,8 @@
                      ng-click="deleteThought($index)">
                   </i>
                 </div>
-                <div class="grid-content" ng-class="{'red':thought.bg==='red', 'orange': thought.bg==='orange'}" ng-bind-html="displayThought(thought)">
+                <!-- <div class="grid-content" ng-class="{'red':thought.bg==='red', 'orange': thought.bg==='orange'}" ng-bind-html="displayThought(thought)"> -->
+                <div class="grid-content" ng-style="thoughtStyle(thought)" ng-bind-html="displayThought(thought)">
 
                 </div>
               </div>
