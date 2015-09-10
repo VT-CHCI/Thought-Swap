@@ -1,71 +1,76 @@
 <ts-header></ts-header>
+<div class="container-fluid">
+  <div class="col-md-8">
+    <div ng-show="attemptedFacilitator" class="alert alert-info">
+      Are you trying to act as Facilitator? If so, 
+      <a href="#/login/facilitator?participant"><strong>this might help</strong></a>
+    </div>
+    <div class="well well-lg" id="prompt">
+      <h4>Prompt:</h4>
+      <p>{{ prompt.content }}</p>
+    </div>
 
-<div class="container component left">
-  <div ng-show="attemptedFacilitator" class="alert alert-info">
-    Are you trying to act as Facilitator? If so, 
-    <a href="#/login/facilitator?participant"><strong>this might help</strong></a>
-  </div>
-  <div class="well well-lg" id="prompt">
-    <h4>Prompt:</h4>
-    <p>{{ prompt.content }}</p>
-  </div>
-
-  <!--[if lt IE 9]>
-    <form  name="form" ng-submit="submitThought()" role="form">
-      <div class="form-group" ng-class="{ 'has-error': form.thought.$dirty && form.thought.$error.required }">
-          <textarea rows="5" name="thought" id="thought" class="form-control" ng-model="thought" required> </textarea>
-          <span ng-show="form.thought.$dirty && form.thought.$error.required" class="help-block">You must enter a thought before submitting</span>
-      </div>
-      <div class="form-actions">
-          <button type="submit" ng-disabled="form.$invalid" class="btn btn-primary">Submit</button>
-            
-          <a href="#/" ng-click="logout()" class="btn btn-link pull-right">Logout</a>
-      </div>
-    </form>
-  <![endif]-->
-
-  <form  name="form" ng-submit="submitThought()" role="form" ng-show="!viewingDistribution">
-      <!-- Rich Text Editor, hidden input ensures it is part of form -->
-        <div focus-contenteditable text-angular ng-model="htmlThought" name="thoughtForm" id="thoughtForm"
-                 ta-focussed-class="focussed" 
-                 ta-toolbar=" [['p','quote'],
-                              ['bold','italics','underline','ul','ol'],
-                              ['justifyLeft','justifyCenter','justifyRight','indent','outdent'],
-                              ['insertImage','insertLink','wordcount']]"> 
-                              <!-- 'pre' (code) functionality in first block? -->
+    <!--[if lt IE 9]>
+      <form  name="form" ng-submit="submitThought()" role="form">
+        <div class="form-group" ng-class="{ 'has-error': form.thought.$dirty && form.thought.$error.required }">
+            <textarea rows="5" name="thought" id="thought" class="form-control" ng-model="thought" required> </textarea>
+            <span ng-show="form.thought.$dirty && form.thought.$error.required" class="help-block">You must enter a thought before submitting</span>
         </div>
-        <input type="hidden" name="thoughtForm" id="thoughtForm" ng-model="htmlThought" required />
-      <!-- -->
-      <div class="form-actions">
-          <button type="submit" ng-disabled="form.$invalid" class="btn btn-primary">Submit</button>
-      </div>
-  </form>
-  <div id="distributed-thought" ng-if="viewingDistribution">
-    <select class="form-control" ng-model="groupSelection.selectedGroupId" ng-options="item.id as item.name for item in possibleGroups track by item.id">
-    <!--   <option>Group</option>
-      <option>Red</option>
-      <option>Orange</option>
-      <option>Yellow</option>
-      <option>Green</option>
-      <option>Blue</option>
-      <option>Indigo</option>
-      <option>Violet</option> -->
-    </select>
-    <div ng-bind-html="distributedThought.content">
-    </div>
-  </div>
-</div>
+        <div class="form-actions">
+            <button type="submit" ng-disabled="form.$invalid" class="btn btn-primary">Submit</button>
+              
+            <a href="#/" ng-click="logout()" class="btn btn-link pull-right">Logout</a>
+        </div>
+      </form>
+    <![endif]-->
 
-<div class="container component right">
-  <div class="panel panel-default" id="history">
-    <div class="panel-body">
-      <h4>Previous Thoughts:</h4>
-      <ul ng-model="htmlThoughts" id="thoughtHistory">
-        <li ng-repeat="thought in htmlThoughts" class="thoughtItem">
-          <div ng-bind-html="thought.thought"></div> <!-- TODO: add '| htmlTrusted' for filter -->
-        </li>
-      </ul>
+    <form  name="form" ng-submit="submitThought()" role="form" ng-show="!viewingDistribution">
+        <!-- Rich Text Editor, hidden input ensures it is part of form -->
+          <div focus-contenteditable text-angular ng-model="htmlThought" name="thoughtForm" id="thoughtForm"
+                   ta-focussed-class="focussed" 
+                   ta-toolbar=" [['p','quote'],
+                                ['bold','italics','underline','ul','ol'],
+                                ['justifyLeft','justifyCenter','justifyRight','indent','outdent'],
+                                ['insertImage','insertLink','wordcount']]"> 
+                                <!-- 'pre' (code) functionality in first block? -->
+          </div>
+          <input type="hidden" name="thoughtForm" id="thoughtForm" ng-model="htmlThought" required />
+        <!-- -->
+        <div class="form-actions">
+            <button type="submit" ng-disabled="form.$invalid" class="btn btn-primary">Submit</button>
+        </div>
+    </form>
+    <div id="distributed-thought" ng-if="viewingDistribution">
+      <select class="form-control" ng-model="groupSelection.selectedGroupId" ng-options="item.id as item.name for item in possibleGroups track by item.id">
+      <!--   <option>Group</option>
+        <option>Red</option>
+        <option>Orange</option>
+        <option>Yellow</option>
+        <option>Green</option>
+        <option>Blue</option>
+        <option>Indigo</option>
+        <option>Violet</option> -->
+      </select>
+      <div ng-bind-html="distributedThought.content">
+      </div>
     </div>
-    
   </div>
+
+  <div class="col-md-4">
+    <div class="panel panel-default" id="history">
+      <div class="panel-body">
+        <accordion>
+          <accordion-group heading="Previous Thoughts"  is-open="status.isFirstOpen">
+            <ul ng-model="htmlThoughts" id="thoughtHistory">
+              <li ng-repeat="thought in htmlThoughts" class="thoughtItem">
+                <div ng-bind-html="thought.thought"></div> <!-- TODO: add '| htmlTrusted' for filter -->
+              </li>
+            </ul>
+          </accordion-group>
+        </accordion>
+
+      </div>
+      
+    </div>
+  </div>  
 </div>
