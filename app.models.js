@@ -1,12 +1,12 @@
 var Sequelize = require('sequelize');
 var sequelize = new Sequelize(
 	process.env.TS_DB, // database name
-	process.env.TS_USER, // username
+	process.env.TS_USER, // username 
 	process.env.TS_PASS, // password
 	{ logging: function () {} }
 );
 var DROPTABLES = false;
-if (process.env.TS_DROP === true) {
+if (process.env.TS_DROP === 'true') {
 	DROPTABLES = true;
 }
 
