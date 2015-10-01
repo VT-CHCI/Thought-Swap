@@ -52,7 +52,7 @@
             $scope.prompt = data.prompt;
             $scope.sessionId = data.sessionId;
             $scope.viewingDistribution = false;
-            toastr.info('', 'New Session');
+            // toastr.info('', 'New Session');
         });
 
         ThoughtSocket.on('new-session-prompt', function (prompt) {
