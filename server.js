@@ -933,11 +933,17 @@ io.on('connection', function(socket) {
 		// get the groupID for this class
 		// then
 		console.log('choose-group', chosenInfo);
-		setDistributionColors ({ //distId, colorId
-			distId: chosenInfo.distId,
-			colorId: chosenInfo.thoughtGroupId,
-		});
-		socket.broadcast.to('facilitator-'+chosenInfo.groupId).emit('group-chosen', chosenInfo);
+		if (chosenInfo.hasOwnProperty('thoughtId') &&
+			chosenInfo.hasOwnProperty('distId') &&
+			chosenInfo.hasOwnProperty('thoughtGroupId') &&
+			chosenInfo.hasOwnProperty('groupId') &&
+			chosenInfo.hasOwnProperty('presenter')) {
+			setDistributionColors ({ //distId, colorId
+				distId: chosenInfo.distId,
+				colorId: chosenInfo.thoughtGroupId,
+			});
+			socket.broadcast.to('facilitator-'+chosenInfo.groupId).emit('group-chosen', chosenInfo);
+		}
 	});
 
 	socket.on('fac-delete-thought', function (data) {
