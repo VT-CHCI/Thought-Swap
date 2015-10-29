@@ -99,6 +99,7 @@
 		ThoughtSocket.on('facilitator-prompt', function (data) {
 			console.log('facilitator-prompt', data);
 			$scope.prompt = data;
+			$scope.participantThoughts = [];
 			toastr.success('', 'New Prompt Created');
 		});
 
