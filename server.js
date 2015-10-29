@@ -238,12 +238,15 @@ function findAllActiveSockets (groupId) {
 // }
 
 function findCurrentPromptForGroup (sessionId) {
-	// console.log('findCurrentPromptForGroup', sessionId);
+	console.log('findCurrentPromptForGroup', sessionId);
 	return models.Prompt.findOne({
+		order: [['updatedAt', 'DESC']],
 		where: {
 			sessionId: sessionId
 		}, 
-		order: 'updatedAt DESC'
+		include: [{
+			model: models.Thought,
+		}],
 	});
 }
 
@@ -615,36 +618,41 @@ io.on('connection', function(socket) {
 	socket.on('facilitator-join', function (data) {
 		leaveAllRooms(socket)
 			.then(function () {
-				socket.joinAsync('discussion-'+data.groupId)
-					.then(function () {
-						socket.joinAsync('facilitator-'+data.groupId)
-							.then(function () {
-								getActiveSession(data.groupId, socket)
-									.then(function (session) {
-										findCurrentPromptForGroup(session.get('id'))
-											.then(function (defaultPrompt) {
-
-												getGroupColors()
-													.then(function (colors) {
-														socket.emit('group-colors', colors);
-													});
-
-												var room = 'discussion-'+data.groupId;
-												var message = 'sessionsyncres';
-												var messageData = {
-													sessionId: session.get('id'),
-													prompt: defaultPrompt,
-												};
-													io.to(room).emit(message, messageData);
-											});
-
-										return createSocket({
-											socketId: socket.id,
-											userId: data.userId
-										});
-									});
+				return socket.joinAsync('discussion-'+data.groupId);
+			})
+			.then(function () {
+				return socket.joinAsync('facilitator-'+data.groupId);
+			})
+			.then(function () {
+				return getActiveSession(data.groupId, socket);
+			})
+			.then(function (session) {
+				console.log('active session in fac-join');
+				console.log(session);
+				return findCurrentPromptForGroup(session.get('id'))
+					.then(function (defaultPrompt) {
+						console.log(defaultPrompt);
+						getGroupColors()
+							.then(function (colors) {
+								socket.emit('group-colors', colors);
 							});
-					});	
+
+						var room = 'discussion-'+data.groupId;
+						var message = 'sessionsyncres';
+						var messageData = {
+							sessionId: session.get('id'),
+							prompt: defaultPrompt,
+						};
+
+						console.log('about to io.emit', room, message, messageData);
+
+						io.to(room).emit(message, messageData);
+					});
+
+					createSocket({
+						socketId: socket.id,
+						userId: data.userId
+					});
 			});
 	});
 
@@ -838,6 +846,7 @@ io.on('connection', function(socket) {
 	 * @param: INT groupId - The db id of the group said participant belongs to
 	 */
 	socket.on('participant-join', function (data) {
+		console.log('participant-join', data);
 
 		getGroupColors()
 			.then(function (colors) {
