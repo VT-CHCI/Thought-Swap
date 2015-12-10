@@ -60,7 +60,15 @@
     <div class="panel panel-default" id="history">
       <div class="panel-body">
         <accordion>
-          <accordion-group heading="Previous Thoughts"  is-open="status.isFirstOpen">
+          <accordion-group is-open="status.open">
+            <accordion-heading >
+              <div ng-click="status.open=!status.open">
+                Previous Thoughts
+                <i class="pull-right fa" ng-class="{'fa-chevron-down' : status.open, 'fa-chevron-right': !status.open}">
+                </i>
+                </div>
+            </accordion-heading>
+
             <ul ng-model="htmlThoughts" id="thoughtHistory">
               <li ng-repeat="thought in htmlThoughts" class="thoughtItem">
                 <div ng-bind-html="thought.thought"></div> <!-- TODO: add '| htmlTrusted' for filter -->
