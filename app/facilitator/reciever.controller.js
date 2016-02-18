@@ -118,7 +118,9 @@
 			// $scope.participantThoughts = data.prompt.get('thoughts'); //TODO: at somepoint sync should send us the existing thoughts if we're late joining
 			$scope.prompt = data.prompt;
 			$scope.sessionId = data.sessionId;
-			$scope.participantThoughts = data.prompt.thoughts;
+			if (data.prompt.hasOwnProperty('thoughts') && data.prompt.thoughts && data.prompt.thoughts.isArray()) {
+				$scope.participantThoughts = data.prompt.thoughts;
+			}
 			// $scope.numThoughts = data.prompt.thoughts.length();
 			// $scope.numSubmitters = ?
 		});
