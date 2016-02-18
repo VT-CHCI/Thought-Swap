@@ -237,6 +237,24 @@ function findAllActiveSockets (groupId) {
 // 	});
 // }
 
+function findSessionThoughts(sessionId, userId){
+	console.log('findSessionThoughts, sessionId');
+	return models.Thought.findAll({
+		where: {
+			userId: userId,
+			
+		},
+		include: [{
+			model: models.Prompt,
+			where: {
+				sessionId: sessionId
+			},
+			// order: [['updatedAt', 'DESC']],
+		}]
+	});
+}
+
+
 function findCurrentPromptForGroup (sessionId) {
 	console.log('findCurrentPromptForGroup', sessionId);
 	return models.Prompt.findOne({
@@ -882,6 +900,13 @@ io.on('connection', function(socket) {
 										io.to('facilitator-'+data.groupId).emit('participant-join');
 									// }, 2000);
 								});
+
+							findSessionThoughts(session.get('id'), data.userId)
+								.then(function(prevThoughts) {
+									socket.emit('previous-thoughts', prevThoughts);
+								});
+
+
 
 						return createSocket({
 							socketId: socket.id,

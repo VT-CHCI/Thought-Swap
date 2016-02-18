@@ -61,6 +61,15 @@
             $scope.prompt = prompt;
         });
 
+        ThoughtSocket.on('previous-thoughts', function (thoughts) {
+            console.log('Got prev thoughts', prompt);
+            thoughts.forEach(function (thought) {
+                $scope.htmlThoughts.push({
+                    thought: thought.content
+                });
+            });
+        });
+
         $scope.setGroup = function () {
             // console.log(something);
             var chooseGroupInfo = {
