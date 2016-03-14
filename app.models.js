@@ -3,8 +3,8 @@ var Sequelize = require('sequelize');
 var sequelize = new Sequelize(
 	process.env.TS_DB, // database name
 	process.env.TS_USER, // username
-	process.env.TS_PASS, // password
-	{ logging: function () {} }
+	process.env.TS_PASS // password
+	,{ logging: function () {} }
 );
 
 var DROPTABLES = false;
@@ -155,65 +155,69 @@ exports.start = function () {
 			})
 				.then(function (group) {
 					// create 3 new users to be students/participants in class/group mytestgroup
-					User.findOrCreate({
-						where: {
-							email: null,
-							username: 'sillyname',
-							password: null,
-							role: 'participant',
-							groupId: group[0].get('id')
-						}
-					});
+					return Promise.all([
+						User.findOrCreate({
+							where: {
+								email: null,
+								username: 'sillyname',
+								password: null,
+								role: 'participant',
+								groupId: group[0].get('id')
+							}
+						}),
 
-					User.findOrCreate({
-						where: {
-							email: null,
-							username: 'testname',
-							password: null,
-							role: 'participant',
-							groupId: group[0].get('id')
-						}
-					});
+						User.findOrCreate({
+							where: {
+								email: null,
+								username: 'testname',
+								password: null,
+								role: 'participant',
+								groupId: group[0].get('id')
+							}
+						}),
 
-					User.findOrCreate({
-						where: {
-							email: null,
-							username: 'adam',
-							password: null,
-							role: 'participant',
-							groupId: group[0].get('id')
-						}
-					});
+						User.findOrCreate({
+							where: {
+								email: null,
+								username: 'adam',
+								password: null,
+								role: 'participant',
+								groupId: group[0].get('id')
+							}
+						})					
+					]);
 
 				})
 				.then(function () {
 					// make a 2nd test group with 2 participants
-					Group.findOrCreate({
+					return Group.findOrCreate({
 						where: {
 							name: 'My Other Test Group',
 							ownerId: userResults[0].dataValues.id,
 						} 
 					})
 						.then(function (group) {
-							User.findOrCreate({
-								where: {
-									email: null,
-									username: 'goober',
-									password: null,
-									role: 'participant',
-									groupId: group[0].dataValues.id
-								}
-							});
+							return Promise.all([
+								User.findOrCreate({
+									where: {
+										email: null,
+										username: 'goober',
+										password: null,
+										role: 'participant',
+										groupId: group[0].dataValues.id
+									}
+								}),
 
-							User.findOrCreate({
-								where: {
-									email: null,
-									username: 'jenkins',
-									password: null,
-									role: 'participant',
-									groupId: group[0].dataValues.id
-								}
-							});
+								User.findOrCreate({
+									where: {
+										email: null,
+										username: 'jenkins',
+										password: null,
+										role: 'participant',
+										groupId: group[0].dataValues.id
+									}
+								})
+							]);
 							
 						});
 					
@@ -222,48 +226,50 @@ exports.start = function () {
 
 		})
 		.then(function () {  //thanks to the following for the colors: https://personal.sron.nl/~pault/
-			GroupColor.findOrCreate({
-				where: {
-					name: 'red',
-					color: '#EE3333'
-				}
-			});
-			GroupColor.findOrCreate({
-				where: {
-					name: 'orange',
-					color: '#EE7722'
-				}
-			});
-			GroupColor.findOrCreate({
-				where: {
-					name: 'yellow',
-					color: '#FFEE33'
-				}
-			});
-			GroupColor.findOrCreate({
-				where: {
-					name: 'green',
-					color: '#66AA55'
-				}
-			});
-			GroupColor.findOrCreate({
-				where: {
-					name: 'turquoise',
-					color: '#11AA99'
-				}
-			});
-			GroupColor.findOrCreate({
-				where: {
-					name: 'blue',
-					color: '#3366AA'
-				}
-			});
-			GroupColor.findOrCreate({
-				where: {
-					name: 'purple',
-					color: '#992288'
-				}
-			});
+			return Promise.all([
+				GroupColor.findOrCreate({
+					where: {
+						name: 'red',
+						color: '#EE3333'
+					}
+				}),
+				GroupColor.findOrCreate({
+					where: {
+						name: 'orange',
+						color: '#EE7722'
+					}
+				}),
+				GroupColor.findOrCreate({
+					where: {
+						name: 'yellow',
+						color: '#FFEE33'
+					}
+				}),
+				GroupColor.findOrCreate({
+					where: {
+						name: 'green',
+						color: '#66AA55'
+					}
+				}),
+				GroupColor.findOrCreate({
+					where: {
+						name: 'turquoise',
+						color: '#11AA99'
+					}
+				}),
+				GroupColor.findOrCreate({
+					where: {
+						name: 'blue',
+						color: '#3366AA'
+					}
+				}),
+				GroupColor.findOrCreate({
+					where: {
+						name: 'purple',
+						color: '#992288'
+					}
+				})
+			]);
 
 		})
 		.then( function () {
