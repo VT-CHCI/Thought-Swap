@@ -51,7 +51,7 @@
             console.log('Recieved session sync data:', data);
             $scope.prompt = data.prompt;
             $scope.sessionId = data.sessionId;
-            $scope.viewingDistribution = false;
+            // $scope.viewingDistribution = false; // why would this make sense?
             // toastr.info('', 'New Session');
         });
 
@@ -59,6 +59,7 @@
             console.log('Got data in new-session-prompt', prompt);
             $scope.htmlThoughts = [];
             $scope.prompt = prompt;
+            $scope.viewingDistribution = false;
         });
 
         ThoughtSocket.on('previous-thoughts', function (thoughts) {
