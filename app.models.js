@@ -67,7 +67,8 @@ var Group = sequelize.define('group', {
 
 var Session = sequelize.define('session', {
 	start: Sequelize.DATE,
-	end: Sequelize.DATE
+	end: Sequelize.DATE,
+	viewingDistribution: {type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false}
 });
 
 var Distribution = sequelize.define('distribution', {

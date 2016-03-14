@@ -24,7 +24,7 @@
       </form>
     <![endif]-->
 
-    <form  name="form" ng-submit="submitThought()" role="form" ng-show="!viewingDistribution">
+    <form name="form" ng-submit="submitThought()" role="form" ng-show="!viewingDistribution">
         <!-- Rich Text Editor, hidden input ensures it is part of form -->
           <div focus-contenteditable text-angular ng-model="htmlThought" name="thoughtForm" id="thoughtForm"
                    ta-focussed-class="focussed" 
@@ -41,6 +41,9 @@
         </div>
     </form>
     <div id="distributed-thought" ng-if="viewingDistribution">
+      <div ng-bind-html="distributedThought.content">
+      </div>
+      <h5>Select the same color as your groupmates to indicate which thoughts y'all've received.</h5>
       <select class="form-control" ng-model="groupSelection.selectedGroupId" ng-options="item.id as item.name for item in possibleGroups track by item.id">
       <!--   <option>Group</option>
         <option>Red</option>
@@ -51,8 +54,6 @@
         <option>Indigo</option>
         <option>Violet</option> -->
       </select>
-      <div ng-bind-html="distributedThought.content">
-      </div>
     </div>
   </div>
 

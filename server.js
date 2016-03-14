@@ -688,6 +688,11 @@ io.on('connection', function(socket) {
 	 * @param: STRING content - user given prompt to be broadcast to participants
 	 */
 	socket.on('new-prompt', function (data) {
+		models.Session.findById(data.sessionId)
+			.then(function (session) {
+				session.viewingDistribution = false;
+				return session.save();
+			});
 		createPrompt(data.prompt, data.userId, data.groupId, data.sessionId)
 			.then(function (prompt) {
 				io.to('discussion-'+data.groupId).emit('facilitator-prompt', prompt);
@@ -724,7 +729,15 @@ io.on('connection', function(socket) {
 	 */
 	socket.on('distribute', function (data) {
 		//TODO:
-		Promise.all([findAllActiveSockets(data.groupId), findThoughts(data.promptId)])
+		return Promise.all([
+			models.Session.findById(data.sessionId)
+				.then(function (session) {
+					session.viewingDistribution = true;
+					return session.save();
+				}),
+			findAllActiveSockets(data.groupId), 
+			findThoughts(data.promptId)
+		])
 			.then(function (results) {
 
 				// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
@@ -734,8 +747,8 @@ io.on('connection', function(socket) {
 				  return Math.floor(Math.random() * (max - min)) + min;
 				}
 
-				var activeSockets = shuffle(results[0]);
-				var thoughts = shuffle(results[1]);
+				var activeSockets = shuffle(results[1]);
+				var thoughts = shuffle(results[2]);
 
 
 				var thoughtsLength = thoughts.length;
@@ -850,9 +863,6 @@ io.on('connection', function(socket) {
 
 
 			});
-		// get the connected people
-
-		// get the current prompt's thoughts
 
 	});
 
@@ -887,6 +897,11 @@ io.on('connection', function(socket) {
 						// console.log("Active Session:", session);
 							// End last session?
 
+							// i'm late (or refreshed?) and my class is already viewing 
+							// distributed thoughts, 
+							if (session.viewingDistribution) {
+
+							}
 
 							//get current prompt
 							findCurrentPromptForGroup(session.get('id'))

@@ -233,7 +233,8 @@
 		$scope.distribute = function () {
 			ThoughtSocket.emit('distribute', {
 				groupId: $routeParams.groupId,
-				promptId: $scope.prompt.id
+				promptId: $scope.prompt.id,
+				sessionId: $scope.sessionId
 			});
 			Logger.createEvent({
 				data: 'distributing thoughts for groupId: ' + $routeParams.groupId + ', promptId: ' + $scope.prompt.id,
