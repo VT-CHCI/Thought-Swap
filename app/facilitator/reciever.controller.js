@@ -118,7 +118,7 @@
 			// $scope.participantThoughts = data.prompt.get('thoughts'); //TODO: at somepoint sync should send us the existing thoughts if we're late joining
 			$scope.prompt = data.prompt;
 			$scope.sessionId = data.sessionId;
-			if (data && data.hasOwnProperty('prompt') && data.prompt.hasOwnProperty('thoughts') && data.prompt.thoughts && Array.isArray(data.prompt.thoughts)) {
+			if (data && data.hasOwnProperty('prompt') && data.prompt && data.prompt.hasOwnProperty('thoughts') && data.prompt.thoughts && Array.isArray(data.prompt.thoughts)) {
 				$scope.participantThoughts = data.prompt.thoughts;
 			}
 			// $scope.numThoughts = data.prompt.thoughts.length();
@@ -190,35 +190,39 @@
 				console.log(thought, thought.id === info.thoughtId);
 				if(thought.id === info.thoughtId) {
 					// thought.style
-					if (!thought.hasOwnProperty('bgColors')) {
-						thought.bgColors = {};
+					if (!thought.hasOwnProperty('colors')) {
+						thought.colors = {};
 					}
-					console.log($scope.BG_COLORS);
-					console.log(info.thoughtGroupId);
-					console.log($scope.BG_COLORS[info.thoughtGroupId]);
+					// console.log($scope.BG_COLORS);
+					// console.log(info.thoughtGroupId);
+					// console.log($scope.BG_COLORS[info.thoughtGroupId]);
 					
-					thought.bgColors[info.presenter] = $scope.BG_COLORS[info.thoughtGroupId].color;
+					thought.colors[info.presenter] = $scope.BG_COLORS[info.thoughtGroupId];
 				}
 			});
 		});
 
 		$scope.thoughtStyle = function (thought) {
-			if (!thought.hasOwnProperty('bgColors')) {
+			if (!thought.hasOwnProperty('colors')) {
 				return '';
 			} else {
 				var colors = [];
-				Object.keys(thought.bgColors).forEach(function (color) {
-					colors.push(thought.bgColors[color]);
+				Object.keys(thought.colors).forEach(function (color) {
+					colors.push(thought.colors[color]);
 				});
 
 				var theStyle = {};
 				if (colors.length === 1) {
 					theStyle = {
-						'background-color': colors[0]
+						'background-color': colors[0].color,
+						'color': colors[0].text
 					};
 				} else {
 					theStyle = {
-						'background': 'linear-gradient(135deg, ' + colors.join(',') + ')'
+						'background': 'linear-gradient(135deg, ' + colors.reduce(function (clr) {
+							return clr.color;
+						}).join(',') + ')',
+						'color': '#000000'
 					};
 				}
 				console.log(theStyle);

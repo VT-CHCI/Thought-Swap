@@ -76,6 +76,7 @@ var Distribution = sequelize.define('distribution', {
 var GroupColor = sequelize.define('group_color', {
 	name: Sequelize.STRING,
 	color: Sequelize.STRING,
+	text: Sequelize.STRING,
 });
 
 
@@ -229,44 +230,72 @@ exports.start = function () {
 			return Promise.all([
 				GroupColor.findOrCreate({
 					where: {
+						name: 'white',
+						color: '#FFFFFF',
+						text: '#000000'
+					}
+				}),
+				GroupColor.findOrCreate({
+					where: {
+						name: 'sepia',
+						color: '#5E2612',
+						text: '#FFFFFF'
+					}
+				}),
+				GroupColor.findOrCreate({
+					where: {
 						name: 'red',
-						color: '#EE3333'
+						color: '#EE3333',
+						text: '#FFFFFF'
 					}
 				}),
 				GroupColor.findOrCreate({
 					where: {
 						name: 'orange',
-						color: '#EE7722'
+						color: '#EE7722',
+						text: '#000000'
 					}
 				}),
 				GroupColor.findOrCreate({
 					where: {
 						name: 'yellow',
-						color: '#FFEE33'
+						color: '#FFEE33',
+						text: '#000000'
 					}
 				}),
 				GroupColor.findOrCreate({
 					where: {
 						name: 'green',
-						color: '#66AA55'
+						color: '#66AA55',
+						text: '#000000'
 					}
 				}),
 				GroupColor.findOrCreate({
 					where: {
 						name: 'turquoise',
-						color: '#11AA99'
+						color: '#11AA99',
+						text: '#000000'
 					}
 				}),
 				GroupColor.findOrCreate({
 					where: {
 						name: 'blue',
-						color: '#3366AA'
+						color: '#3366AA',
+						text: '#FFFFFF'
 					}
 				}),
 				GroupColor.findOrCreate({
 					where: {
 						name: 'purple',
-						color: '#992288'
+						color: '#992288',
+						text: '#FFFFFF'
+					}
+				}),
+				GroupColor.findOrCreate({
+					where: {
+						name: 'black',
+						color: '#000000',
+						text: '#FFFFFF'
 					}
 				})
 			]);
