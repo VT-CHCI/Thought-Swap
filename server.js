@@ -265,7 +265,7 @@ function findCurrentPromptForGroup (sessionId) {
 		include: [{
 			model: models.Thought,
 			where: {
-				deleted: null
+				deleted: 0
 			}
 		}],
 	});
