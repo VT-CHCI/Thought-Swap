@@ -130,11 +130,23 @@ exports.Prompt = Prompt;
 exports.Thought = Thought;
 exports.Distribution = Distribution;
 exports.GroupColor = GroupColor;
+exports.sequelize = sequelize;
 
 exports.start = function () {
 	return sequelize.sync({force: DROPTABLES}) // Use {force:true} only for updating the above models,
 								  // it drops all current data
 		.then( function () {
+			// mark all existing sockets as offline
+			return Socket.update({
+				active: false
+			}, {
+				where: {
+					active: true
+				}
+			});
+
+		})
+		.then(function () {
 			//create a new user as a faciliatator with username admin
 			return User.findOrCreate({
 				where: {

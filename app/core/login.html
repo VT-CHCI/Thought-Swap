@@ -42,7 +42,7 @@
     <!-- Participant Form -->
     <form name="pform" ng-submit="loginParticipant()" role="form" ng-show="!isFacilitator" novalidate>
         <div class="form-group" ng-class="{ 'has-error': pform.sillyname.$dirty && pform.sillyname.$error.required }">
-            <label for="sillyname">Silly Name</label>
+            <label for="sillyname">Silly Name (this is case sensitive)</label>
             <input type="text" name="sillyname" id="sillyname" auto-focus class="form-control" ng-model="sillyname" required />
             <span ng-show="pform.sillyname.$dirty && pform.sillyname.$error.required" class="help-block">Silly Name is required</span>
         </div>

@@ -31,7 +31,7 @@
                    ta-toolbar=" [['p','quote'],
                                 ['bold','italics','underline','ul','ol'],
                                 ['justifyLeft','justifyCenter','justifyRight','indent','outdent'],
-                                ['insertImage','insertLink','wordcount']]"> 
+                                ['insertImage','insertLink']]"> 
                                 <!-- 'pre' (code) functionality in first block? -->
           </div>
           <input type="hidden" name="thoughtForm" id="thoughtForm" ng-model="htmlThought" required />
@@ -41,6 +41,7 @@
         </div>
     </form>
     <div id="distributed-thought" ng-if="viewingDistribution">
+      <h5>Received Thought:</h5>
       <div ng-bind-html="distributedThought.content">
       </div>
       <h5>Select the same color as your groupmates to indicate which thoughts y'all've received.</h5>

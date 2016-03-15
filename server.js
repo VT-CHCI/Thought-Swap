@@ -198,7 +198,7 @@ function findThoughts (info) {
 			promptId: info
 		},
 		include: [
-		{ model: models.User }
+			{ model: models.User }
 		]
 	});
 	// return new Promise(function (resolve, reject) {
@@ -298,12 +298,22 @@ function updateGroupSession (g, i) {
 
 function createFacilitator (e, u, p) {
 	// console.log('createFacilitator', e, u, p);
-	return models.User.create({
-		email: e,
-		username: u,
-		password: p,
-		role: 'facilitator'
-	});
+	return models.User.findOne({
+		where: {
+			username: u
+		}
+	})
+		.then(function (user) {
+			if (user) {
+				return false; //user already exists
+			}
+			return models.User.create({
+				email: e,
+				username: u,
+				password: p,
+				role: 'facilitator'
+			});
+		});
 }
 
 function createGroup (n, i) {
@@ -528,9 +538,16 @@ app.post('/signup', function(request, response) {
 									 request.body.user.username,
 									 request.body.user.password)
 			.then(function (user) {
-				response.status(201).json({
-					user: user
-				});
+				if (user) {
+					response.status(201).json({
+						user: user
+					});
+				} else {
+					response.status(500).json({
+						message: 'User with this name already exists.',
+						error: 'User with this name already exists.'
+					});
+				}
 			})
 			.catch(function (err) {
 				console.error(">> Error in signup: ", err);
@@ -667,13 +684,16 @@ io.on('connection', function(socket) {
 
 						console.log('about to io.emit', room, message, messageData);
 
+						// why shouldn't this only talk to the socket that has just joined?
 						io.to(room).emit(message, messageData);
 					});
 
-					createSocket({
-						socketId: socket.id,
-						userId: data.userId
-					});
+					// maybe need to bring this back eventually, but right now the 
+					// distribution code uses the sockets to count who to give thoughts to
+					// createSocket({
+					// 	socketId: socket.id,
+					// 	userId: data.userId
+					// });
 			});
 	});
 
@@ -740,6 +760,9 @@ io.on('connection', function(socket) {
 		])
 			.then(function (results) {
 
+				console.log('promise.all in distribute');
+				console.log(results.length);
+				console.log(results);
 				// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
 				// Returns a random integer between min (included) and max (excluded)
 				// Using Math.round() will give you a non-uniform distribution!
@@ -750,6 +773,11 @@ io.on('connection', function(socket) {
 				var activeSockets = shuffle(results[1]);
 				var thoughts = shuffle(results[2]);
 
+				console.log('activeSockets');
+				console.log(activeSockets);
+
+				console.log('thoughts');
+				console.log(thoughts);
 
 				var thoughtsLength = thoughts.length;
 				var numCopies = activeSockets.length-thoughts.length;
@@ -791,6 +819,9 @@ io.on('connection', function(socket) {
 				// right now i think the distribution is fairly regular and people 
 				// will probably always get the same other person's thought
 				function possibleMatches(thoughtAuthors, thoughtPresenters) {
+					console.log('possibleMatches');
+					console.log(thoughtAuthors.length);
+					console.log(thoughtPresenters.length);
 					var edges = [];
 					for (var i=0; i<thoughtAuthors.length; i++) {
 						for (var j=0; j<thoughtPresenters.length; j++) {
@@ -814,7 +845,7 @@ io.on('connection', function(socket) {
 				// }
 
 				var potentialMatches = possibleMatches(thoughtsAuthors, presenters);
-				console.log(' potential matches', potentialMatches);
+				console.log('potential matches', potentialMatches);
 
 				var distribution = findMatching(thoughtsAuthors.length, presenters.length, potentialMatches);
 				console.log('distribution', distribution);
@@ -853,9 +884,15 @@ io.on('connection', function(socket) {
 						.then(function (newDistribution) {
 							console.log('created distribution');
 							console.log(newDistribution.get('id'));
-							// console.log('io stuff');
-							// console.log(io.sockets);
-							io.sockets.connected[socketIdOfReceipient].emit('distributed-thought', {id: thoughtAuthorForSending.get('id'), content: thoughtContent, distId: newDistribution.get('id')});
+
+							// it's possible someone has disconnected. don't friggin die if they did!
+							if (typeof io.sockets.connected[socketIdOfReceipient] !== 'undefined') {
+								io.sockets.connected[socketIdOfReceipient].emit('distributed-thought', {
+									id: thoughtAuthorForSending.get('id'), 
+									content: thoughtContent, 
+									distId: newDistribution.get('id')
+								});
+							}
 						});
 
 					
@@ -897,12 +934,6 @@ io.on('connection', function(socket) {
 						// console.log("Active Session:", session);
 							// End last session?
 
-							// i'm late (or refreshed?) and my class is already viewing 
-							// distributed thoughts, 
-							if (session.viewingDistribution) {
-
-							}
-
 							//get current prompt
 							findCurrentPromptForGroup(session.get('id'))
 								.then(function (defaultPrompt) {
@@ -912,6 +943,87 @@ io.on('connection', function(socket) {
 										sessionId: session.get('id'),
 										prompt: defaultPrompt,
 									};
+
+									// i'm late (or refreshed?) and my class is already viewing 
+									// distributed thoughts, 
+									if (session.viewingDistribution) {
+										// look for a distribution for me,
+										models.Distribution.findOne({
+											where: {
+												userId: data.userId
+											},
+											include : {
+												model: models.Thought,
+												where: {
+													promptId: defaultPrompt.id
+												}
+											}
+										})
+											.then(function (dist) {
+												if (dist) {
+													socket.emit('distributed-thought', {
+														id: dist.thoughtId, 
+														content: dist.thought.content, 
+														distId: dist.id
+													});
+												} else {
+													// if it's not found, create one!
+													models.sequelize.query('select thoughts.* from thoughts where thoughts.promptId=:promptId and thoughts.userId<>:userId and thoughts.id not in (select distributions.thoughtId from distributions join thoughts on distributions.thoughtId=thoughts.id where thoughts.promptId=:promptId)', {
+														replacements: {
+															promptId: defaultPrompt.id, 
+															userId: data.userId
+														}, 
+														type: models.sequelize.QueryTypes.SELECT 
+													}).then(function(unusedThoughtIds) {
+														if (unusedThoughtIds && unusedThoughtIds.length > 0) {
+															console.log('unusedThoughtIds if');
+															console.log(unusedThoughtIds);
+														  return createDistribution({
+														  	recipient: data.userId,
+														  	thought: unusedThoughtIds[0].id,
+														  	group: data.groupId
+														  })
+														  	.then(function (newDistribution) {
+														  		console.log('created distribution');
+														  		console.log(newDistribution.get('id'));
+														  		socket.emit('distributed-thought', {
+														  			id: unusedThoughtIds[0].id, 
+														  			content: unusedThoughtIds[0].content, 
+														  			distId: newDistribution.get('id')
+														  		});
+														  	});
+														} else {
+															console.log('unusedThoughtIds else');
+															// all thoughts are distributed, just pick one that's not mine
+															return models.Thought.findOne({
+																where: {
+																	promptId: defaultPrompt.id,
+																	userId: {
+																		$ne: data.userId
+																	}
+																}
+															}).then(function(thoughtToDist) {
+																return createDistribution({
+																	recipient: data.userId,
+																	thought: thoughtToDist.id,
+																	group: data.groupId
+																})
+																	.then(function (newDistribution) {
+																		console.log('created distribution');
+																		console.log(newDistribution.get('id'));
+																		socket.emit('distributed-thought', {
+																			id: thoughtToDist.id, 
+																			content: thoughtToDist.content, 
+																			distId: newDistribution.get('id')
+																		});
+																	});
+															});
+														}
+													});
+												}
+											})
+									}
+
 									// setTimeout(function () {
 										// socket.broadcast.to(room).emit(message, messageData);
 										io.to(room).emit(message, messageData);
@@ -921,7 +1033,8 @@ io.on('connection', function(socket) {
 
 							findSessionThoughts(session.get('id'), data.userId)
 								.then(function(prevThoughts) {
-									socket.emit('previous-thoughts', prevThoughts);
+									// maybe don't do this bc it could harm anonymity?
+									// socket.emit('previous-thoughts', prevThoughts);
 								});
 
 

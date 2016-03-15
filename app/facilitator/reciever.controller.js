@@ -116,10 +116,12 @@
 		ThoughtSocket.on('sessionsyncres', function (data) {
 			console.log('Recieved session sync response:', data);
 			// $scope.participantThoughts = data.prompt.get('thoughts'); //TODO: at somepoint sync should send us the existing thoughts if we're late joining
-			$scope.prompt = data.prompt;
-			$scope.sessionId = data.sessionId;
-			if (data && data.hasOwnProperty('prompt') && data.prompt && data.prompt.hasOwnProperty('thoughts') && data.prompt.thoughts && Array.isArray(data.prompt.thoughts)) {
-				$scope.participantThoughts = data.prompt.thoughts;
+			if (Object.keys($scope.prompt).length === 0 && JSON.stringify($scope.prompt) === JSON.stringify({})) {
+				$scope.prompt = data.prompt;
+				$scope.sessionId = data.sessionId;
+				if (data && data.hasOwnProperty('prompt') && data.prompt && data.prompt.hasOwnProperty('thoughts') && data.prompt.thoughts && Array.isArray(data.prompt.thoughts)) {
+					$scope.participantThoughts = data.prompt.thoughts;
+				}
 			}
 			// $scope.numThoughts = data.prompt.thoughts.length();
 			// $scope.numSubmitters = ?
