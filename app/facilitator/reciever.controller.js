@@ -219,7 +219,7 @@
 					};
 				} else {
 					theStyle = {
-						'background': 'linear-gradient(135deg, ' + colors.reduce(function (clr) {
+						'background': 'linear-gradient(135deg, ' + colors.map(function (clr) {
 							return clr.color;
 						}).join(',') + ')',
 						'color': '#000000'
