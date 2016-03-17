@@ -147,6 +147,7 @@
 			console.log("Got data in new-session-prompt", prompt);
 			// $scope.prompt = {};
 			$scope.prompt = prompt;
+			$scope.sessionId = prompt.sessionId;
 		});
 
 		$scope.openPromptInput = function () {

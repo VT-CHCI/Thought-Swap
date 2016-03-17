@@ -238,7 +238,7 @@ function findAllActiveSockets (groupId) {
 // }
 
 function findSessionThoughts(sessionId, userId){
-	console.log('findSessionThoughts, sessionId');
+	console.log('findSessionThoughts', sessionId);
 	return models.Thought.findAll({
 		where: {
 			userId: userId,
@@ -266,7 +266,8 @@ function findCurrentPromptForGroup (sessionId) {
 			model: models.Thought,
 			where: {
 				deleted: 0
-			}
+			},
+			required: false
 		}],
 	});
 }
@@ -721,6 +722,9 @@ io.on('connection', function(socket) {
 
 	// Should: load new session if one does not exist
 	// send thoughts to facilitator, prompt to participants, 
+
+	// this event ONLY comes in when the facilitator requests a new session. 
+	// so it should always create a new session.
 	socket.on('session-sync-req', function (data) {
 		findGroupById(data.groupId)
 			.then(function (group) {
@@ -932,110 +936,112 @@ io.on('connection', function(socket) {
 				getActiveSession(data.groupId, socket)
 					.then(function (session) {
 						// console.log("Active Session:", session);
-							// End last session?
+						// End last session?
 
-							//get current prompt
-							findCurrentPromptForGroup(session.get('id'))
-								.then(function (defaultPrompt) {
-									var room = 'discussion-'+data.groupId;
-									var message = 'sessionsyncres';
-									var messageData = {
-										sessionId: session.get('id'),
-										prompt: defaultPrompt,
-									};
+						//get current prompt
+						findCurrentPromptForGroup(session.get('id'))
+							.then(function (defaultPrompt) {
 
-									// i'm late (or refreshed?) and my class is already viewing 
-									// distributed thoughts, 
-									if (session.viewingDistribution) {
-										// look for a distribution for me,
-										models.Distribution.findOne({
+								console.log('found current prompt', defaultPrompt.id, defaultPrompt.content);
+								var room = 'discussion-'+data.groupId;
+								var message = 'sessionsyncres';
+								var messageData = {
+									sessionId: session.get('id'),
+									prompt: defaultPrompt,
+								};
+
+								// i'm late (or refreshed?) and my class is already viewing 
+								// distributed thoughts, 
+								if (session.viewingDistribution) {
+									// look for a distribution for me,
+									models.Distribution.findOne({
+										where: {
+											userId: data.userId
+										},
+										include : {
+											model: models.Thought,
 											where: {
-												userId: data.userId
-											},
-											include : {
-												model: models.Thought,
-												where: {
-													promptId: defaultPrompt.id
-												}
+												promptId: defaultPrompt.id
+											}
+										}
+									})
+										.then(function (dist) {
+											if (dist) {
+												socket.emit('distributed-thought', {
+													id: dist.thoughtId, 
+													content: dist.thought.content, 
+													distId: dist.id
+												});
+											} else {
+												// if it's not found, create one!
+												models.sequelize.query('select thoughts.* from thoughts where thoughts.promptId=:promptId and thoughts.userId<>:userId and thoughts.id not in (select distributions.thoughtId from distributions join thoughts on distributions.thoughtId=thoughts.id where thoughts.promptId=:promptId)', {
+													replacements: {
+														promptId: defaultPrompt.id, 
+														userId: data.userId
+													}, 
+													type: models.sequelize.QueryTypes.SELECT 
+												}).then(function(unusedThoughtIds) {
+													if (unusedThoughtIds && unusedThoughtIds.length > 0) {
+														console.log('unusedThoughtIds if');
+														console.log(unusedThoughtIds);
+													  return createDistribution({
+													  	recipient: data.userId,
+													  	thought: unusedThoughtIds[0].id,
+													  	group: data.groupId
+													  })
+													  	.then(function (newDistribution) {
+													  		console.log('created distribution');
+													  		console.log(newDistribution.get('id'));
+													  		socket.emit('distributed-thought', {
+													  			id: unusedThoughtIds[0].id, 
+													  			content: unusedThoughtIds[0].content, 
+													  			distId: newDistribution.get('id')
+													  		});
+													  	});
+													} else {
+														console.log('unusedThoughtIds else');
+														// all thoughts are distributed, just pick one that's not mine
+														return models.Thought.findOne({
+															where: {
+																promptId: defaultPrompt.id,
+																userId: {
+																	$ne: data.userId
+																}
+															}
+														}).then(function(thoughtToDist) {
+															return createDistribution({
+																recipient: data.userId,
+																thought: thoughtToDist.id,
+																group: data.groupId
+															})
+																.then(function (newDistribution) {
+																	console.log('created distribution');
+																	console.log(newDistribution.get('id'));
+																	socket.emit('distributed-thought', {
+																		id: thoughtToDist.id, 
+																		content: thoughtToDist.content, 
+																		distId: newDistribution.get('id')
+																	});
+																});
+														});
+													}
+												});
 											}
 										})
-											.then(function (dist) {
-												if (dist) {
-													socket.emit('distributed-thought', {
-														id: dist.thoughtId, 
-														content: dist.thought.content, 
-														distId: dist.id
-													});
-												} else {
-													// if it's not found, create one!
-													models.sequelize.query('select thoughts.* from thoughts where thoughts.promptId=:promptId and thoughts.userId<>:userId and thoughts.id not in (select distributions.thoughtId from distributions join thoughts on distributions.thoughtId=thoughts.id where thoughts.promptId=:promptId)', {
-														replacements: {
-															promptId: defaultPrompt.id, 
-															userId: data.userId
-														}, 
-														type: models.sequelize.QueryTypes.SELECT 
-													}).then(function(unusedThoughtIds) {
-														if (unusedThoughtIds && unusedThoughtIds.length > 0) {
-															console.log('unusedThoughtIds if');
-															console.log(unusedThoughtIds);
-														  return createDistribution({
-														  	recipient: data.userId,
-														  	thought: unusedThoughtIds[0].id,
-														  	group: data.groupId
-														  })
-														  	.then(function (newDistribution) {
-														  		console.log('created distribution');
-														  		console.log(newDistribution.get('id'));
-														  		socket.emit('distributed-thought', {
-														  			id: unusedThoughtIds[0].id, 
-														  			content: unusedThoughtIds[0].content, 
-														  			distId: newDistribution.get('id')
-														  		});
-														  	});
-														} else {
-															console.log('unusedThoughtIds else');
-															// all thoughts are distributed, just pick one that's not mine
-															return models.Thought.findOne({
-																where: {
-																	promptId: defaultPrompt.id,
-																	userId: {
-																		$ne: data.userId
-																	}
-																}
-															}).then(function(thoughtToDist) {
-																return createDistribution({
-																	recipient: data.userId,
-																	thought: thoughtToDist.id,
-																	group: data.groupId
-																})
-																	.then(function (newDistribution) {
-																		console.log('created distribution');
-																		console.log(newDistribution.get('id'));
-																		socket.emit('distributed-thought', {
-																			id: thoughtToDist.id, 
-																			content: thoughtToDist.content, 
-																			distId: newDistribution.get('id')
-																		});
-																	});
-															});
-														}
-													});
-												}
-											})
-									}
+								}
 
-									// setTimeout(function () {
-										// socket.broadcast.to(room).emit(message, messageData);
-										io.to(room).emit(message, messageData);
-										io.to('facilitator-'+data.groupId).emit('participant-join');
-									// }, 2000);
-								});
+								// setTimeout(function () {
+									// socket.broadcast.to(room).emit(message, messageData);
+									io.to(room).emit(message, messageData);
+									io.to('facilitator-'+data.groupId).emit('participant-join');
+								// }, 2000);
+							});
 
-							findSessionThoughts(session.get('id'), data.userId)
-								.then(function(prevThoughts) {
-									// maybe don't do this bc it could harm anonymity?
-									// socket.emit('previous-thoughts', prevThoughts);
-								});
+						// findSessionThoughts(session.get('id'), data.userId)
+						// 	.then(function(prevThoughts) {
+						// 		// maybe don't do this bc it could harm anonymity?
+						// 		// socket.emit('previous-thoughts', prevThoughts);
+						// 	});
 
 
 

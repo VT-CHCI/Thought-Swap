@@ -48,7 +48,7 @@
         });
 
         ThoughtSocket.on('sessionsyncres', function (data) {
-            console.log('Recieved session sync data:', data);
+            console.log('Received session sync data:', data);
             $scope.prompt = data.prompt;
             $scope.sessionId = data.sessionId;
             // $scope.viewingDistribution = false; // why would this make sense?
@@ -59,6 +59,7 @@
             console.log('Got data in new-session-prompt', prompt);
             $scope.htmlThoughts = [];
             $scope.prompt = prompt;
+            $scope.sessionId = prompt.sessionId;
             $scope.viewingDistribution = false;
         });
 
