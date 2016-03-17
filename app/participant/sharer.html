@@ -44,7 +44,7 @@
       <h5>Received Thought:</h5>
       <div ng-bind-html="distributedThought.content">
       </div>
-      <h5>Select the same color as your groupmates to indicate which thoughts y'all've received.</h5>
+      <h5>Group Color</h5>
       <select class="form-control" ng-model="groupSelection.selectedGroupId" ng-options="item.id as item.name for item in possibleGroups track by item.id">
       <!--   <option>Group</option>
         <option>Red</option>
