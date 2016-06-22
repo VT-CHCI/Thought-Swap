@@ -16,4 +16,4 @@ Visit the [ThoughtSwap website](http://compthink.cs.vt.edu:3003/#/login) for the
 * Michael Stewart
 * Adam Barnes
 * James Beamer
-
+* Havisha Panda
