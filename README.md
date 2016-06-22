@@ -17,3 +17,4 @@ Visit the [ThoughtSwap website](http://compthink.cs.vt.edu:3003/#/login) for the
 * Adam Barnes
 * James Beamer
 * Havisha Panda
+* Priyanka Kogta
