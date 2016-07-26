@@ -40,6 +40,21 @@
             $scope.groupSelection = {
                 selectedGroupId: ''
             };
+            $scope.status = {
+                isopen: false
+            };
+            $scope.styleFor = function (item) {
+                var itemStyle = {
+                    "background-color":item.color,
+                    "color": item.text
+                };
+                // console.log(itemStyle)
+                return itemStyle;
+            };
+
+            $scope.selectGroupColor = function (item) {
+              $scope.groupSelection.selectedGroupId = item.id
+            };
         })();
 
         ThoughtSocket.on('group-colors', function (colors) {
@@ -81,7 +96,6 @@
                 groupId: UserService.user.groupId,
                 presenter: UserService.user.id,
             };
-            console.log('just selected', chooseGroupInfo);
             // emit a message to the server that tells it what group this thought belongs to
 
             ThoughtSocket.emit('choose-group', chooseGroupInfo);
