@@ -23,16 +23,6 @@
 	min-height: 612px;
 }
 
-#distributed-thought {
-	margin: 10px 10px 10px 10px;
-	border: 1px solid #212121;
-	border-radius: 10px;
-}
-
-/*.panel-body {
-	height: 500px;
-}*/
-
 @media screen and (max-width: 940px) {
 	.left {
 		width: 80%;
@@ -47,8 +37,4 @@
 		margin-left: auto;
 		margin-right: auto;
 	}
-
-	/*.panel-body {
-		height: 150px;
-	}*/
 }
