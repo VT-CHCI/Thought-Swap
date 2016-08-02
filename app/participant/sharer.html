@@ -1,14 +1,27 @@
 <ts-header></ts-header>
+
 <div class="container-fluid">
   <div class="col-md-8">
+
     <div ng-show="attemptedFacilitator" class="alert alert-info">
       Are you trying to act as Facilitator? If so, 
       <a href="#/login/facilitator?participant"><strong>this might help</strong></a>
+
     </div>
-    <div class="well well-lg" id="prompt">
-      <h4>Prompt:</h4>
+    <!-- <div class="well well-lg" id="prompt"> -->
+    <br>
+
+    <div class="panel panel-success">
+  <div class="panel-heading">
+    <h4 class="panel-title">Prompt:</h4> <br>
+    <div class="panel-body">
       <p>{{ prompt.content }}</p>
+    
     </div>
+    </div>
+    </div>
+    
+    <br>
 
     <!--[if lt IE 9]>
       <form  name="form" ng-submit="submitThought()" role="form">
@@ -41,13 +54,20 @@
         </div>
     </form>
     <div id="distributed-thought" ng-if="viewingDistribution">
-      <h5>Received Thought:</h5>
+      <!-- <h5>Received Thought:</h5> -->
+      <div class="panel panel-primary">
+  <div class="panel-heading">
+    <h5 class="panel-title">Received Thought:</h5>
+  </div>
+  </div>
       <div ng-bind-html="distributedThought.content">
       </div>
+
       <!-- <h5>Group Color</h5> -->
       <!-- <select class="form-control" ng-model="groupSelection.selectedGroupId" ng-options="item.id as item.name for item in possibleGroups track by item.id">
       </select> -->
       <!-- Single button -->
+<div class="panel-footer">
       <div class="btn-group" dropdown is-open="status.isopen">
         <button id="single-button" type="button" class="btn btn-primary" dropdown-toggle>
           Group Color <span class="caret"></span>
@@ -57,6 +77,8 @@
             <div class="ts-swatch" ng-style="styleFor(item)"></div>{{item.name}}
           </li>
         </ul>
+      </div>
+
       </div>
       <!-- <pre>{{groupSelection.selectedGroupId}}</pre> -->
     </div>
