@@ -1,37 +1,39 @@
 <div id="header">
-
     <div class="logo">
-      <a href="#/" title="Go to ThoughtSwap Welcome Page">
-        <img src="resources/alphaLogo.png" alt="ThoughtSwap">
-      </a>
+        <a href="#/" title="Go to ThoughtSwap Welcome Page">
+            <img src="resources/alphaLogo.png" alt="ThoughtSwap">
+        </a>
     </div>
-
     <div ng-if="shouldOfferLogin()">
-      <a class="btn btn-sm btn-success pull-right" href="#/login">
+        <a class="btn btn-sm btn-success pull-right" href="#/login">
         Login <i class="fa fa-sign-in"></i>
       </a>
     </div>
+    <!-- Help button -->
+    <div class="btn-group" role="group" aria-label="...">
+        <a href="resources/aboutPage.png" title="Shows us how to use ThoughtSwap" class="btn btn-warning">Help</a>
+    </div>
 
     <div ng-show="userService.isLoggedIn()">
-      <div class="btn-group pull-right">
+        </a>
+    </div>
+    <div class="btn-group pull-right">
         <div id="user-badge" class="btn btn-warning">
-          <i class="fa fa-user"></i>
-          Hello {{userService.user.username}}!
+            <i class="fa fa-user"></i> Hello {{userService.user.username}}!
         </div>
         <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <span class="caret"></span>
-          <span class="sr-only">Toggle Dropdown</span>
+            <span class="caret"></span>
+            <span class="sr-only">Toggle Dropdown</span>
         </button>
         <ul class="dropdown-menu">
-          <li ng-if="userService.isFacilitator()"><a href="#/facilitator/mgmt">Group Management</a></li>
-          <li ng-if="userService.isFacilitator()" role="separator" class="divider"></li>
-          <li id="logout">
-            <a ng-click="logOut()">Logout
+            <li ng-if="userService.isFacilitator()"><a href="#/facilitator/mgmt">Group Management</a></li>
+            <li ng-if="userService.isFacilitator()" role="separator" class="divider"></li>
+            <li id="logout">
+                <a ng-click="logOut()">Logout
               <i class= "fa fa-sign-out"></i>
               <i class="loadIcon" ng-if="dataLoading" src="resources/loading.gif"></i>
             </a>
-          </li>
+            </li>
         </ul>
-      </div>
-    </div>     
+    </div>
 </div>
