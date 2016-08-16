@@ -113,6 +113,10 @@
 	        resolve: isAuthenticated
 	      })
 
+        .when('/help', { // TODO: add :groupId
+          templateUrl: 'core/help.html'
+        })
+
 	      .otherwise({
 	        redirectTo: '/'
 	      });
