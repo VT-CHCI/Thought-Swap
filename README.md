@@ -9,7 +9,7 @@ The main goal of the project is to provide a platform to classrooms teaching any
 
 ## Project Website ##
 
-Visit the [ThoughtSwap website](http://compthink.cs.vt.edu:3003/#/login) for the latest news and downloads.
+Visit the [ThoughtSwap website](http://compthink.cs.vt.edu:3003/login) for the latest news and downloads.
 
 ## Contributors ##
 

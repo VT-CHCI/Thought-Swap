@@ -500,7 +500,7 @@ function setDistributionColors (options) { // distId, colorId
 app.use(express.static(__dirname + '/app'))
 app.use('/bower_components', express.static(__dirname + '/bower_components'))
 
-var PORT = 3030
+var PORT = 80
 models.start()
   .then(function () {
     http.listen(PORT, function () {

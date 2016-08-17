@@ -33,8 +33,8 @@
 
 	//===========================================================================
 
-	config.$inject = ['$routeProvider', 'toastrConfig'];
-	function config($routeProvider, toastrConfig) {
+	config.$inject = ['$routeProvider', 'toastrConfig', '$locationProvider'];
+	function config($routeProvider, toastrConfig, $locationProvider) {
 		angular.extend(toastrConfig, {
 			closeButton: true,
 		});
@@ -62,6 +62,11 @@
         		}
         	}
         }
+
+        $locationProvider.html5Mode({
+          enabled: true,
+          requireBase: false
+        });
 
 	    $routeProvider
 
