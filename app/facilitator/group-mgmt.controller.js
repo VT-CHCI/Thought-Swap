@@ -72,10 +72,10 @@
       $scope.groups[idx].isOpen = !$scope.groups[idx].isOpen
     }
 
-    // $scope.nav = function ($event) {
-    //   // console.log(groupId, $event)
-    //   $event.stopPropagation()
-    // }
+    $scope.nav = function ($event) {
+      // console.log(groupId, $event)
+      $event.stopPropagation()
+    }
 
     $scope.addPerson = function (group, event) {
       console.log('add person')

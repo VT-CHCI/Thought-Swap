@@ -500,6 +500,7 @@ function setDistributionColors (options) { // distId, colorId
 app.use(express.static(__dirname + '/app'))
 app.use('/bower_components', express.static(__dirname + '/bower_components'))
 
+
 var PORT = 80
 models.start()
   .then(function () {
@@ -645,7 +646,12 @@ app.post('/groups/create', function (request, response) {
 // =============================================================================
 // Socket Communications
 
+app.use('*', express.static(__dirname + '/app/index.html'));
+
 io.on('connection', function (socket) {
+  var address = socket.request.connection._peername;
+  // var address = socket.handshake.address;
+  console.log('New connection from ' + address.address);
   Promise.promisifyAll(socket)
   socket.emit('socket-id', socket.id)
   createEvent({
@@ -781,9 +787,9 @@ io.on('connection', function (socket) {
       findThoughts(data.promptId)
     ])
       .then(function (results) {
-        console.log('promise.all in distribute')
-        console.log(results.length)
-        console.log(results)
+        // console.log('promise.all in distribute')
+        // console.log(results.length)
+        // console.log(results)
         // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
         // Returns a random integer between min (included) and max (excluded)
         // Using Math.round() will give you a non-uniform distribution!
@@ -794,11 +800,11 @@ io.on('connection', function (socket) {
         var activeSockets = shuffle(results[1])
         var thoughts = shuffle(results[2])
 
-        console.log('activeSockets')
-        console.log(activeSockets)
+        // console.log('activeSockets')
+        // console.log(activeSockets)
 
-        console.log('thoughts')
-        console.log(thoughts)
+        // console.log('thoughts')
+        // console.log(thoughts)
 
         var thoughtsLength = thoughts.length
         var numCopies = activeSockets.length - thoughts.length
@@ -840,9 +846,9 @@ io.on('connection', function (socket) {
         // right now i think the distribution is fairly regular and people 
         // will probably always get the same other person's thought
         function possibleMatches (thoughtAuthors, thoughtPresenters) {
-          console.log('possibleMatches')
-          console.log(thoughtAuthors.length)
-          console.log(thoughtPresenters.length)
+          // console.log('possibleMatches')
+          // console.log(thoughtAuthors.length)
+          // console.log(thoughtPresenters.length)
           var edges = []
           for (var i = 0; i < thoughtAuthors.length; i++) {
             for (var j = 0; j < thoughtPresenters.length; j++) {
@@ -866,10 +872,10 @@ io.on('connection', function (socket) {
         // }
 
         var potentialMatches = possibleMatches(thoughtsAuthors, presenters)
-        console.log('potential matches', potentialMatches)
+        // console.log('potential matches', potentialMatches)
 
         var distribution = findMatching(thoughtsAuthors.length, presenters.length, potentialMatches)
-        console.log('distribution', distribution)
+        // console.log('distribution', distribution)
 
         function formatDistribution (distribution) {
           return distribution.map(function (pairing) {
@@ -895,7 +901,7 @@ io.on('connection', function (socket) {
           var thoughtAuthorForSending = thoughtsAuthors[thoughtToSendIndex]
           var thoughtContent = thoughtAuthorForSending.get('content')
 
-          console.log('current group', thoughtAuthorForSending.get('user').get('groupId'))
+          // console.log('current group', thoughtAuthorForSending.get('user').get('groupId'))
 
           createDistribution({
             recipient: presenterSocketIdx,
@@ -903,8 +909,8 @@ io.on('connection', function (socket) {
             group: thoughtAuthorForSending.get('user').get('groupId')
           })
             .then(function (newDistribution) {
-              console.log('created distribution')
-              console.log(newDistribution.get('id'))
+              // console.log('created distribution')
+              // console.log(newDistribution.get('id'))
 
               // it's possible someone has disconnected. don't friggin die if they did!
               if (typeof io.sockets.connected[socketIdOfReceipient] !== 'undefined') {
