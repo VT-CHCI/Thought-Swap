@@ -203,6 +203,7 @@ function findUserById (i) {
 function findAllGroupsByOwner (i) {
   // console.log('findAllGroupsByOwner', i)
   return models.Group.findAll({
+    order: 'id DESC',
     where: {
       ownerId: i
     },
