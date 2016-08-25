@@ -496,7 +496,7 @@ function setDistributionColors (options) { // distId, colorId
 
 // =============================================================================
 // Init Server & Files
-
+app.use('/participant/', express.static(__dirname + '/app/index.html'));
 app.use(express.static(__dirname + '/app'))
 app.use('/bower_components', express.static(__dirname + '/bower_components'))
 

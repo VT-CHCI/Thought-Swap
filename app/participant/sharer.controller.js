@@ -41,8 +41,12 @@
                 selectedGroupId: ''
             };
             $scope.status = {
-                isopen: false
+                open: false
             };
+
+            $scope.togglePrev = function () {
+                $scope.status.open = !$scope.status.open
+            }
             $scope.styleFor = function (item) {
                 var itemStyle = {
                     "background-color":item.color,
