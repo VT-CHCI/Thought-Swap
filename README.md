@@ -1,20 +1,61 @@
-# Thought-Swap #
+# ![Thought-Swap](app/resources/project_logo.png)
 
-## Overview ##
+A web app that aims to widen and deepen the scope of participation in 
+facilitated discussions by minimizing participant self-consciousness,
+social intimidation, and time pressure.
 
-We have developed a tool, called ThoughtSwap, to help widen and deepen the scope of participation in facilitated discussions while supporting, not supplanting, discussants’ coordination. By driving the design of ThoughtSwap toward a simpler mechanism, we were able to create a more versatile, high-impact tool. We design for an educational setting, but see wider possible use. For more see the [publication](http://dl.acm.org/citation.cfm?id=1718934). 
+## Project in Action
+ThoughtSwap is actively being tested and used at [Virginia Tech](https://vt.edu)
+in classroom discussions. You can view the project's home at
+[thoughtswap.cs.vt.edu](http://thoughtswap.cs.vt.edu/)
 
-ThoughtSwap allows students to submit thoughts anonymously to their teacher who can then release those thoughts to be distributed randomly. Students will then be able to consider another’s thoughts in a discussion where self-consciousness, social intimidation, and time pressure are minimized.
-The main goal of the project is to provide a platform to classrooms teaching any age that supports dynamic classroom interactions centered around student discussion.
+For discussion facilitators, ThoughtSwap provides a platform for the creation of
+groups, group sessions with prompts and a platform to moderate and discuss 
+responses. For participants, a platform for viewing the prompt, and sharing
+prompts is available while a system of "silly name" generation of usernames and
+random thought distribution helps to anonymize them from their peers.
 
-## Project Website ##
+A demo of this can be seen below:
 
-Visit the [ThoughtSwap website](http://compthink.cs.vt.edu:3003/login) for the latest news and downloads.
+```
+TODO: Add 1 gif for the facilitator flow and 1 for student flow
+```
 
-## Contributors ##
+## Contributing
 
-* Michael Stewart
-* Adam Barnes
-* James Beamer
-* Havisha Panda
-* Priyanka Kogta
+For general contribution guidelines see [CONTRIBUTING](CONTRIBUTING.md). To
+get started, it's as easy as 1, 2, 3:
+
+### Step 1: Fork
+Fork the [core repository](https://github.com/VT-CHCI/Thought-Swap) and check
+out your copy locally.
+```
+$ git clone git@github.com:username/Thought-Swap.git
+$ cd Thought-Swap
+$ git remote add upstream git://github.com/VT-CHCI/Thought-Swap.git
+```
+
+### Step 2: Install Dependencies
+Ensure you have the tools needed to develop. Namely: 
+* [Node](https://nodejs.org/en/)
+* [Bower](https://bower.io/)
+* [SQL Server](https://dev.mysql.com/downloads/mysql/) 
+
+Setup the application by installing the dependencies and then running the test
+suite to check that everything is in working order as such:
+```
+$ npm install && bower install
+$ npm test
+```
+
+### Step 3: Run
+Start up the app with ```$ node server``` and navigate to localhost on the given
+port in your browser of choice.
+
+<br>
+
+## Recognitions
+
+Thought-Swap © 2014+, Center for Human-Computer Interaction at Virginia Tech 
+(VTCHCI). Released under the [MIT License](LICENSE). Special thanks to our
+[contributors](https://github.com/VT-CHCI/Thought-Swap/graphs/contributors).
