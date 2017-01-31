@@ -14,6 +14,7 @@ var io = require('socket.io')(http)
 var mysql = require('mysql'); // jshint ignore:line
 var bodyParser = require('body-parser')
 var findMatching = require('bipartite-matching')
+var bcrypt = require('bcrypt-nodejs');
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -330,7 +331,7 @@ function createFacilitator (e, u, p) {
       return models.User.create({
         email: e,
         username: u,
-        password: p,
+        password: bcrypt.hashSync(p),
         role: 'facilitator'
       })
     })
@@ -524,14 +525,18 @@ app.post('/signin', function (request, response) {
         // console.log('Found ', user)
         if (user !== null) {
           if (user.role === 'facilitator') {
-            if (request.body.user.username === user.username &&
-              request.body.user.password === user.password) {
-              response.status(200).json({
-                user: user
-              })
-            } else {
-              // If you get this far, user is not null, so password is wrong
-              response.status(401).send('Invalid password.')
+            if (request.body.user.username === user.username) {
+              bcrypt.compare(request.body.user.password, user.password, function(err, res) {
+                if (res === true) {
+                  response.status(200).json({
+                    user: user
+                  })
+                }
+                else {
+                  // If you get this far, user is not null, so password is wrong
+                  response.status(401).send('Invalid password.')
+                }
+              });
             }
           }
           if (user.role === 'participant') {

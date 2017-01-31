@@ -1,4 +1,5 @@
 'use strict'
+var bcrypt = require('bcrypt-nodejs');
 var Sequelize = require('sequelize')
 var sequelize = new Sequelize(
   process.env.TS_DB, // database name
@@ -16,7 +17,7 @@ var DROPTABLES = false
 var User = sequelize.define('user', {
   email: Sequelize.STRING,
   username: {type: Sequelize.STRING, unique: true},
-  password: Sequelize.STRING, // is hashed client-side before storing
+  password: Sequelize.STRING,
   role: Sequelize.ENUM(
     'facilitator',
     'participant')
@@ -159,7 +160,7 @@ exports.start = function () {
         where: {
           email: 'test@thought-swap.com',
           username: 'admin',
-          password: '098f6bcd4621d373cade4e832627b4f6', // md5 hash of test
+          password: bcrypt.hashSync('test'),
           role: 'facilitator',
           groupId: null
         }

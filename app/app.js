@@ -21,7 +21,6 @@
       'btford.socket-io',
       'ui.bootstrap',
       'textAngular',
-      'angular-md5',
       'thoughtSwap',
       'mp.autoFocus',
       'toastr',
