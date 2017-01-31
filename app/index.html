@@ -7,12 +7,11 @@
     <meta name="description" content="Enabling anonymous group discussion.">
     <meta name="viewport" content="width=device-width">
     <link rel="shortcut icon" href="resources/favicon.ico">
-    <!-- bower:css -->
-    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
-    <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css" />
-    <link rel="stylesheet" href="bower_components/textAngular/dist/textAngular.css">
-    <link rel="stylesheet" href="bower_components/angular-toastr/dist/angular-toastr.css" />
-    <!-- endbower -->
+
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="node_modules/font-awesome/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="node_modules/textAngular/dist/textAngular.css">
+    <link rel="stylesheet" href="node_modules/angular-toastr/dist/angular-toastr.css" />
     <!-- build:css({.tmp,app}) styles/main.css -->
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="core/core.style.css">
@@ -29,32 +28,34 @@
 
 <body ng-app="app">
     <!--[if lt IE 9]>
-      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+      <p class="browsehappy">You are using an <strong>outdated</strong> browser.
+       Please <a href="http://browsehappy.com/">upgrade your browser</a> to 
+       improve your experience.</p>
     <![endif]-->
+
     <div class="" ng-view=""></div>
-    <!-- build:js scripts/vendor.js -->
-    <!-- bower:js -->
-    <script src="bower_components/jquery/dist/jquery.js"></script>
-    <script src="bower_components/angular/angular.js"></script>
-    <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
-    <script src="bower_components/angular-route/angular-route.js"></script>
-    <script src="bower_components/angular-cookies/angular-cookies.js"></script>
-    <script src="bower_components/angular-socket-io/socket.js"></script>
-    <script src="bower_components/angular-toastr/dist/angular-toastr.tpls.js"></script>
+
+    <script src="node_modules/angular/angular.js"></script>
+    <script src="node_modules/jquery/dist/jquery.js"></script>
+    <script src="node_modules/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="node_modules/angular-route/angular-route.js"></script>
+    <script src="node_modules/angular-cookies/angular-cookies.js"></script>
+    <script src="node_modules/angular-socket-io/socket.js"></script>
+    <script src="node_modules/angular-toastr/dist/angular-toastr.tpls.min.js"></script>
         <!-- Forked -->
         <script src="forks/angular-morph.js"></script>
         <script src="forks/angular-drag-and-drop-lists.js"></script>
-    <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
-    <script src="bower_components/angular-md5/angular-md5.js"></script>
-    <script src="bower_components/textAngular/dist/textAngular-rangy.min.js"></script>
-    <script src="bower_components/textAngular/dist/textAngular.min.js"></script>
-    <script src="bower_components/textAngular/dist/textAngular-sanitize.min.js"></script>
-    <script src="bower_components/angular-auto-focus/angular-auto-focus.js"></script>
-    <!-- endbower -->
-    <!-- endbuild -->
-    <!-- build:js({.tmp,app}) scripts/scripts.js -->
+
+    <script src="node_modules/angular-ui-bootstrap/dist/ui-bootstrap.js"></script>
+    <script src="node_modules/js-sha256/build/sha256.min.js"></script>
+    <script src="node_modules/textAngular/dist/textAngular-rangy.min.js"></script>
+    <script src="node_modules/textAngular/dist/textAngular.min.js"></script>
+    <script src="node_modules/textAngular/dist/textAngular-sanitize.min.js"></script>
+    <script src="node_modules/angular-auto-focus/angular-auto-focus.js"></script>
+
+    <!-- Special http REF -->
     <script src="/socket.io/socket.io.js"></script>
-    <!-- ^ http REF -->
+
     <script src="services/user.service.js"></script>
     <script src="services/groups.service.js"></script>
     <script src="services/thought-socket.service.js"></script>

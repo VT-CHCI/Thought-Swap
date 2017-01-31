@@ -38,13 +38,12 @@ $ git remote add upstream git://github.com/VT-CHCI/Thought-Swap.git
 ### Step 2: Install Dependencies
 Ensure you have the tools needed to develop. Namely: 
 * [Node](https://nodejs.org/en/)
-* [Bower](https://bower.io/)
 * [SQL Server](https://dev.mysql.com/downloads/mysql/) 
 
 Setup the application by installing the dependencies and then running the test
 suite to check that everything is in working order as such:
 ```
-$ npm install && bower install
+$ npm install
 $ npm test
 ```
 
