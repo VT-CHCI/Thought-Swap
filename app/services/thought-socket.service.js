@@ -14,7 +14,7 @@
 
     ThoughtSocket.$inject = ['socketFactory'];
     function ThoughtSocket(socketFactory) {
-        var myIoSocket = io.connect('/');
+        var myIoSocket = io.connect();
 
         var ThoughtSocket = socketFactory({
           ioSocket: myIoSocket

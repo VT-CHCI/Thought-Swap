@@ -13,12 +13,10 @@ var Promise = require('bluebird'); // jshint ignore:line
 var io = require('socket.io')(http)
 var mysql = require('mysql'); // jshint ignore:line
 var bodyParser = require('body-parser')
-var multer = require('multer')
 var findMatching = require('bipartite-matching')
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
-app.use(multer())
 // Self Dependencies
 var models = require('./app.models')
 
@@ -434,7 +432,7 @@ function setSocketInactive (socketId) {
 // the rooms have been left
 function leaveAllRooms (socket) {
   // console.log('leaveAllRooms', socket)
-  return Promise.all(socket.rooms.map(function (room) {
+  return Promise.all(Object.keys(socket.rooms).map(function (room) {
     return socket.leaveAsync(room)
   }))
 }

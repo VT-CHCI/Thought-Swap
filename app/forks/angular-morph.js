@@ -407,8 +407,8 @@
 
           // add to dom
           wrapper.append(content);
-          // element.after(wrapper);
-          angular.element('body').append(wrapper);
+          element.after(wrapper);
+          // angular.element('body').append(wrapper); // not supported by jqLite
 
           // set the wrapper bg color
           wrapper.css('background', getComputedStyle(content[0]).backgroundColor);

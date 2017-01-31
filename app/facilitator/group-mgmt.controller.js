@@ -12,7 +12,7 @@
     .module('app')
     .controller('GroupMgmtController', GroupMgmtController)
 
-  GroupMgmtController.$inject = ['$scope', 'UserService', '$location', '$modal', 'ThoughtSocket']
+  GroupMgmtController.$inject = ['$scope', 'UserService', '$location', '$uibModal', 'ThoughtSocket']
   function GroupMgmtController ($scope, UserService, $location, $modal, ThoughtSocket) {
     (function initController () {
       // reset login status?
@@ -106,7 +106,7 @@
   angular.module('app')
     .controller('NewGroupModalController', NewGroupModalController)
 
-  NewGroupModalController.$inject = ['$scope', '$modalInstance', 'groups', 'GroupsService', 'UserService']
+  NewGroupModalController.$inject = ['$scope', '$uibModalInstance', 'groups', 'GroupsService', 'UserService']
   function NewGroupModalController ($scope, $modalInstance, groups, GroupsService, UserService) {
     $scope.groups = groups
 

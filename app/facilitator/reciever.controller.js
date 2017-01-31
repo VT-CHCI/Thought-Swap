@@ -10,7 +10,7 @@
 	angular.module('app')
 		.controller('RecieverController', RecieverController);
 
-	RecieverController.$inject = ['$scope', '$modal', '$log', 'ThoughtSocket',
+	RecieverController.$inject = ['$scope', '$uibModal', '$log', 'ThoughtSocket',
 		'UserService', '$location', '$routeParams', '$rootScope', '$timeout',
 		'toastr', '$animate', 'LoggerService'];
 	function RecieverController($scope, $modal, $log, ThoughtSocket,
@@ -286,7 +286,7 @@
 	angular.module('app')
 			.controller('PromptModalController', PromptModalController);
 
-	PromptModalController.$inject = ['$scope', '$modalInstance', 'sessionId',
+	PromptModalController.$inject = ['$scope', '$uibModalInstance', 'sessionId',
 		'ThoughtSocket', 'UserService', '$routeParams', 'LoggerService'];
 	function PromptModalController($scope, $modalInstance, sessionId,
 		ThoughtSocket, UserService, $routeParams, Logger) {
