@@ -22,9 +22,10 @@
             $scope.ngmSettings = {
                 closeEl: '.close',
                 overlay: {
-                    templateUrl: 'partials/thoughtOverlay.html'
+                    templateUrl: 'app/facilitator/partials/thoughtOverlay.html'
                 }
             };
+
 
             ThoughtSocket.emit('facilitator-join', {
                 groupId: $routeParams.groupId,

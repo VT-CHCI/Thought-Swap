@@ -490,9 +490,9 @@ function setDistributionColors(options) { // distId, colorId
 
 // =============================================================================
 // Init Server & Files
-app.use('/participant/', express.static(__dirname + '../client/index.html'));
-app.use(express.static(__dirname + '../client/app'));
-app.use('../node_modules', express.static(__dirname + '../node_modules'));
+app.use('/participant/', express.static(__dirname + '/../client/index.html'));
+app.use(express.static(__dirname + '/../client'));
+app.use('/node_modules', express.static(__dirname + '/../node_modules'));
 
 var PORT = process.env.PORT || 9000;
 
@@ -643,7 +643,7 @@ app.post('/groups/create', function (request, response) {
 // =============================================================================
 // Socket Communications
 
-app.use('*', express.static(__dirname + '/app/index.html'));
+app.use('*', express.static(__dirname + '/../client/index.html'));
 
 io.on('connection', function (socket) {
   var address = socket.request.connection._peername;

@@ -39,7 +39,7 @@
 						return !UserService.isLoggedIn() && (path === '/');
 					};
 				},
-				templateUrl: 'tsHeader/tsHeader.html'
+				templateUrl: 'common/directives/tsHeader/tsHeader.html'
 			};
 		});
 

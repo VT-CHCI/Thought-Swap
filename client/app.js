@@ -100,7 +100,7 @@
 
             /* Facilitator Views */
             .when('/facilitator/mgmt', {
-                templateUrl: 'app/facilitator/group-manager/groupManager.html',
+                templateUrl: 'app/facilitator/groupManager/groupManager.html',
                 controller: 'GroupManagerController',
                 resolve: isFacilitator
             })
@@ -114,7 +114,7 @@
             /* Participant View */
             .when('/participant', {
                 templateUrl: 'app/participant/participant.html',
-                controller: 'SharerController',
+                controller: 'ParticipantController',
                 resolve: isAuthenticated
             })
 

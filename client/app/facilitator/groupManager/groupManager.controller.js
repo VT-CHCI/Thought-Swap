@@ -88,7 +88,7 @@
                 return group.id === newParticipant.groupId;
             })[0].users.push(newParticipant);
         });
-    } // End GroupMgmtController
+    } // End GroupManagerController
 
 
     /**

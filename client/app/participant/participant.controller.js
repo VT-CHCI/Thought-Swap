@@ -1,21 +1,15 @@
 (function () {
     'use strict';
 
-    /**
-     * @ngdoc overview
-     * @name app
-     * @description
-     * # The...
-     */
     angular
         .module('app')
-        .controller('SharerController', SharerController);
+        .controller('ParticipantController', ParticipantController);
 
-    SharerController.$inject = ['$scope', '$location', 'ThoughtSocket',
+    ParticipantController.$inject = ['$scope', '$location', 'ThoughtSocket',
         'UserService', '$rootScope', 'toastr', 'LoggerService'
     ];
 
-    function SharerController($scope, $location, ThoughtSocket,
+    function ParticipantController($scope, $location, ThoughtSocket,
         UserService, $rootScope, toastr, Logger) {
 
         (function initController() {
