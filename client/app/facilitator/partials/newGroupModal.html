@@ -1,0 +1,34 @@
+<div id="newGroupModal" class="modal-body">
+  <form name="gform" ng-submit="submit()" role="form">
+
+    <div class="form-group" ng-class="{
+        'has-error': gform.groupname.$dirty && gform.groupname.$error.required }">
+      <label for="groupname">Group Name</label>
+
+      <input type="text" name="groupname" id="groupname" class="form-control" 
+        ng-model="groupname" auto-focus required />
+        
+      <span ng-show="gform.groupname.$dirty && gform.groupname.$error.required" 
+        class="help-block">Group name is required.</span>
+    </div>
+
+
+    <div class="form-group" ng-class="{
+      'has-error': gform.numParticipants.$dirty && gform.numParticipants.$error.required }">
+      <label for="numParticipants">Number of Participants</label>
+
+      <input type="number" name="numParticipants" id="numParticipants" 
+        class="form-control" ng-model="numParticipants" required />
+
+      <span ng-show="gform.numParticipants.$dirty && gform.numParticipants.$error.required" 
+        class="help-block">Number of participants is required.</span>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" ng-disabled="gform.$invalid || dataLoading" 
+        class="btn btn-primary">Create</button>
+      <img class="loadIcon" ng-if="dataLoading" src="assets/img/loading.gif" />
+      <button type="reset" class="btn btn-link" ng-click="cancel()">Cancel</button>
+    </div>
+  </form>
+</div>

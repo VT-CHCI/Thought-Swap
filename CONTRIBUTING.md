@@ -58,7 +58,7 @@ contribute like a pro by:
 
       split up the single login page into a dedicated facilitator login page and
       a dedicated participant login page. Added a button linking to each in
-      landing.html
+      home.html
 
       closes #XX
       ```

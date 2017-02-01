@@ -1,5 +1,7 @@
 {
+  "author": "VT-CHCI",
   "name": "Thought-Swap",
+  "homepage": "http://thoughtswap.cs.vt.edu/",
   "version": "1.0.1",
   "license": "MIT",
   "repository": {
@@ -34,15 +36,16 @@
   "devDependencies": {
     "angular-mocks": "~1.6.0",
     "jasmine": "~2.5.1",
-    "karma": "~1.4.0",
-    "protractor": "~5.0.0",
     "jasmine-core": "~2.5.0",
-    "karma-jasmine": "~1.1.0",
+    "karma": "~1.4.0",
     "karma-chrome-launcher": "~2.0.0",
-    "ng-midway-tester": "~2.0.5"
+    "karma-jasmine": "~1.1.0",
+    "less": "^2.7.2"
   },
   "engines": {
     "node": ">=6.9.4"
   },
-  "scripts": {}
+  "scripts": {
+    "start": "node server/server.js"
+  }
 }

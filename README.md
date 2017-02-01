@@ -1,4 +1,4 @@
-# ![Thought-Swap](app/resources/project_logo.png)
+# ![Thought-Swap](client/assets/project-logo.png)
 
 A web app that aims to widen and deepen the scope of participation in 
 facilitated discussions by minimizing participant self-consciousness,
@@ -6,13 +6,13 @@ social intimidation, and time pressure.
 
 ## Project in Action
 ThoughtSwap is actively being tested and used at [Virginia Tech](https://vt.edu)
-in classroom discussions. You can view the project's home at
-[thoughtswap.cs.vt.edu](http://thoughtswap.cs.vt.edu/)
+in classroom discussions by over 200 students. You can view the project's home 
+at [thoughtswap.cs.vt.edu](http://thoughtswap.cs.vt.edu/)
 
 For discussion facilitators, ThoughtSwap provides a platform for the creation of
-groups, group sessions with prompts and a platform to moderate and discuss 
-responses. For participants, a platform for viewing the prompt, and sharing
-prompts is available while a system of "silly name" generation of usernames and
+groups, group sessions with prompts, and a platform to moderate and discuss 
+responses. For participants it provides a platform for viewing the prompt, and
+sharing their thoughts. A system of "silly name" generation for usernames and
 random thought distribution helps to anonymize them from their peers.
 
 A demo of this can be seen below:
