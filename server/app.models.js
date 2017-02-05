@@ -10,7 +10,7 @@ var sequelize = new Sequelize(
   }
 )
 
-var DROPTABLES = true
+var DROPTABLES = false;
 
 // if (process.env.TS_DROP === 'true') {
 // 	DROPTABLES = true

@@ -15,11 +15,12 @@ responses. For participants it provides a platform for viewing the prompt, and
 sharing their thoughts. A system of "silly name" generation for usernames and
 random thought distribution helps to anonymize them from their peers.
 
-A demo of this can be seen below:
+A glimpse of this can be seen below:
 
-```
-TODO: Add 1 gif for the facilitator flow and 1 for student flow
-```
+### Participant View
+![Thought-Swap](client/assets/img/participant-mock.png)
+### Facilitator View
+![Thought-Swap](client/assets/img/Facilitator-mock.png)
 
 ## Contributing
 
@@ -48,7 +49,7 @@ $ npm test
 ```
 
 ### Step 3: Run
-Start up the app with ```$ node server``` and navigate to localhost on the given
+Start up the app with ```$ npm start``` and navigate to localhost on the given
 port in your browser of choice.
 
 <br>
