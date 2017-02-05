@@ -1,19 +1,21 @@
 <!DOCTYPE html>
 
 <head>
-    <meta charset="utf-8">
     <base href="/">
+    <meta charset="utf-8">
     <title>ThoughtSwap</title>
-    <meta name="description" content="Enabling anonymous group discussion.">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="An open source web app working toward more meaningful discussions.">
+    <meta name="keywords" content="classroom, discussion, collocated, group, app,
+    questions, tools, teaching, learning, educational, students">
     <link rel="shortcut icon" href="assets/favicon.ico">
     <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css" />
     <link rel="stylesheet" href="node_modules/font-awesome/css/font-awesome.min.css" />
     <link rel="stylesheet" href="node_modules/textAngular/dist/textAngular.css">
     <link rel="stylesheet" href="node_modules/angular-toastr/dist/angular-toastr.css" />
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="assets/fonts/Pacifico.css">
-    <link rel="stylesheet" href="assets/fonts/Titillium.css">
+    <link rel="stylesheet" href="app/facilitator/grid.styles.css">
+    
     <!--[if lt IE 9]>
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <![endif]-->
@@ -25,9 +27,7 @@
        Please <a href="http://browsehappy.com/">upgrade your browser</a> to 
        improve your experience.</p>
     <![endif]-->
-
     <div class="" ng-view=""></div>
-
     <script src="../node_modules/angular/angular.js"></script>
     <script src="../node_modules/jquery/dist/jquery.js"></script>
     <script src="../node_modules/bootstrap/dist/js/bootstrap.js"></script>
@@ -36,18 +36,15 @@
     <script src="../node_modules/angular-socket-io/socket.js"></script>
     <script src="../node_modules/angular-toastr/dist/angular-toastr.tpls.min.js"></script>
     <script src="../node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js"></script>
-    <script src="../node_modules/js-sha256/build/sha256.min.js"></script>
     <script src="../node_modules/textAngular/dist/textAngular-rangy.min.js"></script>
     <script src="../node_modules/textAngular/dist/textAngular.min.js"></script>
     <script src="../node_modules/textAngular/dist/textAngular-sanitize.min.js"></script>
     <script src="../node_modules/angular-auto-focus/angular-auto-focus.js"></script>
-
     <!-- Custom solutions -->
     <script src="assets/vendor/angular-morph.js"></script>
     <script src="assets/vendor/angular-drag-and-drop-lists.js"></script>
     <!-- Special http REF -->
     <script src="/socket.io/socket.io.js"></script>
-
     <script src="common/services/groups.service.js"></script>
     <script src="common/services/logger.service.js"></script>
     <script src="common/services/thought-socket.service.js"></script>

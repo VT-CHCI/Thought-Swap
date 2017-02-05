@@ -37,11 +37,11 @@
                 selectedGroupId: ''
             };
             $scope.status = {
-                open: false
+                historyIsOpen: false
             };
 
             $scope.togglePrev = function () {
-                $scope.status.open = !$scope.status.open
+                $scope.status.historyIsOpen = !$scope.status.historyIsOpen;
             }
             $scope.styleFor = function (item) {
                 var itemStyle = {

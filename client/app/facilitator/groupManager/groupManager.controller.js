@@ -10,17 +10,14 @@
 
         (function initController() {
             $scope.dataLoading = true;
-            $scope.isFirstOpen = true;
-            $scope.isOpen = false;
 
             UserService.getGroups()
                 .then(function (groups) {
                     $scope.groups = groups;
-                    $scope.groups.map(function (item) {
-                        item.isOpen = false;
-                    });
-
                     if ($scope.groups.length > 0) {
+                        $scope.groups.map(function (item) {
+                            item.isOpen = false;
+                        });
                         $scope.groups[0].isOpen = true;
                     }
                 })
@@ -37,7 +34,7 @@
         $scope.createGroup = function () {
             var modalInstance = $modal.open({
                 animation: true,
-                templateUrl: 'partials/newGroupModal.html',
+                templateUrl: 'app/facilitator/partials/newGroupModal.html',
                 controller: 'NewGroupModalController',
                 resolve: {
                     groups: function () {
@@ -64,8 +61,8 @@
         };
 
         $scope.expand = function (idx) {
-            // console.log('expand');
-            $scope.groups[idx].isOpen = !$scope.groups[idx].isOpen;
+            if (idx !== 0)
+                $scope.groups[idx].isOpen = !$scope.groups[idx].isOpen;
         };
 
         $scope.nav = function ($event) {

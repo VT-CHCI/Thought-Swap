@@ -407,8 +407,14 @@
 
           // add to dom
           wrapper.append(content);
-          element.after(wrapper);
-          // angular.element('body').append(wrapper); // not supported by jqLite
+          angular.element(document).find('body').append(wrapper);
+          
+          // https://github.com/jimobrien/ngMorph/issues/10 ^
+          // if (scope.settings.target || scope.settings.target === "body") {
+          //     angular.element(document).find('body').append(wrapper);
+          // } else {
+          //     element.after(wrapper);
+          // }
 
           // set the wrapper bg color
           wrapper.css('background', getComputedStyle(content[0]).backgroundColor);

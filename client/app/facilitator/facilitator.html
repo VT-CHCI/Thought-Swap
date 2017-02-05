@@ -1,45 +1,48 @@
 <ts-header></ts-header>
-<div class="container component facilitator-controls">
-  <div class="well well-lg text-center" id="controlBar">
-    <button class="btn btn-primary" ng-click="distribute()">Distribute</button>
-    <button class="btn btn-primary" ng-click="newSession()">New Session</button>
-    <button class="btn btn-primary" ng-click="openPromptInput()">New Prompt</button>
-    <!-- <button class="btn btn-primary" ng-click="testThoughts()">Test Thoughts</button> -->
-    <br><br>
-    <form class="form-horizontal facilitator-status">
-      <label for="numthoughts"><i class="fa fa-comment"></i>Thoughts</label>
-      <code><span id="numThoughts">{{participantThoughts.length}}</span></code>
-      <label for="numSubmitters"><i class="fa fa-user"></i>Submitters</label>
-      <code><span id="numSubmitters">{{numSubmitters}}</span></code>
-      <!-- <label for="numConnected"><i class="fa fa-globe"></i>Connected</label>
-      <code><span id="numConnected">{{numConnected}}</span></code> -->
-    </form>
-  </div>
-  <div class="container component">
-    <div class="well" id="promptDisplay" ng-if="prompt.content.length > 0">
-      {{prompt.content}}
+<section>
+  <div class="container controls">
+    <div class="well well-lg text-center" id="controlBar">
+      <button class="btn sml blue" ng-click="distribute()">Distribute</button>
+      <button class="btn sml blue" ng-click="newSession()">New Session</button>
+      <button class="btn sml blue" ng-click="openPromptInput()">New Prompt</button>
+      <!--<button class="btn sml blue" ng-click="testThoughts()">Generate Thoughts</button> -->
+      <br>
+      <form class="form-horizontal" id="status">
+        <label for="numthoughts"><i class="fa fa-comment"></i> Thoughts</label>
+        <code><span id="numThoughts">{{participantThoughts.length}}</span></code>
+        <label for="numSubmitters"><i class="fa fa-user"></i> Submitters</label>
+        <code><span id="numSubmitters">{{numSubmitters}}</span></code>
+        <!-- <label for="numConnected"><i class="fa fa-globe"></i>Connected</label>
+        <code><span id="numConnected">{{numConnected}}</span></code> -->
+      </form>
     </div>
-    <div class="panel panel-default" id="discussion">
-      <div class="panel-body grid-container" id="dashboard">
-        <ul dnd-list="participantThoughts" id="grid" class="grid">
-          <li ng-repeat="thought in participantThoughts" dnd-draggable="thought" dnd-moved="thoughtMoved($index)" dnd-effect-allowed="move"
+  </div>
+  
+  <div class="container promptDisplay">
+    <blockquote>
+      <p>{{prompt.content}}</p>
+    </blockquote>
+  </div>
+
+  <div class="panel panel-default" id="thoughtFeed">
+    <div class="panel-body grid-container">
+      <ul dnd-list="participantThoughts" class="grid">
+        <li ng-repeat="thought in participantThoughts" dnd-draggable="thought"
+            dnd-moved="thoughtMoved($index)" dnd-effect-allowed="move"
             dnd-selected="models.selected = thought" data-index="$index">
-            <div class="hidden"></div>
-            <div class="inner">
-              <div class="controls">
-                <!-- Enlarge thought via ngMorph -->
-                <i id="enlarge" class="fa fa-expand util" ng-morph-overlay="{{ngmSettings}}" ng-morph-model="{{thought}}">
-                  </i>
-                <!-- Delete Thought -->
-                <i id="delete" class="fa fa-times-circle util" ng-click="deleteThought($index)">
-                  </i>
-              </div>
-              <div class="grid-content" ng-style="thoughtStyle(thought)" ng-bind-html="displayThought(thought)">
-              </div>
+
+          <div class="hidden"></div>
+          <div class="thought-item">
+            <div class="controls">
+              <i id="enlarge" class="fa fa-expand util" ng-morph-overlay="{{ngmSettings}}" ng-morph-model="{{thought}}"></i>
+              <i id="delete" class="fa fa-times-circle util" ng-click="deleteThought($index)"></i>
             </div>
-            </li>
-        </ul>
-      </div>
+            <div class="content" ng-style="thoughtStyle(thought)" ng-bind-html="displayThought(thought)"></div>
+          </div>
+
+        </li>
+      </ul>
     </div>
   </div>
-</div>
+
+</section>

@@ -70,11 +70,19 @@
 
         $routeProvider
 
-            /* Home and Common Views */
+            /* Core */
             .when('/', {
-                templateUrl: 'app/home/home.html',
+                templateUrl: 'app/core/home.html',
                 resolve: isParticipant
             })
+            .when('/help', {
+              templateUrl: 'app/core/help.html'
+            })
+            .when('/about', {
+              templateUrl: 'app/core/about.html'
+            })
+
+            /* Authentication */
             .when('/login', {
                 templateUrl: 'common/authentication/login/login.html',
                 controller: 'LoginController',
@@ -98,7 +106,7 @@
                 controller: 'RegisterController'
             })
 
-            /* Facilitator Views */
+            /* Facilitator */
             .when('/facilitator/mgmt', {
                 templateUrl: 'app/facilitator/groupManager/groupManager.html',
                 controller: 'GroupManagerController',
@@ -117,10 +125,6 @@
                 controller: 'ParticipantController',
                 resolve: isAuthenticated
             })
-
-            // .when('/help', { // TODO: add :groupId
-            //   templateUrl: 'core/help.html'
-            // })
 
             .otherwise({
                 redirectTo: '/'

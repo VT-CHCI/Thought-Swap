@@ -1,0 +1,201 @@
+/* Drag & Drop List CSS ======================================= MIT Licence = */
+
+
+/* http://marceljuenemann.github.io/angular-drag-and-drop-lists/demo/#/simple */
+
+
+/* Needed for correct positioning of placeholder element */
+
+ul[dnd-list],
+ul[dnd-list]>li {
+  position: relative;
+}
+
+
+/* Must have min height, otherwise you can't drop once it's empty */
+
+ul[dnd-list] {
+  min-height: 168px;
+  padding-left: 0px;
+}
+
+
+/* Makes sense to hide original element being
+   dragged to give impression it is being moved */
+
+ul[dnd-list] .dndDraggingSource {
+  display: none;
+}
+
+
+/* Styling for the placeholder box that is auto added during dragging */
+
+ul[dnd-list] .dndPlaceholder {
+  background-color: #DDD;
+  display: inline-block;
+  min-height: 42px;
+  top: 19px;
+}
+
+
+/**
+ * The dnd-lists's child elements currently MUST have
+ * position: relative. Otherwise we can not determine
+ * whether the mouse pointer is in the upper or lower
+ * half of the element we are dragging over. In other
+ * browsers we can use event.offsetY for this.
+ */
+
+
+/*ul[dnd-list] li {
+  Behavior moved to grid css
+}*/
+
+.content {
+  height: 138px;
+  overflow: hidden;
+}
+
+
+/* Show selected elements in green? */
+/*ul[dnd-list] li.selected {
+    background-color: #dff0d8;
+    color: #3c763d;
+}*/
+
+.cB {
+  clear: both;
+}
+
+
+/* ========================================================================== */
+
+
+/*.grid-container {
+  position: absolute;
+  top: 66px;
+  left: 0;
+  right: 10px;
+  bottom: 0;
+  overflow-y: hidden;
+}*/
+
+.grid {
+  position: relative;
+  height: 100%;
+  list-style: none;
+}
+
+.grid li {
+  z-index: 1;
+  cursor: pointer;
+  width: 25%;
+  height: 178px;
+  display: inline-block;
+}
+
+.grid li .thought-item {
+  background: #FFF;
+  border: 1px solid #CCC;
+  padding: 10px;
+  margin: 10px;
+  height: 160px;
+}
+
+.grid .controls {
+  position: absolute;
+  top: 0;
+  right: 0;
+  float: right;
+  font-size: 0.4em;
+  font-weight: normal;
+  line-height: 1em;
+  opacity: 0;
+  transition: opacity 0.2s;
+  -webkit-transition: opacity 0.2s;
+}
+
+.grid .controls .util {
+  font-size: 3em;
+  float: left;
+  margin: 15px 15px 0 0;
+  padding: 0.3em;
+  background: #FFF;
+  color: #444;
+  /*text-decoration: none;*/
+}
+
+.grid .controls .util:first-child {
+  margin: 15px 5px 0 0;
+  /*text-decoration: none;*/
+}
+
+.grid .controls #delete {
+  color: #8F0000;
+}
+
+.grid .controls .util:hover {
+  background: #F1F1F1;
+}
+
+.grid li:hover .controls {
+  opacity: 1;
+}
+
+
+/* Fullscreen Item Viewing */
+
+.overlay {
+  background-color: #FCB040;
+  color: #222;
+}
+
+.overlay-content {
+  margin: 7% 10% 0 10%;
+  font-size: 24pt;
+}
+
+.close {
+  font-size: 24pt;
+  color: #555;
+  opacity: .5;
+}
+
+.close:hover {
+  opacity: 1;
+  color: #222;
+}
+
+
+/*======= Custom Bounce from animate.css - http://daneden.me/animate ======= */
+
+.animated {
+  animation-duration: 1s;
+  animation-fill-mode: both;
+}
+
+@keyframes bounce {
+  from, 20%, 53%, 80%, to {
+    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+    transform: translate3d(0,0,0);
+  }
+
+  40%, 43% {
+    animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);
+    transform: translate3d(0, -30px, 0);
+  }
+
+  70% {
+    animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);
+    transform: translate3d(0, -15px, 0);
+  }
+
+  90% {
+    transform: translate3d(0,-4px,0);
+  }
+}
+
+.bounce {
+  animation-name: bounce;
+  transform-origin: center bottom;
+}
