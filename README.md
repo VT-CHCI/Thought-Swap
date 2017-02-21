@@ -20,7 +20,7 @@ A glimpse of this can be seen below:
 ### Participant View
 ![Thought-Swap](client/assets/img/participant-mock.png)
 ### Facilitator View
-![Thought-Swap](client/assets/img/Facilitator-mock.png)
+![Thought-Swap](client/assets/img/facilitator-mock.png)
 
 ## Contributing
 
