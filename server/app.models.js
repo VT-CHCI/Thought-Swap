@@ -181,8 +181,10 @@ exports.start = function () {
       // create a new user as a faciliatator with username admin
       return User.findOrCreate({
         where: {
-          email: 'test@thought-swap.com',
           username: 'admin',
+        },
+        defaults: {
+          email: 'test@thought-swap.com',
           password: bcrypt.hashSync('test'),
           role: 'facilitator',
           groupId: null
