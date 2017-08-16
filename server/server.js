@@ -365,7 +365,7 @@ function createThought(c, i, p) {
   return models.Thought.create({
     content: c,
     userId: i,
-    promptId: p
+    promptId: p,
   });
 }
 
