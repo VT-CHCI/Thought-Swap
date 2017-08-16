@@ -176,6 +176,20 @@ section {
     transition: border .3s ease;
 }
 
+.btn.Ag{ /* "Agree" button for participants */
+    background: #009933; /* Green */
+    color: #FFF;
+    width: 15vw;
+}
+
+
+.btn.DAg{ /* "Disagree" button for participants */
+    background:  #FC0A22;  /* Red */
+    color: #FFF;
+    width: 15vw;
+ 
+}
+
 .btn.fa {
     margin-left: 10px;
 }
