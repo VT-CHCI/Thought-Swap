@@ -107,6 +107,8 @@
             $scope.setGroup($scope.groupSelection.selectedGroupId);
         });
 
+        /************************************************************************/
+        // Submit a thought
         // @pre - can only submit thought when not viewing a distributed thought
         $scope.submitThought = function () {
             $scope.htmlThoughts.push({
@@ -128,6 +130,7 @@
             $scope.htmlThought = null;
             // $('#thoughtForm').focus(); // does not work atm
         };
+        /************************************************************************/
 
         ThoughtSocket.on('facilitator-prompt', function (prompt) {
             console.log('got prompt:', prompt);
