@@ -10,7 +10,20 @@
             <blockquote>
                 <p>{{prompt.content}}</p>
             </blockquote>
+
+             <!-- Agree/Disagree-->
+                <button id="agree" class="btn sml Ag" onclick="document.getElementById('disagree').disabled=true"> Agree </button>
+                &emsp; <!--space between buttons-->
+                &emsp;
+                &emsp;
+                <button id="disagree" class="btn sml DAg" onclick="document.getElementById('agree').disabled=true"> Disagree </button>
+            <!-- Agree/Disagree end-->
+                
+
         </div>
+        <!--*************************************************************************************-->
+        <!-- User submitting a thought>
+        *****************************************************************************************-->
         <form name="form" ng-submit="submitThought()" role="form" ng-show="!viewingDistribution">
             <!-- Rich Text Editor, hidden input ensures it is part of form -->
             <div focus-contenteditable text-angular ng-model="htmlThought" name="thoughtForm" id="thoughtForm" ta-focussed-class="focussed"
@@ -18,6 +31,7 @@
                         ['bold','italics','underline','ul','ol'],
                         ['insertImage','insertLink']]">
                 <!-- 'pre' (code) functionality in first block? -->
+
             </div>
             <input type="hidden" name="thoughtForm" id="thoughtForm" ng-model="htmlThought" required />
             <div class="form-actions">
