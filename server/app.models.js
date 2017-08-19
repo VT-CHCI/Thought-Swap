@@ -95,7 +95,16 @@ var Session = sequelize.define('session', {
   }
 })
 
-var Distribution = sequelize.define('distribution', {})
+var Distribution = sequelize.define('distribution', {
+  agrees: Sequelize.BOOLEAN
+}, {
+  instanceMethods: {
+    setAgreement: function (agrees) {
+      this.agrees = agrees;
+      return this.save();
+    }
+  }
+});
 
 var GroupColor = sequelize.define('group_color', {
   name: Sequelize.STRING,
