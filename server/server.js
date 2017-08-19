@@ -984,7 +984,8 @@ io.on('connection', function (socket) {
                         socket.emit('distributed-thought', {
                           id: dist.thoughtId,
                           content: dist.thought.content,
-                          distId: dist.id
+                          distId: dist.id,
+                          agrees: dist.agrees
                         });
                       } else {
                         // if it's not found, create one!
