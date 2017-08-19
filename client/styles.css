@@ -114,6 +114,10 @@ section {
     padding: 100px 20px;
 }
 
+.form-inline {
+    display: inline-block;
+}
+
 .btn {
     font-family: 'Lato', sans-serif;
     display: inline-block;
@@ -122,7 +126,7 @@ section {
     text-transform: uppercase;
     cursor: pointer;
     color: #2D383A;
-    background: #FFF;
+    /*background-color: #FFF;*/
     -webkit-transition: background .3s ease;
     -moz-transition: background .3s ease;
     -o-transition: background .3s ease;
@@ -131,7 +135,7 @@ section {
 
 .btn:hover {
     text-decoration: none;
-    background: #EAE9E9;
+    background-color: #EAE9E9;
 }
 
 .btn.lrg {
