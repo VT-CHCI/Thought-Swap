@@ -1145,4 +1145,21 @@ io.on('connection', function (socket) {
           });
       });
   });
+
+  function setAgreement(id, agrees) {
+    return models.Distribution.findById(id)
+      .then(function (dist) {
+        dist.setAgreement(agrees);
+      });
+  }
+
+  socket.on('agree', function (distributedThought) {
+    console.log(distributedThought);
+    setAgreement(distributedThought.distId, true);
+  });
+
+  socket.on('disagree', function (distributedThought) {
+    console.log(distributedThought);
+    setAgreement(distributedThought.distId, false);
+  });
 });
