@@ -984,7 +984,8 @@ io.on('connection', function (socket) {
                         socket.emit('distributed-thought', {
                           id: dist.thoughtId,
                           content: dist.thought.content,
-                          distId: dist.id
+                          distId: dist.id,
+                          agrees: dist.agrees
                         });
                       } else {
                         // if it's not found, create one!
@@ -1144,5 +1145,22 @@ io.on('connection', function (socket) {
               });
           });
       });
+  });
+
+  function setAgreement(id, agrees) {
+    return models.Distribution.findById(id)
+      .then(function (dist) {
+        dist.setAgreement(agrees);
+      });
+  }
+
+  socket.on('agree', function (distributedThought) {
+    console.log(distributedThought);
+    setAgreement(distributedThought.distId, true);
+  });
+
+  socket.on('disagree', function (distributedThought) {
+    console.log(distributedThought);
+    setAgreement(distributedThought.distId, false);
   });
 });

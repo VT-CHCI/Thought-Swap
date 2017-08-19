@@ -140,10 +140,23 @@
         ThoughtSocket.on('distributed-thought', function (thought) {
             toastr.info('', 'Received Thought!');
             console.log('got thought:', thought);
+            if (thought.hasOwnProperty('agrees') && thought.agrees !== null) {
+                $scope.$apply(function () {
+                    console.log('setting doesAgree to', thought.agrees)
+                   $scope.doesAgree = thought.agrees; 
+                });
+            }
             $scope.distributedThought = thought;
             $scope.viewingDistribution = true;
             // $scope.topic = prompt.content;
         });
+
+        $scope.changedAgree = function (v) { 
+            ThoughtSocket.emit('agree', $scope.distributedThought)
+        }   
+        $scope.changedDisagree = function (v) { 
+            ThoughtSocket.emit('disagree', $scope.distributedThought)
+        }   
 
     }
 
