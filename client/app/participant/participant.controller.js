@@ -145,6 +145,13 @@
             // $scope.topic = prompt.content;
         });
 
+        $scope.changedAgree = function (v) { 
+            ThoughtSocket.emit('agree', $scope.distributedThought)
+        }   
+        $scope.changedDisagree = function (v) { 
+            ThoughtSocket.emit('disagree', $scope.distributedThought)
+        }   
+
     }
 
 })();
