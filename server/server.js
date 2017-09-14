@@ -41,7 +41,7 @@ function makeName() {
   //  'Glitter', 'Silver', 'Golden', 'Rainbow', 'Cloud', 'Rain', 'Stormy',
   //  'Wink', 'Sugar', 'Twinkle', 'Star', 'Halo', 'Angel']
 
-  var lastName1 = ['GreenYellow', 'Inchworm', 'Indigo', 'JazzberryJam', 'JungleGreen', 'Lavender',
+/*  var lastName1 = ['GreenYellow', 'Inchworm', 'Indigo', 'JazzberryJam', 'JungleGreen', 'Lavender',
     'LemonYellow', 'LightBlue', 'LightGreen', 'Madder', 'Magenta', 'Mahogany', 'Maize',
     'ManateeBlue', 'MangoTango', 'Mauve', 'MaximumGreen', 'MaximumBlue', 'MaximumBlueGreen', 'MaximumBluePurple', 'MaximumGreenYellow',
     'MaximumPurple', 'MaximumRedPurple', 'MaximumYellow', 'MediumGreen', 'MediumRose', 'MediumViolet'
@@ -51,7 +51,7 @@ function makeName() {
     'MiddleRed', 'MiddleRedPurple', 'MiddleYellow', 'MiddleYellowRed', 'MidnightBlue', 'MountainMeadow', 'Mulberry', 'NavyBlue',
     'OliveGreen', 'Orange', 'OrangeRed', 'OrangeYellow', 'Orchid', 'OuterSpace', 'PacificBlue', 'Peach',
     'Periwinkle', 'PineGreen', 'Plum', 'PurpleHeart'
-  ];
+  ];*/
 
   function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
@@ -64,9 +64,9 @@ function makeName() {
   //     lastName2[getRandomInt(0, lastName2.length)]
   // ]
 
-  return firstName[getRandomInt(0, firstName.length)] + ' ' +
-    lastName1[getRandomInt(0, lastName1.length)] +
-    lastName2[getRandomInt(0, lastName2.length)];
+  return firstName[getRandomInt(0, firstName.length)];/* + ' ' +
+   lastName1[getRandomInt(0, lastName1.length)] +
+    lastName2[getRandomInt(0, lastName2.length)];*/
 }
 
 function attemptSillyname(resolve, reject) {
