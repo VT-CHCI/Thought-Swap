@@ -52,7 +52,9 @@ ul[dnd-list] .dndPlaceholder {
 }*/
 
 .content {
-  height: 120px;
+  line-height: 25px;
+  margin-top: 15px;
+  height: 130px;
   overflow: hidden;
 }
 
@@ -118,7 +120,7 @@ ul[dnd-list] .dndPlaceholder {
 .grid .controls .util {
   font-size: 3em;
   float: left;
-  margin: 139px 15px 0 0;
+  margin: 12px 15px 0 0;
   padding: 0.3em;
   background: #FFF;
   color: #444;
@@ -126,7 +128,7 @@ ul[dnd-list] .dndPlaceholder {
 }
 
 .grid .controls .util:first-child {
-  margin: 139px 5px 0 0;
+  margin: 12px 5px 0 0;
   /*text-decoration: none;*/
 }
 
