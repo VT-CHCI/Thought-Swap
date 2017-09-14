@@ -27,13 +27,13 @@ var models = require('./app.models');
  * @return: STRING - sillyname in the form 'firstName lastName1+lastName2'
  */
 function makeName() {
-  var firstName = ['Runny', 'Buttercup', 'Dinky', 'Stinky', 'Crusty', 'Greasy',
-    'Gidget', 'Cheesypoof', 'Lumpy', 'Wacky', 'Tiny', 'Flunky', 'Fluffy',
-    'Lulu', 'Zippy', 'Doofus', 'Gobsmacked', 'Slimy', 'Grimy', 'Salamander',
-    'Oily', 'Burrito', 'Bumpy', 'Loopy', 'Snotty', 'Irving', 'Egbert', 'Waffer',
-    'Star', 'Lilly', 'Rugrat', 'Fuzzy', 'Kitty', 'Puppy', 'Snuggles', 'Angel',
-    'Rubber', 'Stinky', 'Lala', 'Sparkle', 'Glitter', 'Silver', 'Golden',
-    'Rainbow', 'Cloud', 'Rain', 'Stormy', 'Wink', 'Sugar', 'Twinkle', 'Halo'
+  var firstName = ['Almond', 'AntiqueBrass', 'Apricot', 'Aquamarine', 'Asparagus', 'Bittersweet',
+    'Black', 'Blue', 'BlueBell', 'BlueGray', 'BlueGreen', 'BlueViolet', 'Blush',
+    'BrickRed', 'BrilliantRose', 'Brown', 'BurntOrange', 'BurntSienna', 'BurntUmber', 'CadetBlue',
+    'Canary', 'CaribbeanGreen', 'Carmine', 'CarnationPink', 'CelestialBlue', 'Cerise', 'Cerulean', 'CeruleanBlue',
+    'CharcoalGray', 'ChromeYellow', 'CobaltBlue', 'Copper', 'Cornflower', 'CottonCandy', 'Cranberry', 'Dandelion',
+    'DenimBlue', 'DesertSand', 'Eggplant', 'Fern', 'ForestGreen', 'Fuchsia', 'FuzzyWuzzy',
+    'Geranium', 'Gold', 'GoldOchre', 'Goldenrod', 'GrannySmithApple', 'Gray', 'Green', 'GreenBlue'
   ];
 
   // var middleName =['Waffer', 'Lilly','Rugrat','Sand', 'Fuzzy','Kitty',
@@ -41,16 +41,16 @@ function makeName() {
   //  'Glitter', 'Silver', 'Golden', 'Rainbow', 'Cloud', 'Rain', 'Stormy',
   //  'Wink', 'Sugar', 'Twinkle', 'Star', 'Halo', 'Angel']
 
-  var lastName1 = ['Snicker', 'Buffalo', 'Gross', 'Bubble', 'Sheep', 'Sand',
-    'Corset', 'Toilet', 'Lizard', 'Waffle', 'Kumquat', 'Burger', 'Chimp',
-    'Liver', 'Gorilla', 'Rhino', 'Emu', 'Pizza', 'Toad', 'Gerbil', 'Pickle',
-    'Tofu', 'Chicken', 'Potato', 'Hamster', 'Lemur', 'Vermin'
+  var lastName1 = ['GreenYellow', 'Inchworm', 'Indigo', 'JazzberryJam', 'JungleGreen', 'Lavender',
+    'LemonYellow', 'LightBlue', 'LightGreen', 'Madder', 'Magenta', 'Mahogany', 'Maize',
+    'ManateeBlue', 'MangoTango', 'Mauve', 'MaximumGreen', 'MaximumBlue', 'MaximumBlueGreen', 'MaximumBluePurple', 'MaximumGreenYellow',
+    'MaximumPurple', 'MaximumRedPurple', 'MaximumYellow', 'MediumGreen', 'MediumRose', 'MediumViolet'
   ];
 
-  var lastName2 = ['face', 'dip', 'nose', 'brain', 'head', 'breath',
-    'pants', 'shorts', 'lips', 'mouth', 'muffin', 'butt', 'bottom', 'elbow',
-    'honker', 'toes', 'buns', 'spew', 'kisser', 'fanny', 'squirt', 'chunks',
-    'brains', 'wit', 'juice', 'shower'
+  var lastName2 = ['Melon', 'MiddleBlue', 'MiddleBlueGreen', 'MiddleBluePurple', 'MiddleGreenYellow', 'MiddlePurple',
+    'MiddleRed', 'MiddleRedPurple', 'MiddleYellow', 'MiddleYellowRed', 'MidnightBlue', 'MountainMeadow', 'Mulberry', 'NavyBlue',
+    'OliveGreen', 'Orange', 'OrangeRed', 'OrangeYellow', 'Orchid', 'OuterSpace', 'PacificBlue', 'Peach',
+    'Periwinkle', 'PineGreen', 'Plum', 'PurpleHeart'
   ];
 
   function getRandomInt(min, max) {
