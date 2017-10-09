@@ -41,15 +41,15 @@ function makeName() {
   //  'Glitter', 'Silver', 'Golden', 'Rainbow', 'Cloud', 'Rain', 'Stormy',
   //  'Wink', 'Sugar', 'Twinkle', 'Star', 'Halo', 'Angel']
 
-   var lastName1 = ['Sepia', 'Inchworm', 'Indigo', 'Orange', 'Melon', 'Lavender',
+   var lastName1 = ['Sepia', 'Inchworm', 'Indigo', 'Cranberry', 'Dandelion', 'Lavender',
     'Apricot', 'LightBlue', 'Asparagus', 'Madder', 'Magenta', 'Mahogany', 'Maize',
     'Manatee', 'Gold', 'Mauve', 'Silver', 'Salmon', 'Shadow', 'Sunglow', 'White',
-    'Yellow', 'Mahogany', 'Beaver', 'Violet', 'Fern', 'Scarlet'
+    'Yellow', 'Eggplant', 'Beaver', 'Violet', 'Fern', 'Scarlet'
   ];
 
-  var lastName2 = ['Melon', 'Almond', 'Tan', 'Peach', 'Gold', 'Green',
-    'Brown', 'Chestnut', 'Thistle', 'Red', 'Blush', 'Red', 'Mulberry', 'Cerise',
-    'Wisteria', 'Orange', 'OrangeRed', 'Blue', 'Orchid', 'Carmine', 'Canary', 'Peach',
+  var lastName2 = ['Melon', 'Almond', 'Tan', 'Peach', 'Fuchsia', 'Green',
+    'Brown', 'Chestnut', 'Thistle', 'Red', 'Blush', 'Denim', 'Mulberry', 'Cerise',
+    'Wisteria', 'Orange', 'OrangeRed', 'Blue', 'Orchid', 'Carmine', 'Canary', 'Pink',
     'Periwinkle', 'Copper', 'Plum', 'Gray'
   ];
 
