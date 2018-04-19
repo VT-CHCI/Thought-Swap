@@ -54,6 +54,18 @@
                 }
             }
         };
+
+        /*Added for Demo Link
+        var isDemo = {
+            isDemo: function (UserService, $location) {
+                if (!UserService.isDemo()) {
+                    $location.path('/demo');
+                }
+            }
+        };
+        End of added for Demo Link*/
+
+
         var isParticipant = {
             isParticipant: function (UserService, $location) {
                 if (UserService.isParticipant()) {
@@ -87,20 +99,41 @@
                 templateUrl: 'common/authentication/login/login.html',
                 controller: 'LoginController',
                 resolve: {
-                    facilitatorLogin: function () {
-                        return false;
+                //     facilitatorLogin: function () {
+                //         return false;
+                //     },
+                //     demoLogin: function() {
+                //         return false;
+                //     }
+                    role: function() {
+                        return 'participant';
                     }
                 }
             })
+
+            //Added for Demo Link
+
+           .when('/login/demo', {
+                templateUrl: 'common/authentication/login/login.html',
+                controller: 'LoginController',
+                resolve: {
+                    role: function() {
+                        return 'demo';
+                    }
+                }
+            }) 
+           // End of added for Demo Link 
+
             .when('/login/facilitator', {
                 templateUrl: 'common/authentication/login/login.html',
                 controller: 'LoginController',
                 resolve: {
-                    facilitatorLogin: function () {
-                        return true;
+                    role: function() {
+                        return 'facilitator';
                     }
                 }
             })
+
             .when('/register', {
                 templateUrl: 'common/authentication/register/register.html',
                 controller: 'RegisterController'
@@ -125,6 +158,14 @@
                 controller: 'ParticipantController',
                 resolve: isAuthenticated
             })
+
+            /*Added for Demo Link
+             .when('/demo', {
+                templateUrl: 'app/demo/demo.html',
+                controller: 'DemoController',
+                resolve: isAuthenticated
+            })
+            // End of added for Demo Link*/
 
             .otherwise({
                 redirectTo: '/'

@@ -13,16 +13,17 @@
         .controller('LoginController', LoginController);
 
     LoginController.$inject = ['$scope', '$location', '$http', 'UserService',
-        'facilitatorLogin', 'LoggerService'
+        'role', 'LoggerService'
     ];
 
     function LoginController($scope, $location, $http, UserService,
-        facilitatorLogin, Logger) {
+        role, Logger) {
 
         (function initController() {
             // reset login status?
 
-            $scope.isFacilitator = facilitatorLogin;
+            $scope.role = role;
+            $scope.isFacilitator = role === 'facilitator';
 
             if ('participant' in $location.search()) {
                 $scope.isChangingRoles = true;
@@ -34,7 +35,7 @@
             $scope.dataLoading = true;
             UserService.login({
                     username: $scope.sillyname,
-                    facilitator: $scope.isFacilitator
+                    role: role
                 })
                 .then(function (user) {
                     $location.path('/participant');
@@ -54,13 +55,42 @@
 
                 });
         };
+        //For Demo Link
+        $scope.loginDemo = function () {
+            $scope.dataLoading = true;
+            $scope.username = Math.random().toString(36).substring(2, 15); // randomly generated username for demos
+
+            UserService.login({
+                    username: $scope.username,
+                    group: $scope.demoname,
+                    role: role
+                })
+                .then(function (user) {
+                    $location.path('/participant');
+                    Logger.createEvent({
+                        data: $scope.username + ' successfully logged in',
+                        type: 'logIn'
+                    });
+                })
+                .catch(function (err) {
+                    $scope.error = err;
+                    $scope.dataLoading = false;
+                    Logger.createEvent({
+                        data: 'demo' + $scope.username +
+                            'encountered error ' + err + ' while logging in',
+                        type: 'authenticateError'
+                    });
+
+                });
+        };
+        //End of for Demo Link
 
         $scope.loginFacilitator = function () {
             $scope.dataLoading = true;
             UserService.login({
                     username: $scope.username,
                     password: $scope.password,
-                    facilitator: $scope.isFacilitator
+                    role: role
                 })
                 .then(function (user) {
                     UserService.getGroups()

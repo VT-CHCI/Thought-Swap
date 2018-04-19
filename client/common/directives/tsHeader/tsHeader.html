@@ -10,7 +10,15 @@
                 <li><a href="/about">About</a></li>
                 <li><a href="/help">Help</a></li>
                 <li ng-if="shouldOfferLogin()"><a class="btn sml blue auth" href="/login">Participant Login</a></li>
+
                 <li ng-if="shouldOfferLogin()"><a class="btn sml blue auth" href="/login/facilitator">Facilitator Login</a></li>
+
+                <!-- Added a Demo link -->
+
+                <li ng-if="shouldOfferLogin()"><a class="btn sml blue auth" href="/login/demo">Demo Link</a></li>
+                
+                <!-- end ofAdded a Demo link -->
+
                 <li ng-show="userService.isLoggedIn()" class="user-control">
                     <div class="btn sml blue auth user-badge">
                         <i class="fa fa-user"></i> {{userService.user.username}}

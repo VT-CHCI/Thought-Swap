@@ -25,7 +25,9 @@ var User = sequelize.define('user', {
   password: Sequelize.STRING,
   role: Sequelize.ENUM(
     'facilitator',
-    'participant')
+    'participant',
+    'demo'
+  )
 })
 
 var Socket = sequelize.define('socket', {
@@ -70,7 +72,10 @@ var Prompt = sequelize.define('prompt', {
 })
 
 var Group = sequelize.define('group', {
-  name: Sequelize.STRING
+  name: { 
+    type: Sequelize.STRING,
+    unique: true
+  }
 }, {
   instanceMethods: {
     addPersonWithName: function (sillyname) {

@@ -173,6 +173,15 @@ function findByUsername(u) {
   });
 }
 
+function findByGroup(groupName) {
+
+  return models.Group.findOne({
+    where: {
+      name: groupName
+    }
+  });
+}
+
 function findUserById(i) {
   // console.log('findUserById', i)
   return models.User.findOne({
@@ -404,6 +413,16 @@ function createParticpant(g) {
   });
 }
 
+function createDemoUser(userName,groupId) {
+  return models.User.create({
+    email: null,
+    username: userName,
+    password: null,
+    role: 'demo',
+    groupId: groupId
+  })
+}
+
 function createSocket(info) {
   // console.log('createSocket', info)
   return models.Socket.create({
@@ -514,38 +533,56 @@ app.post('/signin', function (request, response) {
     response.status(400).send('Request did not contain any information.');
   } else {
     // console.log("request body: ", request.body)
-    findByUsername(request.body.user.username)
-      .then(function (user) {
-        // console.log('Found ', user)
-        if (user !== null) {
-          if (user.role === 'facilitator') {
-            if (request.body.user.username === user.username) {
-              bcrypt.compare(request.body.user.password, user.password, function (err, res) {
-                if (res === true) {
-                  response.status(200).json({
-                    user: user
-                  });
-                } else {
-                  // If you get this far, user is not null, so password is wrong
-                  response.status(401).send('Invalid password.');
-                }
-              });
+
+    if (request.body.user.role === 'demo') {
+      // find the group, error out if it doesn't exist
+      findByGroup(request.body.user.group)
+        .then(function(group) {
+          var groupId = group.id;
+          var username = request.body.user.username;
+          return createDemoUser(username, groupId);
+        }).then(function(user) {
+          response.status(200).json({
+            user: user
+          });
+        })
+      // create a new user as part of that group, using a randomly generated username
+      // set the user role to "demo"
+      // sign in the user 
+    } else {
+      findByUsername(request.body.user.username)
+        .then(function (user) {
+          // console.log('Found ', user)
+          if (user !== null) {
+            if (user.role === 'facilitator') {
+              if (request.body.user.username === user.username) {
+                bcrypt.compare(request.body.user.password, user.password, function (err, res) {
+                  if (res === true) {
+                    response.status(200).json({
+                      user: user
+                    });
+                  } else {
+                    // If you get this far, user is not null, so password is wrong
+                    response.status(401).send('Invalid password.');
+                  }
+                });
+              }
             }
-          }
-          if (user.role === 'participant') {
-            if (request.body.user.username === user.username) {
-              response.status(200).json({
-                user: user
-              });
-            } else {
-              response.status(401).send('Invalid username');
+            if (user.role === 'participant') {
+              if (request.body.user.username === user.username) {
+                response.status(200).json({
+                  user: user
+                });
+              } else {
+                response.status(401).send('Invalid username');
+              }
             }
+          } else {
+            response.status(401).send('Did not find username.');
           }
-        } else {
-          response.status(401).send('Did not find username.');
-        }
-      });
-  }
+        });
+      }
+    }
 });
 
 app.post('/signup', function (request, response) {
@@ -776,10 +813,10 @@ io.on('connection', function (socket) {
     // TODO:
     return Promise.all([
         models.Session.findById(data.sessionId)
-        .then(function (session) {
-          session.viewingDistribution = true;
-          return session.save();
-        }),
+          .then(function (session) {
+            session.viewingDistribution = true;
+            return session.save();
+          }),
         findAllActiveSockets(data.groupId),
         findThoughts(data.promptId)
       ])
@@ -794,7 +831,7 @@ io.on('connection', function (socket) {
           return Math.floor(Math.random() * (max - min)) + min;
         }
 
-        var activeSockets = shuffle(results[1]);
+        var activeSockets = shuffle(results[1]); // active users
         var thoughts = shuffle(results[2]);
 
         // console.log('activeSockets')
@@ -804,6 +841,9 @@ io.on('connection', function (socket) {
         // console.log(thoughts)
 
         var thoughtsLength = thoughts.length;
+
+        // find how many active users didn't submit thoughts, and then pad the 
+        // thoughts array with those many copied thoughts
         var numCopies = activeSockets.length - thoughts.length;
         if (numCopies > 0) {
           for (var i = 0; i < numCopies; i++) {
@@ -816,6 +856,7 @@ io.on('connection', function (socket) {
         // 1. thought by author id
         // 2. socketid by user id
 
+        // populating "thoughtsAuthors" array with every item in "thoughts"
         var thoughtsAuthors = [];
         thoughts.forEach(function (thought) {
           // console.log(thought)
@@ -823,7 +864,7 @@ io.on('connection', function (socket) {
         });
 
         var presenters = [];
-        var socketsByUId = {};
+        var socketsByUId = {}; 
 
         activeSockets.forEach(function (connectedSocket) {
           // console.log(connectedSocket)
@@ -842,15 +883,17 @@ io.on('connection', function (socket) {
         // FIXME: should we do the possibleMatches in a random manner? 
         // right now i think the distribution is fairly regular and people 
         // will probably always get the same other person's thought
-        function possibleMatches(thoughtAuthors, thoughtPresenters) {
+        function possibleMatches(thoughts, thoughtPresenters) {
           // console.log('possibleMatches')
           // console.log(thoughtAuthors.length)
           // console.log(thoughtPresenters.length)
           var edges = [];
-          for (var i = 0; i < thoughtAuthors.length; i++) {
+          for (var i = 0; i < thoughts.length; i++) {
             for (var j = 0; j < thoughtPresenters.length; j++) {
               // console.log(thoughtAuthors[i], thoughtPresenters[j])
-              if (thoughtAuthors[i].get('userId') !== thoughtPresenters[j]) {
+
+              // checking the thought is not from the author of that thought
+              if (thoughts[i].get('userId') !== thoughtPresenters[j]) {
                 edges.push([i, j]);
                 // console.log([i,j])
               }

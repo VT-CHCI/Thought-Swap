@@ -19,7 +19,7 @@
 		this.login = function (options) {
 			var deferred = $q.defer();
 
-			if (options.facilitator) {
+			if (options.role === 'facilitator') {	// facilitator
 				$http.post('/signin', {
 						user: {
 							username: options.username,
@@ -33,7 +33,23 @@
 					.error(function (data, status) {
 						deferred.reject(data);
 					});
-			} else {
+			} else if (options.role === 'demo') { // added for demo
+				$http.post('/signin', {
+						user: {
+							username: options.username, // randomly generated
+							role: options.role,
+							group: options.group
+						}
+					})
+					.success(function (data) {
+						this.auth(data, deferred);
+					}.bind(this))
+
+					.error(function (data, status) {
+						deferred.reject(data);
+					});
+
+			} else if (options.role === 'participant') {	// normal participant
 				$http.post('/signin', {
 						user: {
 							username: options.username
@@ -69,6 +85,10 @@
 
 		this.isParticipant = function () {
 			return this.isLoggedIn() && this.user && this.user.role === 'participant';
+		};
+
+		this.isDemo = function () {
+			return this.isLoggedIn() && this.user && this.user.role === 'demo';
 		};
 
 		this.register = function (options) {

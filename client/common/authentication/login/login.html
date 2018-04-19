@@ -5,13 +5,16 @@
             <div ng-show="isChangingRoles" class="alert alert-warning">
                 Are you sure? Logging in as a facilitator will log out of the participant's session.
             </div>
-            <h2>{{!isFacilitator ? 'Participant Login' : 'Facilitator Login'}}</h2>
+            <!-- <h2>{{!isFacilitator ? 'Participant Login' : 'Facilitator Login'}}</h2> -->
+            <h2>{{role.toUpperCase()}}</h2>
             <div ng-show="error" class="alert alert-danger">{{error}}</div>
-            <label>Facilitator?</label>
-            <input type="checkbox" ng-change="switchRoute()" ng-model="isFacilitator" id="role" />
-            
+            <div ng-show="role !== 'demo'">
+                <label>Facilitator?</label>
+                <input type="checkbox" ng-change="switchRoute()" ng-model="isFacilitator" id="role" />
+            </div>
+
             <!-- Facilitator Form -->
-            <form name="fform" ng-submit="loginFacilitator()" role="form" ng-show="isFacilitator" novalidate>
+            <form name="fform" ng-submit="loginFacilitator()" role="form" ng-show="role === 'facilitator'" novalidate>
                 <div class="form-group" ng-class="{ 'has-error': fform.username.$dirty && fform.username.$error.required }">
                     <label for="username">Username</label>
                     <input type="text" name="username" auto-focus id="username" class="form-control" ng-model="username" required />
@@ -28,19 +31,34 @@
                     <a href="/register" class="btn sml" id="register">Register</a>
                 </div>
             </form>
+
+             <!-- Demo Form  -->
+            <form name="dform" ng-submit="loginDemo()" ng-show="role === 'demo'" role="form">
+                <div class="form-group" ng-class="{ 'has-error': dform.demoname.$dirty && dform.demoname.$error.required }">
+                    <label for="demoname">Code Name</label>
+                    <input type="text" name="demoname" id="demoname" auto-focus class="form-control" ng-model="demoname" required />
+                    <span ng-show="dform.demoname.$dirty && dform.demoname.$error.required" class="help-block">Code Name is required</span>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" ng-disabled="dform.$invalid || dataLoading" class="btn sml">Login</button>
+                    <img class="loadIcon" ng-if="dataLoading" src="assets/img/loading.gif" />
+                </div>
+            </form>
             
             <!-- Participant Form -->
-            <form name="pform" ng-submit="loginParticipant()" role="form" ng-show="!isFacilitator" novalidate>
+            <form name="pform" ng-submit="loginParticipant()" role="form" ng-show="role === 'participant'" novalidate>
                 <div class="form-group" ng-class="{ 'has-error': pform.sillyname.$dirty && pform.sillyname.$error.required }">
-                    <label for="sillyname">Silly Name </label>
+                    <label for="sillyname">Code Name </label>
                     <input type="text" name="sillyname" id="sillyname" auto-focus class="form-control" ng-model="sillyname" required />
-                    <span ng-show="pform.sillyname.$dirty && pform.sillyname.$error.required" class="help-block">Silly Name is required</span>
+                    <span ng-show="pform.sillyname.$dirty && pform.sillyname.$error.required" class="help-block">Code Name is required</span>
                 </div>
                 <div class="form-actions">
                     <button type="submit" ng-disabled="pform.$invalid || dataLoading" class="btn sml">Login</button>
                     <img class="loadIcon" ng-if="dataLoading" src="assets/img/loading.gif" />
                 </div>
             </form>
+
+
         </div>
     </div>
 </section>
