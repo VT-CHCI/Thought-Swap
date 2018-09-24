@@ -31,7 +31,7 @@ get started, it's as easy as 1, 2, 3:
 Fork the [core repository](https://github.com/VT-CHCI/Thought-Swap) and check
 out your copy locally.
 ```
-$ git clone git@github.com:username/Thought-Swap.git
+$ git clone git@github.com:VT-CHCI/Thought-Swap.git
 $ cd Thought-Swap
 $ git remote add upstream git://github.com/VT-CHCI/Thought-Swap.git
 ```
