@@ -6,7 +6,8 @@ var sequelize = new Sequelize(
   process.env.TS_USER, // username
   process.env.TS_PASS // password
   , {
-    logging: function () {}
+    logging: function () {},
+    dialect: 'mysql'
   }
 )
 

@@ -6,7 +6,7 @@ var app = express();
 var http = require('http').Server(app);
 var Promise = require('bluebird'); // jshint ignore:line
 var io = require('socket.io')(http);
-var mysql = require('mysql'); // jshint ignore:line
+// var mysql = require('mysql'); // jshint ignore:line
 var bodyParser = require('body-parser');
 var findMatching = require('bipartite-matching');
 var bcrypt = require('bcrypt-nodejs');
@@ -206,7 +206,7 @@ function findUserById(i) {
 function findAllGroupsByOwner(i) {
   // console.log('findAllGroupsByOwner', i)
   return models.Group.findAll({
-    order: 'id DESC',
+    order: [['id', 'DESC']],
     where: {
       ownerId: i
     },
