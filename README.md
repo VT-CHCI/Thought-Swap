@@ -62,7 +62,7 @@ Create three environment variables with names that are expected in app.models.js
 Ensure that you are in the same directory as package.json. Start up the app with ```$ npm start``` and navigate to localhost on the given port in your browser of choice.
 
 ### (Optional) Step 8: Registering Users
-Click on “Facilitator Login” to register yourself as a facilitator. Create a username and password in the facilitaor login page and click “Register”. Enter in an email and click “Register”. 
+Click on “Facilitator Login” to register yourself as a facilitator. Create a username and password in the facilitator login page and click “Register”. Enter in an email and click “Register”. 
 
 ### (Optional) Step 9: Create Groups
 You can create groups in the Discussion Groups page. Go ahead and click “New Group”. You will enter a “Group Name” that can be, for example, CS101. Enter a participant number. Click “Create”. Your group should show up under Discussion Groups. Click on the addition symbol to the right of your new group, and the names of your participants will appear.
