@@ -20,7 +20,7 @@ A glimpse of this can be seen below:
 ### Participant View
 ![Thought-Swap](client/assets/img/participant-mock.png)
 ### Facilitator View
-![Thought-Swap](client/assets/img/Facilitator-mock.png)
+![Thought-Swap](client/assets/img/facilitator-mock.png)
 
 ## Contributing
 
@@ -65,7 +65,7 @@ Ensure that you are in the same directory as package.json. Start up the app with
 Click on “Facilitator Login” to register yourself as a facilitator. Create a username and password in the facilitator login page and click “Register”. Enter in an email and click “Register”. 
 
 ### (Optional) Step 9: Create Groups
-You can create groups in the Discussion Groups page. Go ahead and click “New Group”. You will enter a “Group Name” that can be, for example, CS101. Enter a participant number. Click “Create”. Your group should show up under Discussion Groups. Click on the addition symbol to the right of your new group, and the names of your participants will appear.
+You can create groups in the Discussion Groups page. Go ahead and click “New Group”. You will enter a “Group Name” that can be, for example, CS101. Enter a participant number. Click “Create”. Your group should show up under Discussion Groups. Click on the plus sign to the right of your new group and the names of your participants will appear.
 
 <br>
 
