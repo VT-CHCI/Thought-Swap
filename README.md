@@ -43,10 +43,10 @@ Ensure that you have the necessary tools for development. If you are a Mac user 
 * (Optional) [MySQLWorkbench](https://dev.mysql.com/downloads/workbench/)
 
 ### Step 3: Install Dependencies
-Ensure that you are in the same directory as package.json. Set up the application by installing the dependencies and then running the test suite to check that everything is in working order as such:
+Ensure that you are in the same directory as package.json. Set up the application by installing the dependencies.
+<!---and then running the test suite to check that everything is in working order as such:$ npm test--> 
 ```
 $ npm install
-$ npm test
 ```
 
 ### Step 4: Create a Database
