@@ -20,12 +20,12 @@ A glimpse of this can be seen below:
 ### Participant View
 ![Thought-Swap](client/assets/img/participant-mock.png)
 ### Facilitator View
-![Thought-Swap](client/assets/img/Facilitator-mock.png)
+![Thought-Swap](client/assets/img/facilitator-mock.png)
 
 ## Contributing
 
 For general contribution guidelines see [CONTRIBUTING](CONTRIBUTING.md). To
-get started, it's as easy as 1, 2, 3:
+get started:
 
 ### Step 1: Fork
 Fork the [core repository](https://github.com/VT-CHCI/Thought-Swap) and check
@@ -36,21 +36,36 @@ $ cd Thought-Swap
 $ git remote add upstream git://github.com/VT-CHCI/Thought-Swap.git
 ```
 
-### Step 2: Install Dependencies
-Ensure you have the tools needed to develop. Namely: 
+### Step 2: Install Node and MySQL Server
+Ensure that you have the necessary tools for development. If you are a Mac user then use [Homebrew](https://brew.sh/) to install Node and MySQL Server.
 * [Node](https://nodejs.org/en/)
-* [SQL Server](https://dev.mysql.com/downloads/mysql/) 
+* [MySQL Server](https://dev.mysql.com/downloads/mysql/) 
+* (Optional) [MySQLWorkbench](https://dev.mysql.com/downloads/workbench/)
 
-Setup the application by installing the dependencies and then running the test
-suite to check that everything is in working order as such:
+### Step 3: Install Dependencies
+Ensure that you are in the same directory as package.json. Set up the application by installing the dependencies.
+<!---and then running the test suite to check that everything is in working order as such:$ npm test--> 
 ```
 $ npm install
-$ npm test
 ```
 
-### Step 3: Run
-Start up the app with ```$ npm start``` and navigate to localhost on the given
-port in your browser of choice.
+### Step 4: Create a Database
+Create a database for ThoughtSwap in your local MySQL Server or with MySQL Workbench.
+
+### Step 5: Create a Non-Root Database User
+Create a non-root database user in your local MySQL Server or in MySQL Workbench that can access the ThoughtSwap database schema that you just created.
+
+### Step 6: Create Environment Variables
+Create three environment variables with names that are expected in app.models.js. The three names should be TS_DB, TS_USER, and TS_PASS. Their values are the names for the database schema and non-root user that you created in your local MySQL Server or MySQL Workbench. 
+
+### Step 7: Launch the Server
+Ensure that you are in the same directory as package.json. Start up the app with ```$ npm start``` and navigate to localhost on the given port in your browser of choice.
+
+### (Optional) Step 8: Registering Users
+Click on “Facilitator Login” to register yourself as a facilitator. Create a username and password in the facilitator login page and click “Register”. Enter in an email and click “Register”. 
+
+### (Optional) Step 9: Create Groups
+You can create groups in the Discussion Groups page. Go ahead and click “New Group”. You will enter a “Group Name” that can be, for example, CS101. Enter a participant number. Click “Create”. Your group should show up under Discussion Groups. Click on the plus sign to the right of your new group and the names of your participants will appear.
 
 <br>
 
