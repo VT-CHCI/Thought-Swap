@@ -99,8 +99,9 @@ img {
 /* Main Styling */
 
 .container {
-    width: 100%;
-    max-width: 1000px;
+    width: 90%;
+    /* max-width: 1000px; */
+    max-width: 100%;
     margin: 0 auto;
 }
 
@@ -295,9 +296,11 @@ header .toggle-menu {
 
 .feature img {
     position: absolute;
-    top: 48px;
+    top: 75px;
     /*right: 55%;*/
-    left: 55%;
+    left: 53%;
+    width: 650px;
+    height: 570px;
 }
 
 /*.feature:nth-of-type(even) img {
