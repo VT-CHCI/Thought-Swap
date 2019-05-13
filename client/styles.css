@@ -96,6 +96,39 @@ img {
 /* End Resets, Clears & Defaults */
 
 
+
+/*Trying out*/
+
+/* Split the screen in half */
+.split {
+  height: 100%;
+  position: absolute;
+  overflow: scroll;
+}
+
+
+/* Control the left side */
+.left {
+  left: 4%;
+  height: 65%;
+  width: 40%;
+  text-align: left;
+  top: 35%;
+}
+
+/* Control the right sside */
+.right {
+  left: 44%;
+  background-image: url('assets/img/TSHomePage.jpeg');
+  background-repeat: no-repeat;
+  background-size: 1100px 680px;
+  right: 15%;
+  width: 50%;
+}
+
+/* End of Trying */
+
+
 /* Main Styling */
 
 .container {
@@ -257,18 +290,18 @@ header .toggle-menu {
 }
 
 .splash {
-    background-image: url('assets/img/lecture-hall-blur.jpg');
-    background-size: cover;
-    background-repeat: no-repeat;
+    /*background-image: url('assets/img/TSHomePage.jpeg');*/
+    background-size: 1100px 680px;
+    background-repeat: no-repeat; 
     background-position: center;
-    height: 90vh;
-    overflow: hidden;
+    height: 70vh;
+    overflow: visible; /*hidden*/
     position: relative;
 }
 
 .splash .container {
     color: #222;
-    position: relative;
+    position: absolute;
     top: 46%;
     transform: translateY(-50%);
     z-index: 5;
@@ -298,7 +331,7 @@ header .toggle-menu {
     position: absolute;
     top: 75px;
     /*right: 55%;*/
-    left: 53%;
+    left: 57%;
     width: 650px;
     height: 570px;
 }
@@ -655,7 +688,7 @@ blockquote p {
 
 /* Media Queries */
 
-@media (max-width: 808px) {
+@media (max-width: 600px) {
     header,
     footer {
         padding: 0 10px;
