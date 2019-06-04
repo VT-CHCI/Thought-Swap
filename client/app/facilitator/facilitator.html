@@ -5,6 +5,17 @@
       <button class="btn sml blue" ng-click="distribute()">Distribute</button>
       <button class="btn sml blue" ng-click="newSession()">New Session</button>
       <button class="btn sml blue" ng-click="openPromptInput()">New Prompt</button>
+
+
+      <!--added for agree/disagree-->
+      <div>
+      <label for="agreed"> Agreed</label>
+      <code><span id="numAgreed">{{agreedThoughts}}</span></code>
+      <label for="disagreed"> Disagreed</label>
+      <code><span id="numDisagreed">{{disagreedThoughts}}</span></code>
+    </div>
+      <!--end of added for agree/disagree-->
+
       <!--<button class="btn sml blue" ng-click="testThoughts()">Generate Thoughts</button> -->
       <br>
       <form class="form-horizontal" id="status">

@@ -686,8 +686,6 @@ blockquote p {
 }
 
 
-/* Media Queries */
-
 @media (max-width: 600px) {
     header,
     footer {

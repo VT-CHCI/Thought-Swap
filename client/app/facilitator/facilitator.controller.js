@@ -14,6 +14,9 @@
         toastr, $animate, Logger) {
 
         (function initController() {
+            $scope.agreedThoughts=0;
+            $scope.disagreedThoughts=0;
+            $scope.disributedThoughts = [];
             $scope.participantThoughts = [];
             $scope.prompt = {};
             $scope.numSubmitters = 0;
@@ -101,6 +104,33 @@
             toastr.success('', 'New Prompt Created');
         });
 
+        /*Agree
+          ThoughtSocket.on('distributed-thought', function (thought) {
+            $scope.thoughts = thought;
+            if(thoughts.hasOwnProperty('agrees') && thoughts.agrees !== null) {
+                $scope.agreedThoughts++;
+            }
+            else if(!thoughts.hasOwnProperty('agrees') && thoughts.agrees !== null){
+               $scope.disagreedThoughts++;
+           }
+
+        });*/
+
+            ThoughtSocket.on('distributed-thought', function (thought) {
+            $scope.distributedThoughts.push(thought);
+            var numDistributedThoughts = [];
+            $scope.distributedThoughts.forEach(function (tht) {
+                if(numDistributedThoughts.hasOwnProperty('agrees') && numDistributedThoughts.agrees !== null) {
+                $scope.agreedThoughts++;
+            }
+            else if(!thoughts.hasOwnProperty('agrees') && thoughts.agrees !== null){
+               $scope.disagreedThoughts++;
+           }
+        });
+        });
+
+        //End
+
         // ThoughtSocket.on('participant-join', function () {
         //     console.log('participant-join');
         //     $scope.numConnected++;
@@ -177,16 +207,16 @@
             console.log(participantThought);
             participantThought.localIdx = $scope.participantThoughts.length;
             $scope.participantThoughts.push(participantThought);
-
             var submitters = [];
             $scope.participantThoughts.forEach(function (thought) {
                 if (submitters.indexOf(thought.userId) < 0) {
                     submitters.push(thought.userId);
                 }
             });
-
             $scope.numSubmitters = submitters.length;
         });
+
+
 
         ThoughtSocket.on('group-chosen', function (info) {
             console.log('group-chosen', info);
@@ -234,6 +264,7 @@
             }
         };
 
+
         $scope.distribute = function () {
             ThoughtSocket.emit('distribute', {
                 groupId: $routeParams.groupId,
@@ -271,7 +302,7 @@
 
         $scope.displayThought = function (thought) {
             return thought.content;
-        };
+        };  
 
     } // End FacilitatorController
 

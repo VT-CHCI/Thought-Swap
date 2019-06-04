@@ -13,6 +13,8 @@
         UserService, $rootScope, toastr, Logger) {
 
         (function initController() {
+            $rootScope.agreedThoughts = 0;
+            $rootScope.disagreedThoughts = 0;
             $scope.htmlThought = ''; // Only needed so that text-angular doesn't complain
             $scope.htmlThoughts = [];
             $scope.distributedThought = '';
@@ -152,10 +154,16 @@
         });
 
         $scope.changedAgree = function (v) { 
-            ThoughtSocket.emit('agree', $scope.distributedThought)
+            //agreedThoughts for total number of agreements
+             $rootScope.agreedThoughts++;
+             ThoughtSocket.emit('agree', $scope.distributedThought);
+             document.getElementById("agree-disagree").style.display = 'none';
         }   
         $scope.changedDisagree = function (v) { 
-            ThoughtSocket.emit('disagree', $scope.distributedThought)
+            //disagreedThoughts for total number of disagreements
+            $rootScope.disagreedThoughts++;
+            ThoughtSocket.emit('disagree', $scope.distributedThought);
+            document.getElementById("agree-disagree").style.display = 'none';
         }   
 
     }
