@@ -38,13 +38,17 @@
             $scope.groupSelection = {
                 selectedGroupId: ''
             };
+
+
             $scope.status = {
                 historyIsOpen: false
             };
+          
 
             $scope.togglePrev = function () {
                 $scope.status.historyIsOpen = !$scope.status.historyIsOpen;
             }
+
             $scope.styleFor = function (item) {
                 var itemStyle = {
                     "background-color": item.color,
@@ -150,19 +154,22 @@
             }
             $scope.distributedThought = thought;
             $scope.viewingDistribution = true;
+            $scope.shouldAgree = thought.shouldAgree;
             // $scope.topic = prompt.content;
         });
 
         $scope.changedAgree = function (v) { 
             //agreedThoughts for total number of agreements
-             $rootScope.agreedThoughts++;
-             ThoughtSocket.emit('agree', $scope.distributedThought);
+            // $rootScope.agreedThoughts++;
+             console.log("changedAgree");
+             ThoughtSocket.emit('agree', {groupId:UserService.user.groupId,...$scope.distributedThought});
              document.getElementById("agree-disagree").style.display = 'none';
         }   
         $scope.changedDisagree = function (v) { 
             //disagreedThoughts for total number of disagreements
-            $rootScope.disagreedThoughts++;
-            ThoughtSocket.emit('disagree', $scope.distributedThought);
+            //$rootScope.disagreedThoughts++;
+            console.log("changedDisagree");
+            ThoughtSocket.emit('disagree', {groupId:UserService.user.groupId,...$scope.distributedThought});
             document.getElementById("agree-disagree").style.display = 'none';
         }   
 

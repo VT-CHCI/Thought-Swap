@@ -323,8 +323,8 @@ function updateGroupSession(g, i) {
   });
 }
 
-function createFacilitator(e, u, p) {
-  // console.log('createFacilitator', e, u, p)
+function createFacilitator(e, u, p, c) {
+  // console.log('createFacilitator', e, u, p, c)
   return models.User.findOne({
       where: {
         username: u
@@ -338,10 +338,13 @@ function createFacilitator(e, u, p) {
         email: e,
         username: u,
         password: bcrypt.hashSync(p),
-        role: 'facilitator'
+        role: 'facilitator',
+        //for authorization
+        autoCode: c
       });
     });
 }
+
 
 function createGroup(n, i) {
   // console.log('createGroup', n, i)
@@ -423,6 +426,16 @@ function createDemoUser(userName,groupId) {
   })
 }
 
+//for Main Admin
+function createMainAdmin(e, u, p, c) {
+  // console.log('createFacilitator', e, u, p, c)
+      return models.User.create({
+        username: u,
+        password: bcrypt.hashSync(p),
+        role: 'mainAdmin'
+      })
+}
+
 function createSocket(info) {
   // console.log('createSocket', info)
   return models.Socket.create({
@@ -491,7 +504,10 @@ function createDistribution(data) {
   return models.Distribution.create({
     userId: data.recipient,
     groupId: data.group,
-    thoughtId: data.thought
+    thoughtId: data.thought,
+    
+    //for with/without distribution
+    shouldAgree: data.shouldAgree
   });
 }
 
@@ -568,6 +584,22 @@ app.post('/signin', function (request, response) {
                 });
               }
             }
+            //For main Admin
+            if (user.role === 'mainAdmin') {
+              if (request.body.user.username === user.username) {
+                bcrypt.compare(request.body.user.password, user.password, function (err, res) {
+                  if (res === true) {
+                    response.status(200).json({
+                      user: user
+                    });
+                  } else {
+                    // If you get this far, user is not null, so password is wrong
+                    response.status(401).send('Invalid password.');
+                  }
+                });
+              }
+            }
+
             if (user.role === 'participant') {
               if (request.body.user.username === user.username) {
                 response.status(200).json({
@@ -591,7 +623,8 @@ app.post('/signup', function (request, response) {
   } else {
     createFacilitator(request.body.user.email,
         request.body.user.username,
-        request.body.user.password)
+        request.body.user.password,
+        request.body.user.authoCode)
       .then(function (user) {
         if (user) {
           response.status(201).json({
@@ -725,26 +758,36 @@ io.on('connection', function (socket) {
       })
       .then(function (session) {
         console.log('active session in fac-join');
-        console.log(session);
+        // console.log(session);
         return findCurrentPromptForGroup(session.get('id'))
           .then(function (defaultPrompt) {
-            console.log(defaultPrompt);
+           // console.log(defaultPrompt); //default prompt refers to the current prompt
             getGroupColors()
               .then(function (colors) {
                 socket.emit('group-colors', colors);
               });
+            return Promise.all(defaultPrompt.thoughts.map(function(thought){ 
+              return models.Distribution.findAll({where:{thoughtId:thought.id}})
+            }))
+            .then(function(distributions){
+             // console.log("nestedDistributions", distributions);
+            // console.log("nestedDistributions",distributions.flat());
+              console.log("nestedDistributions",distributions.flat(2));
+              var flattenedDistributions = distributions.flat(2);
+              console.log("flattenedDistributions", flattenedDistributions);
+              var room = 'discussion-' + data.groupId;
+              var message = 'sessionsyncres';
+              var messageData = {
+                sessionId: session.get('id'),
+                prompt: defaultPrompt,
+                distributions: flattenedDistributions
+              };
+              console.log('about to io.emit', room, message, messageData);
 
-            var room = 'discussion-' + data.groupId;
-            var message = 'sessionsyncres';
-            var messageData = {
-              sessionId: session.get('id'),
-              prompt: defaultPrompt
-            };
-
-            console.log('about to io.emit', room, message, messageData);
-
-            // why shouldn't this only talk to the socket that has just joined?
-            io.to(room).emit(message, messageData);
+              // why shouldn't this only talk to the socket that has just joined?
+              io.to(room).emit(message, messageData);
+            })
+            
           });
 
         // maybe need to bring this back eventually, but right now the 
@@ -946,7 +989,8 @@ io.on('connection', function (socket) {
           createDistribution({
               recipient: presenterSocketIdx,
               thought: thoughtAuthorForSending.get('id'),
-              group: thoughtAuthorForSending.get('user').get('groupId')
+              group: thoughtAuthorForSending.get('user').get('groupId'),
+              shouldAgree: data.shouldAgree
             })
             .then(function (newDistribution) {
               // console.log('created distribution')
@@ -957,7 +1001,8 @@ io.on('connection', function (socket) {
                 io.sockets.connected[socketIdOfReceipient].emit('distributed-thought', {
                   id: thoughtAuthorForSending.get('id'),
                   content: thoughtContent,
-                  distId: newDistribution.get('id')
+                  distId: newDistribution.get('id'),
+                  shouldAgree: data.shouldAgree
                 });
               }
             });
@@ -1050,7 +1095,8 @@ io.on('connection', function (socket) {
                             return createDistribution({
                                 recipient: data.userId,
                                 thought: unusedThoughtIds[0].id,
-                                group: data.groupId
+                                group: data.groupId,
+                                shouldAgree: data.shouldAgree
                               })
                               .then(function (newDistribution) {
                                 console.log('created distribution');
@@ -1075,7 +1121,8 @@ io.on('connection', function (socket) {
                               return createDistribution({
                                   recipient: data.userId,
                                   thought: thoughtToDist.id,
-                                  group: data.groupId
+                                  group: data.groupId,
+                                  shouldAgree: data.shouldAgree
                                 })
                                 .then(function (newDistribution) {
                                   console.log('created distribution');
@@ -1193,17 +1240,21 @@ io.on('connection', function (socket) {
   function setAgreement(id, agrees) {
     return models.Distribution.findById(id)
       .then(function (dist) {
-        dist.setAgreement(agrees);
+        return dist.setAgreement(agrees);
       });
   }
 
   socket.on('agree', function (distributedThought) {
-    console.log(distributedThought);
+    console.log("agree",distributedThought);
     setAgreement(distributedThought.distId, true);
+      socket.broadcast.to('facilitator-' + distributedThought.groupId)
+          .emit('newAgree', {});
   });
 
   socket.on('disagree', function (distributedThought) {
-    console.log(distributedThought);
+    console.log("disagree",distributedThought);
     setAgreement(distributedThought.distId, false);
+    socket.broadcast.to('facilitator-' + distributedThought.groupId)
+          .emit('newDisagree', {});
   });
 });

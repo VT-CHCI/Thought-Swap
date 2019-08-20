@@ -2,12 +2,23 @@
 <section>
   <div class="container controls">
     <div class="well well-lg text-center" id="controlBar">
-      <button class="btn sml blue" ng-click="distribute()">Distribute</button>
+
+      <!--added for agree/disagree option dropdown-->
+      <div class="dropdown">
+      <button class="dropbtn btn sml blue" ng-click = distributeOption()>Distribute</button>
+        <div id="distributeOpt" class="dropdown-content">
+          <button class="btn sml blue" ng-click="distribute()">With Agree/Disgree</button>
+          <button class="btn sml blue" ng-click="distributeWithout()">Without Agree/Disgree</button>
+        </div>
+      </div>
+
+      <!--Distribute
+      <button class="btn sml blue" ng-click="distribute()">Distribute</button> -->
       <button class="btn sml blue" ng-click="newSession()">New Session</button>
       <button class="btn sml blue" ng-click="openPromptInput()">New Prompt</button>
 
 
-      <!--added for agree/disagree-->
+      <!--added for num of agree/disagree-->
       <div>
       <label for="agreed"> Agreed</label>
       <code><span id="numAgreed">{{agreedThoughts}}</span></code>

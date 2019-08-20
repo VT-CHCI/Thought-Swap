@@ -115,19 +115,26 @@
            }
 
         });*/
+            ThoughtSocket.on('newAgree', function () {
+                $scope.agreedThoughts++;
+            });
+
+            ThoughtSocket.on('newDisagree', function () {
+                $scope.disagreedThoughts++;
+            });
 
             ThoughtSocket.on('distributed-thought', function (thought) {
             $scope.distributedThoughts.push(thought);
-            var numDistributedThoughts = [];
             $scope.distributedThoughts.forEach(function (tht) {
-                if(numDistributedThoughts.hasOwnProperty('agrees') && numDistributedThoughts.agrees !== null) {
+                if(tht.hasOwnProperty('agrees') && tht.agrees !== null) {
                 $scope.agreedThoughts++;
             }
-            else if(!thoughts.hasOwnProperty('agrees') && thoughts.agrees !== null){
+            else if(!tht.hasOwnProperty('agrees') && tht.agrees !== null){
                $scope.disagreedThoughts++;
            }
         });
         });
+          
 
         //End
 
@@ -152,6 +159,26 @@
                     data.prompt.hasOwnProperty('thoughts') && data.prompt.thoughts &&
                     Array.isArray(data.prompt.thoughts)) {
                     $scope.participantThoughts = data.prompt.thoughts;
+
+                    // Added to sync number of submitters even after refreshing the screen
+                    participantThought.localIdx = $scope.participantThoughts.length;
+                    $scope.participantThoughts.push(participantThought);
+                    var submitters = [];
+                    $scope.participantThoughts.forEach(function (thought) {
+                        if (submitters.indexOf(thought.userId) < 0) {
+                            submitters.push(thought.userId);
+                        }
+                    });
+                    $scope.numSubmitters = submitters.length;
+
+                    //Added to sync agree/disagree numbers even after refreshing the screen
+                    for(var i = 0; data.distributions.length; i++)
+                    {
+                        if (data.distributions[i].agrees === true)
+                            $scope.agreedThoughts++;
+                        else
+                            $scope.disagreedThoughts++;
+                    }
                 }
             }
             // $scope.numThoughts = data.prompt.thoughts.length();
@@ -162,6 +189,8 @@
             $scope.participantThoughts = [];
             //$scope.numThoughts = 0;
             $scope.numSubmitters = 0;
+            $scope.agreedThoughts = 0;
+            $scope.disagreedThoughts = 0;
             ThoughtSocket.emit('session-sync-req', {
                 userId: UserService.user.id,
                 groupId: $routeParams.groupId,
@@ -264,12 +293,19 @@
             }
         };
 
+        //added for agree-disgree option
+        $scope.distributeOption = function () {
+            document.getElementById("distributeOpt").style.visibility = "visible";
+            document.getElementById("distributeOpt").classList.toggle("show");
+        };
 
+        //added for distribute with agree-disgree option
         $scope.distribute = function () {
-            ThoughtSocket.emit('distribute', {
+                ThoughtSocket.emit('distribute', {
                 groupId: $routeParams.groupId,
                 promptId: $scope.prompt.id,
-                sessionId: $scope.sessionId
+                sessionId: $scope.sessionId,
+                shouldAgree: true
             });
             Logger.createEvent({
                 data: 'distributing thoughts for groupId: ' +
@@ -277,7 +313,27 @@
                 type: 'distribution'
             });
             toastr.success('', 'Thoughts Distributed!');
+            document.getElementById("distributeOpt").style.visibility = "hidden";
+               
         };
+
+        //added for distribute without agree-disgree option
+        $scope.distributeWithout = function () {
+            ThoughtSocket.emit('distribute', {
+                groupId: $routeParams.groupId,
+                promptId: $scope.prompt.id,
+                sessionId: $scope.sessionId,
+                shouldAgree: false
+            });
+            Logger.createEvent({
+                data: 'distributing thoughts for groupId: ' +
+                    $routeParams.groupId + ', promptId: ' + $scope.prompt.id,
+                type: 'distribution'
+            });
+            toastr.success('', 'Thoughts Distributed!');
+            document.getElementById("distributeOpt").style.visibility = "hidden";
+        };
+        //end of added for distribute without agree-disgree option
 
         $scope.updateLocalIdx = function () {
             $scope.participantThoughts.forEach(function (thought, newIdx) {

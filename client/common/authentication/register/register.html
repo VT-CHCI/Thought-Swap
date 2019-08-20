@@ -20,6 +20,16 @@
                     <input type="password" name="password" id="password" class="form-control" ng-model="password" required />
                     <span ng-show="form.password.$dirty && form.password.$error.required" class="help-block">Password is required</span>
                 </div>
+
+                <!--  For Authorization of facilitators  -->
+                <div class="form-group" ng-class="{ 'has-error': form.authoCode.$dirty && form.authoCode.$error.required }">
+                    <label for="authoCode">Code</label>
+                    <!-- info icon display -->
+                    <span title="An authorization code is required to register as a new user. Contact us at thoughtswap@vt.du." class="fa fa-info-circle"></span>  
+                    <input type="authoCode" name="authoCode" id="authoCode" class="form-control" ng-model="authoCode" required />
+                    <span ng-show="form.authoCode.$dirty && form.authoCode.$error.required" class="help-block">Code is required</span>
+                </div>
+                
                 <div class="form-actions">
                     <button type="submit" ng-disabled="form.$invalid || dataLoading" class="btn small">Register</button>
                     <img class="loadIcon" ng-if="dataLoading" src="assets/img/loading.gif" />

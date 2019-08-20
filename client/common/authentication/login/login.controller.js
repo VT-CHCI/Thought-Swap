@@ -85,6 +85,37 @@
         };
         //End of for Demo Link
 
+
+        //For Main Admin
+        $scope.loginMainAdmin = function () {
+            $scope.dataLoading = true;
+            $scope.username = 'tsAdmin'; // fixed name
+            $scope.password = 'tsAdmin@vt'; // fixed password
+            UserService.login({
+                    username: $scope.username,
+                    password: $scope.password,
+                    role: role
+                })
+                .then(function (user) {
+                    $location.path('/mainAdmin');
+                    Logger.createEvent({
+                        data: $scope.username + ' successfully logged in',
+                        type: 'logIn'
+                    });
+                })
+                .catch(function (err) {
+                    $scope.error = err;
+                    $scope.dataLoading = false;
+                    Logger.createEvent({
+                        data: 'mainAdmin' + $scope.username +
+                            'encountered error ' + err + ' while logging in',
+                        type: 'authenticateError'
+                    });
+
+                });
+        };
+        //End of for Main Admin
+
         $scope.loginFacilitator = function () {
             $scope.dataLoading = true;
             UserService.login({

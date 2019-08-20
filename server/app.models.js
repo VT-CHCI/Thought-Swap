@@ -27,7 +27,8 @@ var User = sequelize.define('user', {
   role: Sequelize.ENUM(
     'facilitator',
     'participant',
-    'demo'
+    'demo',
+    'mainAdmin'
   )
 })
 
@@ -202,6 +203,7 @@ exports.start = function () {
           email: 'test@thought-swap.com',
           password: bcrypt.hashSync('test'),
           role: 'facilitator',
+          authoCode: '2019',
           groupId: null
         }
       })

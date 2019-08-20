@@ -34,6 +34,17 @@
 							});
 					};
 
+					
+
+					scope.hideUsername = function () { 
+						scope.isNameHidden =true;
+					};
+
+					scope.showUsername = function () { 
+						scope.isNameHidden =false;
+					};
+
+
 					scope.shouldOfferLogin = function () {
 						var path = $location.path();
 						return !UserService.isLoggedIn() && 

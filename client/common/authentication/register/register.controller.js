@@ -24,7 +24,9 @@
             UserService.register({
                     email: $scope.email,
                     username: $scope.username,
-                    password: $scope.password
+                    password: $scope.password,
+                    //for athorization code
+                    authoCode: $scope.authoCode
                 })
                 .then(function () {
                     $location.path('/facilitator/mgmt');

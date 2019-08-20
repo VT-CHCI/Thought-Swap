@@ -33,6 +33,22 @@
 					.error(function (data, status) {
 						deferred.reject(data);
 					});
+
+            } else if (options.role === 'mainAdmin') { // added for main admin
+				$http.post('/signin', {
+						user: {
+							username: options.username, 
+							password: options.password
+						}
+					})
+					.success(function (data) {
+						this.auth(data, deferred);
+					}.bind(this))
+
+					.error(function (data, status) {
+						deferred.reject(data);
+					});
+
 			} else if (options.role === 'demo') { // added for demo
 				$http.post('/signin', {
 						user: {
@@ -90,6 +106,9 @@
 		this.isDemo = function () {
 			return this.isLoggedIn() && this.user && this.user.role === 'demo';
 		};
+		this.isMainAdmin = function () {
+			return this.isLoggedIn() && this.user && this.user.role === 'mainAdmin';
+		};
 
 		this.register = function (options) {
 			var deferred = $q.defer();
@@ -98,7 +117,9 @@
 					user: {
 						email: options.email,
 						username: options.username,
-						password: options.password
+						password: options.password,
+						//for authorization
+						authoCode: options.authoCode
 					}
 				})
 				.success(function (data) {

@@ -19,9 +19,14 @@
                 
                 <!-- end ofAdded a Demo link -->
 
+                <!-- Added a main Admin link -->
+                <li ng-if="shouldOfferLogin()"><a class="btn sml blue auth" href="/login/mainAdmin">Admin</a></li>
+
                 <li ng-show="userService.isLoggedIn()" class="user-control">
-                    <div class="btn sml blue auth user-badge">
-                        <i class="fa fa-user"></i> {{userService.user.username}}
+                    <div id = "hideName" class="btn sml blue auth user-badge">
+                        <i class="fa fa-user"></i> 
+                        <span ng-show="isNameHidden">*************</span>
+                        <span ng-show="!isNameHidden"> {{userService.user.username}}</span>
                     </div>
                     <button type="button" class="btn sml blue auth" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <span class="caret"></span>
@@ -35,6 +40,9 @@
                                 <i class= "fa fa-sign-out"></i>
                                 <i class="loadIcon" ng-if="dataLoading" src="assets/img/loading.gif"></i>
                             </a>
+                            <!-- Option to hide Username -->
+                            <a href="" ng-click="hideUsername()" ng-show="!isNameHidden"> Hide Username </a>
+                            <a href="" ng-click="showUsername()" ng-show="isNameHidden"> Show Username </a>
                         </li>
                     </ul>
                 </li>

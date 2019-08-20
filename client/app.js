@@ -55,6 +55,15 @@
             }
         };
 
+        /* Added for Main Admin */
+         var isMainAdmin = {
+            isMainAdmin: function (UserService, $location) {
+                if (!UserService.isMainAdmin()) {
+                    $location.url('/mainAdmin');
+                }
+            }
+        };
+
         /*Added for Demo Link
         var isDemo = {
             isDemo: function (UserService, $location) {
@@ -124,6 +133,17 @@
             }) 
            // End of added for Demo Link 
 
+           //Added for Main Admin
+           .when('/login/mainAdmin', {
+                templateUrl: 'common/authentication/login/login.html',
+                controller: 'LoginController',
+                resolve: {
+                    role: function() {
+                        return 'mainAdmin';
+                    }
+                }
+            })
+
             .when('/login/facilitator', {
                 templateUrl: 'common/authentication/login/login.html',
                 controller: 'LoginController',
@@ -184,6 +204,8 @@
             // $cookies.putObject('ts-noticed-unload', {something:true});
             ThoughtSocket.emit('facilitator-leave', $cookies.getObject('TS-sid').id);
             ThoughtSocket.emit('participant-leave', $cookies.getObject('TS-sid').id);
+            //for main admin
+            ThoughtSocket.emit('mainAdmin-leave', $cookies.getObject('TS-sid').id);
         };
 
         ThoughtSocket.on('socket-id', function (socketId) {
@@ -198,7 +220,7 @@
                 console.log('$locationChangeStart changed!', new Date());
                 ThoughtSocket.emit('facilitator-leave', $cookies.getObject('TS-sid').id);
                 ThoughtSocket.emit('participant-leave', $cookies.getObject('TS-sid').id);
-
+                ThoughtSocket.emit('mainAdmin-leave', $cookies.getObject('TS-sid').id);
             }
         });
         $rootScope.$on('$routeChangeStart', function () {
@@ -211,6 +233,7 @@
                 console.log('$routeChangeStart changed!', new Date());
                 ThoughtSocket.emit('facilitator-leave', $cookies.getObject('TS-sid').id);
                 ThoughtSocket.emit('participant-leave', $cookies.getObject('TS-sid').id);
+                ThoughtSocket.emit('mainAdmin-leave', $cookies.getObject('TS-sid').id);
             }
         });
     }
