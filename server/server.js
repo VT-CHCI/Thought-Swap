@@ -3,9 +3,11 @@
 // Third-Party Dependencies
 var express = require('express');
 var app = express();
-var http = require('http').Server(app);
+//var io = require('socket.io')(http);
+var http = require('http');
+//var httpServer = http.createServer(app);
 var Promise = require('bluebird'); // jshint ignore:line
-var io = require('socket.io')(http);
+//var io = require('socket.io')(http);
 // var mysql = require('mysql'); // jshint ignore:line
 var bodyParser = require('body-parser');
 var findMatching = require('bipartite-matching');
@@ -15,9 +17,50 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: true
 }));
+// Enable reverse proxy support in Express. This causes the
+// the "X-Forwarded-Proto" header field to be trusted so its
+// value can be used to determine the protocol. See 
+// http://expressjs.com/api#app-settings for more details.
+app.enable('trust proxy');
+
+app.use (function (req, res, next) {
+        if (req.secure) {
+                // request was via https, so do no special handling
+    console.log('request was via https, so do no special handling');
+                next();
+        } else {
+                // request was via http, so redirect to https
+    console.log('request was via http, so redirect to https');
+                res.redirect('https://' + req.headers.host + req.url);
+        }
+});
 // Self Dependencies
 var models = require('./app.models');
 
+/***************************************/
+// Get the HTTPS keys and certificates
+const fs = require('fs');
+const privateKey = fs.readFileSync('/etc/letsencrypt/live/thoughtswap.cs.vt.edu/privkey.pem', 'utf8');
+const certificate = fs.readFileSync('/etc/letsencrypt/live/thoughtswap.cs.vt.edu/cert.pem', 'utf8');
+const ca = fs.readFileSync('/etc/letsencrypt/live/thoughtswap.cs.vt.edu/chain.pem', 'utf8');
+
+const credentials = {
+  key: privateKey,
+  cert: certificate,
+  ca: ca
+};
+
+const httpServer = http.createServer(app);
+
+// Create HTTPS server
+const https = require('https');
+//var io = require('socket.io')(https);
+const httpsServer = https.createServer(credentials, app);
+var io = require('socket.io')(httpsServer);
+//httpsServer.listen(443, () => {
+       // console.log('HTTPS Server running on port 443');
+//});
+/***************************************/
 // ============================================================================
 // Helper Functions
 
@@ -529,17 +572,51 @@ app.use('/participant/', express.static(__dirname + '/../client/index.html'));
 app.use(express.static(__dirname + '/../client'));
 app.use('/node_modules', express.static(__dirname + '/../node_modules'));
 
+// For Let's Encrypt, allow dot files
+app.use(express.static(__dirname + '/../client', { dotfiles: 'allow' } ))
+
 var PORT = process.env.PORT || 9000;
 
 models.start()
   .then(function () {
-    http.listen(PORT, function () {
+    //http.listen(PORT, function () {
+      //console.log('listening on *:', PORT);
+    //});
+//http.get('*', function(req, res) {  
+  //  res.redirect('https://' + req.headers.host + req.url);
+
+    // Or, if you don't want to automatically detect the domain name from the request header, you can hard code it:
+    // res.redirect('https://example.com' + req.url);
+//})
+httpServer.listen(PORT, function () {
       console.log('listening on *:', PORT);
+});
+httpsServer.listen(443, () => {
+        console.log('HTTPS Server running on port 443');
+});
+
+
+  })
+  .catch(function (err) {
+    console.error(err);
+  });
+
+// Was trying to make https work
+/*
+models.start(credentials)
+  .then(function () {
+    https.listen(443, function () {
+      console.log('listening on *:', 443);
     });
   })
   .catch(function (err) {
     console.error(err);
   });
+*/
+//const httpsServer = https.createServer(credentials, app);
+//httpsServer.listen(443, () => {
+       // console.log('HTTPS Server running on port 443');
+//})
 
 // =============================================================================
 // Routes for non-instant server communications
@@ -853,7 +930,8 @@ io.on('connection', function (socket) {
    * @param: INT groupId - The db id of the group whose session needs distribution
    */
   socket.on('distribute', function (data) {
-    // TODO:
+    // TODO: 
+    //socket.emit('sendShouldAgree', data);
     return Promise.all([
         models.Session.findById(data.sessionId)
           .then(function (session) {
@@ -861,7 +939,7 @@ io.on('connection', function (socket) {
             return session.save();
           }),
         findAllActiveSockets(data.groupId),
-        findThoughts(data.promptId)
+        findThoughts(data.promptId),
       ])
       .then(function (results) {
         // console.log('promise.all in distribute')
@@ -882,7 +960,6 @@ io.on('connection', function (socket) {
 
         // console.log('thoughts')
         // console.log(thoughts)
-
         var thoughtsLength = thoughts.length;
 
         // find how many active users didn't submit thoughts, and then pad the 
@@ -914,6 +991,7 @@ io.on('connection', function (socket) {
           presenters.push(connectedSocket.get('userId'));
           socketsByUId[connectedSocket.get('userId')] = connectedSocket;
         });
+
 
         // console.log(presenters, thoughtsAuthors)
         // via http://stackoverflow.com/a/6274381/3850442
@@ -1073,7 +1151,8 @@ io.on('connection', function (socket) {
                           id: dist.thoughtId,
                           content: dist.thought.content,
                           distId: dist.id,
-                          agrees: dist.agrees
+                          agrees: dist.agrees,
+                          shouldAgree: dist.shouldAgree  // for without agree-disgree option
                         });
                       } else {
                         // if it's not found, create one!
@@ -1102,6 +1181,8 @@ io.on('connection', function (socket) {
                                 console.log('created distribution');
                                 console.log(newDistribution.get('id'));
                                 socket.emit('distributed-thought', {
+                                  agrees: newDistribution.get('agrees'),
+                                  shouldAgree: data.shouldAgree,
                                   id: unusedThoughtIds[0].id,
                                   content: unusedThoughtIds[0].content,
                                   distId: newDistribution.get('id')
@@ -1130,7 +1211,9 @@ io.on('connection', function (socket) {
                                   socket.emit('distributed-thought', {
                                     id: thoughtToDist.id,
                                     content: thoughtToDist.content,
-                                    distId: newDistribution.get('id')
+                                    distId: newDistribution.get('id'),
+                                    agrees: newDistribution.get('agrees'),
+                                    shouldAgree: data.shouldAgree
                                   });
                                 });
                             });

@@ -143,6 +143,7 @@
             // $scope.topic = prompt.content;
         });
 
+
         ThoughtSocket.on('distributed-thought', function (thought) {
             toastr.info('', 'Received Thought!');
             console.log('got thought:', thought);
@@ -152,9 +153,19 @@
                    $scope.doesAgree = thought.agrees; 
                 });
             }
+            if (thought.hasOwnProperty('shouldAgree') && thought.shouldAgree !== null) {
+                console.log('1 checking the option shouldAgree', thought.shouldAgree);
+                $scope.$apply(function () {
+                    console.log('2 checking the option shouldAgree', thought.shouldAgree);
+                   $scope.shouldAgree = thought.shouldAgree; 
+                });
+            }
+            else { 
+                console.log('3 checking the option shouldAgree', thought.shouldAgree);
+            }
+
             $scope.distributedThought = thought;
             $scope.viewingDistribution = true;
-            $scope.shouldAgree = thought.shouldAgree;
             // $scope.topic = prompt.content;
         });
 

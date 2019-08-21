@@ -14,6 +14,7 @@
         toastr, $animate, Logger) {
 
         (function initController() {
+            $rootScope.shouldAgree = false; //for With or Without AgreeDisagree
             $scope.agreedThoughts=0;
             $scope.disagreedThoughts=0;
             $scope.disributedThoughts = [];

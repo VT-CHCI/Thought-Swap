@@ -34,7 +34,7 @@
                 <!-- Start of Agree/Disagree  -->
                 
               <div class="panel-footer"> 
-                     <form *ngIf = "shouldAgree" class="form-inline">
+                     <form ng-if = "shouldAgree" class="form-inline">
                        <div class="form-group">
                             <div id = "agree-disagree"> I <label class="radio-inline">
                                 <input type="radio" ng-model="doesAgree" ng-change="changedAgree()" name="inlineRadioOptions" id="inlineRadio1" ng-value="true"> agree

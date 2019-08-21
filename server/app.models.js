@@ -103,7 +103,8 @@ var Session = sequelize.define('session', {
 })
 
 var Distribution = sequelize.define('distribution', {
-  agrees: Sequelize.BOOLEAN
+  agrees: Sequelize.BOOLEAN,
+  shouldAgree: Sequelize.BOOLEAN
 }, {
   instanceMethods: {
     setAgreement: function (agrees) {
