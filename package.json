@@ -28,7 +28,7 @@
     "mysql2": "^1.6.1",
     "passport": "~0.3.0",
     "passport-local": "~1.0.0",
-    "sequelize": "^4.39.0",
+    "sequelize": "^5.15.1",
     "socket.io": "^2.1.1",
     "socket.io-client": "^2.1.1",
     "textangular": "~1.5.0"
