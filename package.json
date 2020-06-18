@@ -9,7 +9,7 @@
     "url": "https://github.com/VT-CHCI/Thought-Swap.git"
   },
   "dependencies": {
-    "angular": "~1.4.0",
+    "angular": "~1.8.0",
     "angular-auto-focus": "~1.0.0",
     "angular-cookies": "~1.4.0",
     "angular-drag-and-drop-lists": "~2.1.0",
