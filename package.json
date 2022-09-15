@@ -21,7 +21,7 @@
     "bipartite-matching": "~1.0.0",
     "bluebird": "^2.9.32",
     "body-parser": "^1.18.3",
-    "bootstrap": "^3.3.5",
+    "bootstrap": "^3.4.1",
     "express": "^4.16.3",
     "font-awesome": "^4.7.0",
     "jquery": "~3.0.0",
