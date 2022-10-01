@@ -40,11 +40,14 @@
     </div>
   </div>
   
+
   <div class="container promptDisplay">
     <blockquote>
-      <p>{{prompt.content}}</p>
+      <div ng-bind-html="prompt.content"></div>
+      <!-- <p>{{prompt.content}}</p>. -->
     </blockquote>
   </div>
+
 
   <div class="panel panel-default" id="thoughtFeed">
     <div class="panel-body grid-container">

@@ -2,9 +2,19 @@
   <form name="form" ng-submit="submit()" role="form" novalidate>
     <div class="form-group">
       <label for="prompt">New Prompt</label>
-      <textarea rows="3" name="prompt" id="prompt" class="form-control" 
-        ng-model="newPromptContent" required auto-focus> </textarea>
-    </div>
+  
+	<!-- For rich text -->
+      	    <div focus-contenteditable text-angular ng-model="newPromptContent" name="prompt" id="prompt" ta-focussed-class="focussed"
+                ta-toolbar=" [['p'],
+                        ['bold','italics','underline','ul','ol'],
+                        ['insertImage','insertLink']]">
+                <!-- 'pre' (code) functionality in first block? -->
+            </div>
+ 	     <input type="hidden" name="prompt" id="prompt" ng-model="newPromptContent" required /> 
+	     <!-- <textarea rows="3" name="prompt" id="prompt" class="form-control" 
+             ng-model="newPromptContent" required auto-focus> </textarea> -->
+    	</div>	
+    <!-- End of rich text -->
 
     <div class="form-actions">
       <button type="submit" ng-disabled="form.$invalid" class="btn sml blue">Submit</button>

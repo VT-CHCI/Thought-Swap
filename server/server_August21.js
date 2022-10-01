@@ -3,10 +3,9 @@
 // Third-Party Dependencies
 var express = require('express');
 var app = express();
-//var http = require('http').Server(app);
-var http = require('http');
+var http = require('http').Server(app);
 var Promise = require('bluebird'); // jshint ignore:line
-//var io = require('socket.io')(http);
+var io = require('socket.io')(http);
 // var mysql = require('mysql'); // jshint ignore:line
 var bodyParser = require('body-parser');
 var findMatching = require('bipartite-matching');
@@ -16,50 +15,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: true
 }));
-// Enable reverse proxy support in Express. This causes the
-// the "X-Forwarded-Proto" header field to be trusted so its
-// value can be used to determine the protocol. See 
-// http://expressjs.com/api#app-settings for more details.
-app.enable('trust proxy');
-
-app.use (function (req, res, next) {
-        if (req.secure) {
-                // request was via https, so do no special handling
-                console.log('request was via https, so do no special handling');
-                next();
-        } else {
-                // request was via http, so redirect to https
-                console.log('request was via http, so redirect to https');
-                res.redirect('https://' + req.headers.host + req.url);
-        }
-});
-
 // Self Dependencies
 var models = require('./app.models');
-
-/***************************************/
-// Get the HTTPS keys and certificates
-const fs = require('fs');
-const privateKey = fs.readFileSync('/etc/letsencrypt/live/thoughtswap.cs.vt.edu/privkey.pem', 'utf8');
-const certificate = fs.readFileSync('/etc/letsencrypt/live/thoughtswap.cs.vt.edu/cert.pem', 'utf8');
-const ca = fs.readFileSync('/etc/letsencrypt/live/thoughtswap.cs.vt.edu/chain.pem', 'utf8');
-
-const credentials = {
-        key: privateKey,
-        cert: certificate,
-        ca: ca
-};
-
-const httpServer = http.createServer(app);
-
-// Create HTTPS server
-const https = require('https');
-//var io = require('socket.io')(https);
-const httpsServer = https.createServer(credentials, app);
-var io = require('socket.io')(httpsServer);
-//httpsServer.listen(443, () => {
-// console.log('HTTPS Server running on port 443');
-//});
 
 // ============================================================================
 // Helper Functions
@@ -572,33 +529,17 @@ app.use('/participant/', express.static(__dirname + '/../client/index.html'));
 app.use(express.static(__dirname + '/../client'));
 app.use('/node_modules', express.static(__dirname + '/../node_modules'));
 
-// For Let's Encrypt, allow dot files
-app.use(express.static(__dirname + '/../client', { dotfiles: 'allow' } ))
-
 var PORT = process.env.PORT || 9000;
 
 models.start()
   .then(function () {
-    //http.listen(PORT, function () {
-      //console.log('listening on *:', PORT);
-    //});
-//http.get('*', function(req, res) {  
-  //  res.redirect('https://' + req.headers.host + req.url);
-
-    // Or, if you don't want to automatically detect the domain name from the request header, you can hard code it:
-    // res.redirect('https://example.com' + req.url);
-//})
-httpServer.listen(PORT, function () {
+    http.listen(PORT, function () {
       console.log('listening on *:', PORT);
-});
-httpsServer.listen(443, () => {
-        console.log('HTTPS Server running on port 443');
-});
-
-  })
-    .catch(function (err) {
-      console.error(err);
     });
+  })
+  .catch(function (err) {
+    console.error(err);
+  });
 
 // =============================================================================
 // Routes for non-instant server communications
@@ -817,12 +758,10 @@ io.on('connection', function (socket) {
       })
       .then(function (session) {
         console.log('active session in fac-join');
-       
-      console.log(session);
+        // console.log(session);
         return findCurrentPromptForGroup(session.get('id'))
           .then(function (defaultPrompt) {
-      
-        console.log(defaultPrompt); //default prompt refers to the current prompt
+           // console.log(defaultPrompt); //default prompt refers to the current prompt
             getGroupColors()
               .then(function (colors) {
                 socket.emit('group-colors', colors);
@@ -831,10 +770,7 @@ io.on('connection', function (socket) {
               return models.Distribution.findAll({where:{thoughtId:thought.id}})
             }))
             .then(function(distributions){
-        
-	console.log(typeof distributions);
-        console.log(Array.isArray(distributions));
-	console.log("nestedDistributions", distributions);
+             // console.log("nestedDistributions", distributions);
             // console.log("nestedDistributions",distributions.flat());
               console.log("nestedDistributions",distributions.flat(2));
               var flattenedDistributions = distributions.flat(2);
@@ -951,12 +887,10 @@ io.on('connection', function (socket) {
 
         // find how many active users didn't submit thoughts, and then pad the 
         // thoughts array with those many copied thoughts
-        if (activeSockets && 'length' in activeSockets && thoughts && 'length' in thoughts) {
-          var numCopies = activeSockets.length - thoughts.length;
-          if (numCopies > 0) {
-            for (var i = 0; i < numCopies; i++) {
-              thoughts.push(thoughts[getRandomInt(0, thoughtsLength)]);
-            }
+        var numCopies = activeSockets.length - thoughts.length;
+        if (numCopies > 0) {
+          for (var i = 0; i < numCopies; i++) {
+            thoughts.push(thoughts[getRandomInt(0, thoughtsLength)]);
           }
         }
         // console.log(results)

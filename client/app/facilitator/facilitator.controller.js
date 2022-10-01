@@ -14,6 +14,7 @@
         toastr, $animate, Logger) {
 
         (function initController() {
+            $rootScope.shouldAgree = false; //for With or Without AgreeDisagree
             $scope.agreedThoughts=0;
             $scope.disagreedThoughts=0;
             $scope.disributedThoughts = [];
@@ -161,8 +162,8 @@
                     $scope.participantThoughts = data.prompt.thoughts;
 
                     // Added to sync number of submitters even after refreshing the screen
-                    participantThought.localIdx = $scope.participantThoughts.length;
-                    $scope.participantThoughts.push(participantThought);
+                    // $scope.participantThoughts.localIdx = $scope.participantThoughts.length;
+                    // $scope.participantThoughts.push($scope.participantThoughts);
                     var submitters = [];
                     $scope.participantThoughts.forEach(function (thought) {
                         if (submitters.indexOf(thought.userId) < 0) {
@@ -171,8 +172,11 @@
                     });
                     $scope.numSubmitters = submitters.length;
 
+                    //TODO check from here Chandani ... jeep
+                    $scope.agreedThoughts = 0;
+                    $scope.disagreedThoughts = 0;
                     //Added to sync agree/disagree numbers even after refreshing the screen
-                    for(var i = 0; data.distributions.length; i++)
+                    for(var i = 0; i < data.distributions.length; i++)
                     {
                         if (data.distributions[i].agrees === true)
                             $scope.agreedThoughts++;

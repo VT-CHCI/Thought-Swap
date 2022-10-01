@@ -6,12 +6,15 @@
             <a href="/login/facilitator?participant"><strong>this might help</strong></a>
         </div>
         <br> -->
-        <div class="container promptDisplay">
-            <blockquote>
-                <p>{{prompt.content}}</p>
-            </blockquote>
-        </div>
-        <form name="form" ng-submit="submitThought()" role="form" ng-show="!viewingDistribution">
+       
+	<div class="container promptDisplay">
+        <blockquote>
+            <div ng-bind-html="prompt.content"></div>
+            <!-- <p>{{prompt.content}}</p>. -->
+        </blockquote>
+        </div> 
+	
+	<form name="form" ng-submit="submitThought()" role="form" ng-show="!viewingDistribution">
             <!-- Rich Text Editor, hidden input ensures it is part of form -->
             <div focus-contenteditable text-angular ng-model="htmlThought" name="thoughtForm" id="thoughtForm" ta-focussed-class="focussed"
                 ta-toolbar=" [['p'],
@@ -34,7 +37,7 @@
                 <!-- Start of Agree/Disagree  -->
                 
               <div class="panel-footer"> 
-                     <form *ngIf = "shouldAgree" class="form-inline">
+                     <form ng-if = "shouldAgree" class="form-inline">
                        <div class="form-group">
                             <div id = "agree-disagree"> I <label class="radio-inline">
                                 <input type="radio" ng-model="doesAgree" ng-change="changedAgree()" name="inlineRadioOptions" id="inlineRadio1" ng-value="true"> agree
